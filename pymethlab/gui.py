@@ -167,8 +167,6 @@ class MethLabWindow:
     self.window.add_accel_group(accel_group)
     self.entSearch.add_accelerator('grab-focus', accel_group, ord('f'), gtk.gdk.CONTROL_MASK, 0)
     self.btnClearSearch.add_accelerator('clicked', accel_group, ord('e'), gtk.gdk.CONTROL_MASK, 0)
-    self.btnSearches.add_accelerator('clicked', accel_group, ord('s'), gtk.gdk.CONTROL_MASK, 0)
-    self.btnArtistsAlbums.add_accelerator('clicked', accel_group, ord('b'), gtk.gdk.CONTROL_MASK, 0)
     self.cbSearchPath.add_accelerator('activate', accel_group, ord('1'), gtk.gdk.MOD1_MASK, 0)
     self.cbSearchArtist.add_accelerator('activate', accel_group, ord('2'), gtk.gdk.MOD1_MASK, 0)
     self.cbSearchAlbum.add_accelerator('activate', accel_group, ord('3'), gtk.gdk.MOD1_MASK, 0)
