@@ -70,6 +70,9 @@ class MethLabWindow:
     # Set up the search options
     self.set_active_search_fields()
 
+    # Create a cell renderer we re-use
+    cell_renderer = gtk.CellRendererText()
+
     # Set up the artists / albums model
     self.artists_albums_model = gtk.TreeStore(str)
     self.artists_albums_model.set_sort_func(0, case_insensitive_cmp)
@@ -79,7 +82,7 @@ class MethLabWindow:
     self.update_artists_albums_model()
 
     # Set up the artists / albums tree view
-    col = gtk.TreeViewColumn("Artist / Album", gtk.CellRendererText(), text = 0)
+    col = gtk.TreeViewColumn("Artist / Album", cell_renderer, text = 0)
     self.tvArtistsAlbums.append_column(col)
     self.tvArtistsAlbums.set_model(self.artists_albums_model)
     self.tvArtistsAlbums.expand_all()
@@ -94,10 +97,14 @@ class MethLabWindow:
     self.update_searches_model()
 
     # Set up the saved searches tree view
-    self.tvSearches.append_column(gtk.TreeViewColumn("Saved search", gtk.CellRendererText(), text = 0))
+    self.tvSearches.append_column(gtk.TreeViewColumn("Saved search", cell_renderer, text = 0))
     self.tvSearches.set_model(self.searches_model)
     self.tvSearches.get_selection().connect('changed', self.on_searches_selection_changed)
     self.tvSearches.connect('button-press-event', self.on_searches_button_press_event)
+
+    # Set up the search history model
+    self.history_model = gtk.ListStore(str)
+    self.cbeSearch.set_model(self.history_model)
 
     # Set up the search results model
     self.results_model = gtk.ListStore(str, str, str, int, str, int, str, str)
@@ -117,7 +124,6 @@ class MethLabWindow:
     self.results_model.set_sort_func(7, case_insensitive_cmp)
 
     # Set up the results tree view
-    cell_renderer = gtk.CellRendererText()
     self.tvResults.append_column(gtk.TreeViewColumn('Artist', cell_renderer, text = 1))
     self.tvResults.append_column(gtk.TreeViewColumn('Album', cell_renderer, text = 2))
     self.tvResults.append_column(gtk.TreeViewColumn('#', cell_renderer, text = 3))
@@ -382,6 +388,8 @@ class MethLabWindow:
     if self.inhibit_search:
       return
 
+    self.unflash_search_entry()
+
     self.results_model.clear()
     query = self.entSearch.get_text()
     if not query:
@@ -398,7 +406,8 @@ class MethLabWindow:
     except QueryTranslatorException:
       self.flash_search_entry()
       return
-    self.unflash_search_entry()
+
+    self.add_to_history(query)
 
     for result in results:
       iter = self.results_model.append()
@@ -460,6 +469,10 @@ class MethLabWindow:
     dialog.show_all()
     self.db.update(yield_func)
     dialog.destroy()
+
+  def add_to_history(self, query):
+    iter = self.history_model.prepend()
+    self.history_model.set_value(iter, 0, query)
 
   def on_expander_expanded(self, expander, param_spec):
     if expander.get_expanded():
