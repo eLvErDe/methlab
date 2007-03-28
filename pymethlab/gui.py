@@ -1,19 +1,21 @@
 #  methlab - A music library application
 #  Copyright (C) 2007 Ingmar K. Steen (iksteen@gmail.com)
 #
-#  This program is free software; you can redistribute it and/or modify
-#  it under the terms of the GNU General Public License as published by
-#  the Free Software Foundation; either version 2 of the License, or
-#  (at your option) any later version.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+LICENSE = '''
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+'''
 
 import os
 import gobject
@@ -220,7 +222,7 @@ class MethLabWindow:
     self.menubar.append(settingsmenu_item)
 
     # Settings -> Update on startup
-    self.settingsmenu_update_on_startup = gtk.CheckMenuItem('_Update on startup')
+    self.settingsmenu_update_on_startup = gtk.CheckMenuItem('_Update library on startup')
     self.settingsmenu_update_on_startup.set_active(self.config.getboolean('options', 'update_on_startup'))
     self.settingsmenu_update_on_startup.connect('toggled', self.on_settings_update_on_startup_toggled)
     self.settingsmenu.append(self.settingsmenu_update_on_startup)
@@ -256,6 +258,7 @@ class MethLabWindow:
 
     # Help -> About
     self.helpmenu_about = gtk.ImageMenuItem(gtk.STOCK_ABOUT)
+    self.helpmenu_about.connect('activate', self.on_about)
     self.helpmenu.append(self.helpmenu_about)
 
     # Show everything
@@ -720,3 +723,14 @@ class MethLabWindow:
 
   def on_settings_update_on_startup_toggled(self, menuitem):
     self.set_config('options', 'update_on_startup', menuitem.get_active())
+
+  def on_about(self, menuitem):
+    dialog = gtk.AboutDialog()
+    dialog.set_name('MethLab')
+    dialog.set_version('0.0.0')
+    dialog.set_copyright('MethLab is (C) 2007 Ingmar Steen.\nThe bundled xmmsalike library is (C) 2006 Ben Wolfson and Risto A. Paju')
+    dialog.set_license(LICENSE)
+    dialog.set_website('http://thegraveyard.org/')
+    dialog.set_authors(['Ingmar Steen <iksteen@gmail.com> (Main developer)'])
+    dialog.run()
+    dialog.destroy()
