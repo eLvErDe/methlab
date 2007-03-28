@@ -1,0 +1,17 @@
+Things to do before MethLab will be totally and utterly finished:
+
+Core-stuff / dependencies:
+ - Support Python 2.? - 2.4, py-sqlite2.
+ - Check which PyGTK version is required and check that at runtime.
+ - Look into supporting mutagen instead of TagPy.
+
+Usability:
+ - Change the expanders to .. something else (maybe buttons as suggested by
+   OffHand).
+
+Features:
+ - Add search history.
+ - Tag editor / tag corrector.
+ - Support more audioplayers (mpd comes to mind?).
+ - Custom sorting.
+ - Re-ordering / enabling / disabling result columns.
