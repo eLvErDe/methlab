@@ -21,7 +21,14 @@ import os
 import gobject
 import gtk
 import gtk.glade
-import sqlite3
+try:
+  import sqlite3 as sqlite
+except ImportError:
+  try:
+    from pysqlite2 import dbapi2 as sqlite
+  except ImportError:
+    print "Couldn't find pysqlite 2 or 3. Bailing out."
+    raise
 from ConfigParser import ConfigParser
 from db import DB
 from querytranslator import QueryTranslatorException
@@ -407,7 +414,7 @@ class MethLabWindow:
       else:
         args = query.split()
         results = self.db.search(*args)
-    except sqlite3.OperationalError:
+    except sqlite.OperationalError:
       self.flash_search_entry()
       return
     except QueryTranslatorException:

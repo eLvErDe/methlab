@@ -24,7 +24,7 @@ try:
   import sqlite3 as sqlite
 except ImportError:
   try:
-    from pypysqlite2 import dbapi2 as sqlite
+    from pysqlite2 import dbapi2 as sqlite
   except ImportError:
     print "Couldn't find pysqlite 2 or 3. Bailing out."
     raise
