@@ -19,7 +19,16 @@
 
 __all__ = ['DB']
 
-import sqlite3, os
+import os
+try:
+  import sqlite3 as sqlite
+except ImportError:
+  try:
+    from pypysqlite2 import dbapi2 as sqlite
+  except ImportError:
+    print "Couldn't find pysqlite 2 or 3. Bailing out."
+    raise
+
 from querytranslator import *
 
 CreateRootTableQuery = '''
@@ -91,10 +100,10 @@ class DB:
 
     self.scanner = None
 
-    self.conn = conn = sqlite3.connect(path)
+    self.conn = conn = sqlite.connect(path)
     conn.isolation_level = None
     conn.text_factory = str
-    conn.row_factory = sqlite3.Row
+    conn.row_factory = sqlite.Row
     cursor = conn.cursor()
     cursor.execute(CreateRootTableQuery)
     cursor.execute(CreateDirTableQuery)
