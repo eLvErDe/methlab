@@ -38,6 +38,8 @@ class Scanner:
 
     files = os.listdir(dir)
     for file in files:
+      if file[:1] == '.':
+        continue
       if self.yield_func:
         self.yield_func()
       path = dir + file
