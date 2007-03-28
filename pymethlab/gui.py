@@ -383,7 +383,7 @@ class MethLabWindow:
       gobject.source_remove(self.search_timeout_tag)
       self.search_timeout_tag = None
 
-  def search(self):
+  def search(self, add_to_history = False):
     self.cancel_search_timeout()
     if self.inhibit_search:
       return
@@ -407,7 +407,8 @@ class MethLabWindow:
       self.flash_search_entry()
       return
 
-    self.add_to_history(query)
+    if add_to_history:
+      self.add_to_history(query)
 
     for result in results:
       iter = self.results_model.append()
@@ -471,8 +472,23 @@ class MethLabWindow:
     dialog.destroy()
 
   def add_to_history(self, query):
-    iter = self.history_model.prepend()
-    self.history_model.set_value(iter, 0, query)
+    iter = self.history_model.get_iter_first()
+    while iter:
+      if self.history_model.get_value(iter, 0) == query:
+        self.history_model.move_after(iter, None)
+        break
+      iter = self.history_model.iter_next(iter)
+    else:
+      iter = self.history_model.prepend()
+      self.history_model.set_value(iter, 0, query)
+
+    node = self.history_model.iter_nth_child(None, 49)
+    next = None
+    if node:
+      next = self.history_model.iter_next(node)
+    while next:
+      self.history_model.remove(next)
+      next = self.history_model.iter_next(node)
 
   def on_expander_expanded(self, expander, param_spec):
     if expander.get_expanded():
@@ -518,7 +534,7 @@ class MethLabWindow:
     self.expSearchOptions.set_expanded(True)
 
   def on_search(self, entry):
-    self.search()
+    self.search(True)
 
   def on_search_changed(self, editable):
     self.cancel_search_timeout()
@@ -538,7 +554,7 @@ class MethLabWindow:
 
   def on_search_timeout(self):
     self.search_timeout_tag = None
-    self.search()
+    self.search(True)
     return False
 
   def on_play_results(self, button):
