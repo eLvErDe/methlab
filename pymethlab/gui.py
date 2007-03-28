@@ -124,6 +124,7 @@ class MethLabWindow:
     self.tvResults.append_column(gtk.TreeViewColumn('Title', cell_renderer, text = 4))
     for col in self.tvResults.get_columns():
       col.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
+      col.set_reorderable(True)
     self.tvResults.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
     self.tvResults.set_model(self.results_model)
 
