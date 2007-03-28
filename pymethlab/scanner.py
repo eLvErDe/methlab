@@ -45,12 +45,12 @@ class Scanner:
       path = dir + file
       statdata = os.stat(path)
       if stat.S_ISDIR(statdata.st_mode):
-        if not os.access(path, stat.R_OK | stat.X_OK):
+        if not os.access(path, os.R_OK | os.X_OK):
           continue
         found_subdirs.append(path + '/')
         self.update_dir(dir_id, path + '/')
       elif stat.S_ISREG(statdata.st_mode):
-        if not os.access(path, stat.R_OK):
+        if not os.access(path, os.R_OK):
           continue
         found_files.append(file)
         if self.db.get_track_mtime(dir_id, file) != statdata.st_mtime:
