@@ -1,16 +1,17 @@
 MethLab depends on the following things:
- - Python 2.5 (with the bundled sqlite3 library)
- - PyGTK 2.10 (tbh, I don't really know which version is _required_)
- - TagPy 0.91 (http://news.tiker.net/software/tagpy)
+ - Python 2.5 (with the bundled sqlite3 library).
+ - PyGTK 2.10 (tbh, I don't really know which version is _required_, I
+   suspect PyGTK 2.6).
+ - TagPy 0.91 (http://news.tiker.net/software/tagpy).
 
 It's useful to have the following things:
  - A supported audio player (xmms, audacious, beep). Beep wasn't tested
    though.
 
 If you want to use MethLab with XMMS, you'll also need:
- - PyXMMS (use the PyXMMS driver)
+ - PyXMMS (use the PyXMMS driver).
 or:
- - python-ctypes (part of Python 2.5) (use the xmmsalike driver)
+ - python-ctypes (part of Python 2.5) (use the xmmsalike driver).
 
 If you want to use MethLab with audacious or beep, you'll need:
- - python-ctypes (again, this is part of Python 2.5)
+ - python-ctypes (again, this is part of Python 2.5).

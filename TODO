@@ -10,8 +10,6 @@ Core-stuff / dependencies:
  - Look into supporting mutagen instead of TagPy.
 
 Usability:
- - Change the expanders to .. something else (maybe buttons as suggested by
-   OffHand).
  - Some way of telling the user a search came up empty.
  - Configurable hot-keys.
  - A proper settings dialog instead of a crappy menu.

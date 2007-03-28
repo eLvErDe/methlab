@@ -137,10 +137,9 @@ class MethLabWindow:
     self.tvResults.set_model(self.results_model)
 
     # Fix and hook up the expanders
-    self.sidebar_expanders = wtree.get_widget_prefix('exp')
-    for w in self.sidebar_expanders:
-      w.connect('notify::expanded', self.on_expander_expanded)
-    self.expSearchOptions.set_expanded(True)
+    self.btnSearchOptions.connect('clicked', self.on_section_button_clicked)
+    self.btnSearches.connect('clicked', self.on_section_button_clicked)
+    self.btnArtistsAlbums.connect('clicked', self.on_section_button_clicked)
 
     # Hook up the search options
     self.cbSearchPath.connect('toggled', self.on_search_field_toggled)
@@ -168,8 +167,8 @@ class MethLabWindow:
     self.window.add_accel_group(accel_group)
     self.entSearch.add_accelerator('grab-focus', accel_group, ord('f'), gtk.gdk.CONTROL_MASK, 0)
     self.btnClearSearch.add_accelerator('clicked', accel_group, ord('e'), gtk.gdk.CONTROL_MASK, 0)
-    self.expSearches.add_accelerator('activate', accel_group, ord('s'), gtk.gdk.CONTROL_MASK, 0)
-    self.expArtistsAlbums.add_accelerator('activate', accel_group, ord('b'), gtk.gdk.CONTROL_MASK, 0)
+    self.btnSearches.add_accelerator('clicked', accel_group, ord('s'), gtk.gdk.CONTROL_MASK, 0)
+    self.btnArtistsAlbums.add_accelerator('clicked', accel_group, ord('b'), gtk.gdk.CONTROL_MASK, 0)
     self.cbSearchPath.add_accelerator('activate', accel_group, ord('1'), gtk.gdk.MOD1_MASK, 0)
     self.cbSearchArtist.add_accelerator('activate', accel_group, ord('2'), gtk.gdk.MOD1_MASK, 0)
     self.cbSearchAlbum.add_accelerator('activate', accel_group, ord('3'), gtk.gdk.MOD1_MASK, 0)
@@ -183,6 +182,13 @@ class MethLabWindow:
     self.window.connect('destroy', gtk.main_quit)
     self.window.resize(640, 380)
     self.window.show()
+
+    # Haxory and trixory to prevent widgets from needlessly rearranging
+    self.swSearches.realize()
+    self.tvSearches.realize()
+    self.swArtistsAlbums.realize()
+    self.tvArtistsAlbums.realize()
+    self.hpaned1.set_position(self.hpaned1.get_position())
 
     # Finished initializing
     self.inhibit_search = 0
@@ -493,25 +499,24 @@ class MethLabWindow:
       self.history_model.remove(next)
       next = self.history_model.iter_next(node)
 
-  def on_expander_expanded(self, expander, param_spec):
-    if expander.get_expanded():
-      for e in self.sidebar_expanders:
-        if e != expander:
-          if e.get_expanded():
-            e.set_expanded(False)
-        self.vboxExpanders.set_child_packing(e, e == expander, True, 0, gtk.PACK_START)
-        if expander == self.expArtistsAlbums:
-          self.tvArtistsAlbums.realize()
-          self.tvArtistsAlbums.grab_focus()
-        elif expander == self.expSearches:
-          self.tvSearches.realize()
-          self.tvSearches.grab_focus()
+  def on_section_button_clicked(self, button):
+    if button == self.btnSearchOptions:
+      self.vboxSearchOptions.show()
+      self.swSearches.hide()
+      self.swArtistsAlbums.hide()
+      self.entSearch.grab_focus()
+    elif button == self.btnSearches:
+      self.swSearches.show()
+      self.vboxSearchOptions.hide()
+      self.swArtistsAlbums.hide()
+      self.tvSearches.realize()
+      self.tvSearches.grab_focus()
     else:
-      for e in self.sidebar_expanders:
-        if e.get_expanded():
-          break
-      else:
-        e.set_expanded(True)
+      self.swArtistsAlbums.show()
+      self.vboxSearchOptions.hide()
+      self.swSearches.hide()
+      self.tvArtistsAlbums.realize()
+      self.tvArtistsAlbums.grab_focus()
 
   def on_artists_albums_selection_changed(self, selection):
     model, paths = selection.get_selected_rows()
@@ -534,7 +539,7 @@ class MethLabWindow:
     self.search()
 
   def on_search_focus_in_event(self, widget, event):
-    self.expSearchOptions.set_expanded(True)
+    self.btnSearchOptions.clicked()
 
   def on_search(self, entry):
     self.search(True)
@@ -613,7 +618,7 @@ class MethLabWindow:
         self.db.add_search(name, query, ' '.join(fields))
         self.update_searches_model()
         self.tvSearches.get_selection().select_iter(self.search_iters[name])
-        self.expSearches.set_expanded(True)
+        self.btnSearches.clicked()
     dialog.destroy()
 
   def on_searches_selection_changed(self, selection):
