@@ -424,7 +424,7 @@ class MethLabWindow:
 
   def unflash_search_entry(self):
     self.cancel_flash_search_entry()
-    self.entSearch.modify_base(gtk.STATE_NORMAL, gtk.widget_get_default_style().base[gtk.STATE_NORMAL])
+    self.entSearch.modify_base(gtk.STATE_NORMAL, None)
     return False
 
   def get_selected_result_paths(self):
