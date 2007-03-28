@@ -1,4 +1,8 @@
-Things to do before MethLab will be totally and utterly finished:
+Things to do before MethLab will be totally and utterly finished until
+someone comes up with another idea:
+
+Infrastructure:
+ - Homepage / trac / something
 
 Core-stuff / dependencies:
  - Support Python 2.? - 2.4, py-sqlite2.
@@ -8,6 +12,9 @@ Core-stuff / dependencies:
 Usability:
  - Change the expanders to .. something else (maybe buttons as suggested by
    OffHand).
+ - Some way of telling the user a search came up empty.
+ - Configurable hot-keys.
+ - A proper settings dialog instead of a crappy menu.
 
 Features:
  - Add search history.
@@ -15,3 +22,7 @@ Features:
  - Support more audioplayers (mpd comes to mind?).
  - Custom sorting.
  - Re-ordering / enabling / disabling result columns.
+ - Tray icon and a global hotkey to bring MethLab to the foreground.
+ - A menu for search result items that does useful things.
+ - Shove the DB handling into a seperate thread so the user interface won't
+   ever lock up (well, unless your query yields lots of results).
