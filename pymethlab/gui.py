@@ -581,7 +581,7 @@ class MethLabWindow:
     self.db.update(yield_func)
     dialog.destroy()
     self.update_artists_albums_model()
-    if self.config.getboolean('interface', 'artists_collapsible'):
+    if not self.config.getboolean('interface', 'artists_collapsible'):
       self.tvArtistsAlbums.expand_all()
     self.search()
 
