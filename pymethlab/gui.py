@@ -21,6 +21,7 @@ import os
 import gobject
 import gtk
 import gtk.glade
+import pango
 from ConfigParser import ConfigParser
 from db import DB
 from querytranslator import QueryTranslatorException
@@ -122,7 +123,9 @@ class MethLabWindow:
     self.update_artists_albums_model()
 
     # Set up the artists / albums tree view
-    col = gtk.TreeViewColumn('Artist / Album', cell_renderer, text = 0)
+    artist_album_renderer = gtk.CellRendererText()
+    col = gtk.TreeViewColumn('Artist / Album', artist_album_renderer, text = 0)
+    col.set_cell_data_func(artist_album_renderer, self.get_artists_albums_cell_data)
     self.tvArtistsAlbums.append_column(col)
     self.tvArtistsAlbums.set_model(self.artists_albums_model)
     self.update_artists_collapsible()
@@ -364,6 +367,17 @@ class MethLabWindow:
       os.path.makedirs(config_dir)
     self.config.write(open(config_path, 'w'))
 
+  def get_artists_albums_cell_data(self, column, cell, model, iter):
+    value = model.get_value(iter, 0)
+    if not value:
+      cell.set_property('style', pango.STYLE_ITALIC)
+      if model.iter_parent(iter) is None:
+        cell.set_property('text', 'unknown artist')
+      else:
+        cell.set_property('text', 'unknown album')
+    else:
+      cell.set_property('style', pango.STYLE_NORMAL)
+
   def update_artists_collapsible(self):
     collapsible = self.config.getboolean('interface', 'artists_collapsible')
     self.tvArtistsAlbums.set_enable_tree_lines(not collapsible)
@@ -418,7 +432,7 @@ class MethLabWindow:
     for artist in artists:
       if not self.artist_iters.has_key(artist):
         iter = self.artists_albums_model.append(None)
-        self.artists_albums_model.set(iter, 0, artist)
+        self.artists_albums_model.set_value(iter, 0, artist)
         self.artist_iters[artist] = iter
     for artist, iter in self.artist_iters.items():
       if not artist in artists:
@@ -433,7 +447,7 @@ class MethLabWindow:
       if not self.album_iters.has_key((artist, album)):
         artist_iter = self.artist_iters[artist]
         iter = self.artists_albums_model.append(artist_iter)
-        self.artists_albums_model.set(iter, 0, album)
+        self.artists_albums_model.set_value(iter, 0, album)
         self.album_iters[(artist, album)] = iter
     for (artist, album), iter in self.album_iters.items():
       if not (artist, album) in artists_albums:
