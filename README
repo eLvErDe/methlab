@@ -1,8 +1,11 @@
 MethLab depends on the following things:
  - Python 2.5 (with the bundled sqlite3 library).
  - PyGTK 2.10 (tbh, I don't really know which version is _required_, I
-   suspect PyGTK 2.6).
+   suspect PyGTK 2.6). The user interface as I intended it really does
+   depend on PyGTK 2.10.
  - TagPy 0.91 (http://news.tiker.net/software/tagpy).
+ - sqlite3 and pysqlite2 or pysqlite3 (pysqlite3 is part of Python2.5.
+   You'll still need the sqlite3 library though).
 
 It's useful to have the following things:
  - A supported audio player (xmms, audacious, beep). Beep wasn't tested

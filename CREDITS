@@ -5,3 +5,5 @@ Credits due:
  - Ben Wolfson and Risto A. Paju for xmmsalike
  - The authors of TagPy, TagLib, Python, PyGTK, XMMS, Audacity, Beep and
    all things shiny!
+ - Pete (10/6) for his excellent hints on making a TreeView column's header
+   have a context menu.

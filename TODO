@@ -11,6 +11,7 @@ Core-stuff / dependencies:
 
 Usability:
  - Some way of telling the user a search came up empty.
+ - Show italic 'untitled' instead of blanks.
  - Configurable hot-keys.
  - A proper settings dialog instead of a crappy menu.
 
@@ -18,8 +19,8 @@ Features:
  - Tag editor / tag corrector.
  - Support more audioplayers (mpd comes to mind?).
  - Custom sorting.
- - Re-ordering / enabling / disabling result columns.
  - Tray icon and a global hotkey to bring MethLab to the foreground.
- - A menu for search result items that does useful things.
+ - A menu for search result items that does useful things (search album,
+   things like that).
  - Shove the DB handling into a seperate thread so the user interface won't
    ever lock up (well, unless your query yields lots of results).
