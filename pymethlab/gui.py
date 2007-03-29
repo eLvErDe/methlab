@@ -182,13 +182,16 @@ class MethLabWindow:
       visible_columns = self.DEFAULT_VISIBLE_COLUMNS
 
     # Set up the results tree view
+    results_renderer = gtk.CellRendererText()
     for column_field in column_order:
       column_name, column_id = self.result_columns[column_field]
-      column = gtk.TreeViewColumn(None, cell_renderer, text = column_id)
+      column = gtk.TreeViewColumn(None, results_renderer, text = column_id)
       column.field = column_field
+      column.column_id = column_id
       column.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
       column.set_reorderable(True)
       column.set_visible(column_field in visible_columns)
+      column.set_cell_data_func(results_renderer, self.get_results_cell_data)
       self.tvResults.append_column(column)
       # Haxory and trixory to be able to catch right click on the header
       column.set_clickable(True)
@@ -371,10 +374,22 @@ class MethLabWindow:
     value = model.get_value(iter, 0)
     if not value:
       cell.set_property('style', pango.STYLE_ITALIC)
-      if model.iter_parent(iter) is None:
-        cell.set_property('text', 'unknown artist')
-      else:
-        cell.set_property('text', 'unknown album')
+      cell.set_property('text', 'untitled')
+    else:
+      cell.set_property('style', pango.STYLE_NORMAL)
+
+  def get_results_cell_data(self, column, cell, model, iter):
+    field = column.field
+    column_id = column.column_id
+    value = model.get_value(iter, column_id)
+    if not value:
+      cell.set_property('style', pango.STYLE_ITALIC)
+      if field in ('artist', 'album', 'title'):
+        cell.set_property('text', 'untitled')
+      elif field == 'genre':
+        cell.set_property('text', 'unknown')
+      elif field in ('track', 'year'):
+        cell.set_property('text', '')
     else:
       cell.set_property('style', pango.STYLE_NORMAL)
 

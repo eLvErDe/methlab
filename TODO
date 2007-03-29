@@ -11,9 +11,9 @@ Core-stuff / dependencies:
 
 Usability:
  - Some way of telling the user a search came up empty.
- - Show italic 'untitled' instead of blanks.
  - Configurable hot-keys.
- - A proper settings dialog instead of a crappy menu.
+ - A proper settings dialog instead of a crappy settings menu,
+   scattered context menus and the directory dialog.
 
 Features:
  - Tag editor / tag corrector.
