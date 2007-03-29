@@ -558,19 +558,19 @@ class MethLabWindow:
 
   def on_section_button_clicked(self, button):
     if button == self.btnSearchOptions:
-      self.vboxSearchOptions.show()
+      self.frSearchOptions.show()
       self.swSearches.hide()
       self.swArtistsAlbums.hide()
       self.entSearch.grab_focus()
     elif button == self.btnSearches:
       self.swSearches.show()
-      self.vboxSearchOptions.hide()
+      self.frSearchOptions.hide()
       self.swArtistsAlbums.hide()
       self.tvSearches.realize()
       self.tvSearches.grab_focus()
     else:
       self.swArtistsAlbums.show()
-      self.vboxSearchOptions.hide()
+      self.frSearchOptions.hide()
       self.swSearches.hide()
       self.tvArtistsAlbums.realize()
       self.tvArtistsAlbums.grab_focus()
