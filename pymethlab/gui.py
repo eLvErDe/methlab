@@ -21,18 +21,11 @@ import os
 import gobject
 import gtk
 import gtk.glade
-try:
-  import sqlite3 as sqlite
-except ImportError:
-  try:
-    from pysqlite2 import dbapi2 as sqlite
-  except ImportError:
-    print "Couldn't find pysqlite 2 or 3. Bailing out."
-    raise
 from ConfigParser import ConfigParser
 from db import DB
 from querytranslator import QueryTranslatorException
 from drivers import DRIVERS, DummyDriver
+from db import sqlite
 
 # Case insensitive string compare
 def case_insensitive_cmp(model, a, b):

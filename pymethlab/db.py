@@ -73,7 +73,7 @@ GetFilenamesByDirIdQuery = '''SELECT filename FROM tracks WHERE dir_id = ?'''
 DeleteTrackQuery = '''DELETE FROM tracks WHERE dir_id = ? AND filename = ?'''
 DeleteTracksByDirIdQuery = '''DELETE FROM tracks WHERE dir_id = ?'''
 GetDistinctTrackInfoQuery = '''SELECT DISTINCT %s FROM tracks'''
-QueryTracksQuery = '''SELECT dirs.path || filename AS path, album, artist, comment, genre, title, track, year FROM tracks INNER JOIN dirs ON tracks.dir_id == dirs.OID WHERE %s ORDER BY artist, year, album, track, title'''
+QueryTracksQuery = '''SELECT dirs.path || filename AS path, album, artist, comment, genre, title, track, year FROM tracks INNER JOIN dirs ON tracks.dir_id == dirs.OID WHERE %s ORDER BY album, track, title'''
 
 DropSearchViewQuery = '''DROP VIEW IF EXISTS search'''
 CreateSearchViewQuery = '''CREATE TEMPORARY VIEW search AS SELECT dirs.path || filename AS path, album, artist, comment, genre, title, track, year, %s AS field FROM tracks INNER JOIN dirs ON tracks.dir_id == dirs.OID'''
@@ -232,7 +232,7 @@ class DB:
       if i > 0:
         query += ' AND'
       query += ' field LIKE ?'
-    query += ' ORDER BY artist, album, track, title'
+    query += ' ORDER BY album, track, title'
     symbols = tuple(['%%%s%%' % arg for arg in args])
     return cursor.execute(query, symbols)
 
