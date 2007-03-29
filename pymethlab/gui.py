@@ -43,6 +43,8 @@ class MethLabWindow:
   DEFAULT_DRIVER = DummyDriver.name
   DEFAULT_UPDATE_ON_STARTUP = True
   DEFAULT_SEARCH_ON_ARTIST_AND_ALBUM = True
+  DEFAULT_SEARCH_FIELDS = 'artist album title'
+  DEFAULT_SORT_ORDER = 'album track title path artist year genre comment'
   # User interface options
   DEFAULT_COLUMN_ORDER = 'path artist album track title year genre comment'
   DEFAULT_VISIBLE_COLUMNS = 'artist album track title'
@@ -53,6 +55,8 @@ class MethLabWindow:
       'driver': DEFAULT_DRIVER,
       'update_on_startup': `DEFAULT_UPDATE_ON_STARTUP`,
       'search_on_artist_and_album': `DEFAULT_SEARCH_ON_ARTIST_AND_ALBUM`,
+      'search_fields': DEFAULT_SEARCH_FIELDS,
+      'sort_order': DEFAULT_SORT_ORDER,
     },
     'interface': {
       'column_order': DEFAULT_COLUMN_ORDER,
@@ -108,11 +112,48 @@ class MethLabWindow:
     # Build the menus
     self.build_menus()
 
-    # Set up the search options
-    self.set_active_search_fields()
-
     # Create a cell renderer we re-use
     cell_renderer = gtk.CellRendererText()
+
+    # Get the sort order and do some sanity checks
+    sort_order = self.config.get('options', 'sort_order').split(' ')
+    a = sort_order[:]
+    a.sort()
+    b = self.result_columns.keys()
+    b.sort()
+    if a != b:
+      sort_order = self.DEFAULT_SORT_ORDER.split(' ')
+
+    # Get the active search fields and do some sanity checks
+    search_fields = self.config.get('options', 'search_fields').split(' ')
+    search_fields = [field for field in search_fields if field in sort_order]
+
+    # Set up the search options model
+    self.search_options_model = gtk.ListStore(str, bool, str)
+    for field in sort_order:
+      iter = self.search_options_model.append()
+      self.search_options_model.set_value(iter, 0, field)
+      self.search_options_model.set_value(iter, 1, field in search_fields)
+      self.search_options_model.set_value(iter, 2, self.result_columns[field][0])
+    # The reason we connect 'row-deleted' is because 'rows-reordered' does
+    # not get emitted when a user re-orders the columns. The order of signals
+    # that get emitted is: row-inserted, row-changed, row-deleted.
+    self.search_options_model.connect('row-deleted', self.on_search_options_row_deleted)
+
+    # Set up the search options tree view
+    self.tvSortOrder.get_selection().set_mode(gtk.SELECTION_NONE)
+    cell_renderer_toggle = gtk.CellRendererToggle()
+    cell_renderer_toggle.connect('toggled', self.on_search_field_toggled)
+    self.tvSortOrder.append_column(gtk.TreeViewColumn('Enabled', cell_renderer_toggle, active = 1))
+    self.tvSortOrder.append_column(gtk.TreeViewColumn('Field', cell_renderer, text = 2))
+    self.tvSortOrder.set_model(self.search_options_model)
+    self.update_sort_order(False)
+    self.update_search_fields(False)
+    # Haxory and trixory to tweak the base color of the tree view. However,
+    # this makes the checkbox look like they're disabled.
+#    self.tvSortOrder.realize()
+#    normal_bg = self.tvSortOrder.get_style().bg[gtk.STATE_NORMAL]
+#    self.tvSortOrder.modify_base(gtk.STATE_NORMAL, normal_bg)
 
     # Set up the artists / albums model
     self.artists_albums_model = gtk.TreeStore(str)
@@ -210,16 +251,6 @@ class MethLabWindow:
     self.btnArtistsAlbums.connect('clicked', self.on_section_button_clicked)
     self.btnArtistsAlbums.connect('button-press-event', self.on_artists_albums_button_press_event)
 
-    # Hook up the search options
-    self.cbSearchPath.connect('toggled', self.on_search_field_toggled)
-    self.cbSearchArtist.connect('toggled', self.on_search_field_toggled)
-    self.cbSearchAlbum.connect('toggled', self.on_search_field_toggled)
-    self.cbSearchTitle.connect('toggled', self.on_search_field_toggled)
-    self.cbSearchTrack.connect('toggled', self.on_search_field_toggled)
-    self.cbSearchYear.connect('toggled', self.on_search_field_toggled)
-    self.cbSearchGenre.connect('toggled', self.on_search_field_toggled)
-    self.cbSearchComment.connect('toggled', self.on_search_field_toggled)
-
     # Hook up the search bar
     self.entSearch.connect('focus-in-event', self.on_search_focus_in_event)
     self.entSearch.connect('activate', self.on_search)
@@ -236,14 +267,9 @@ class MethLabWindow:
     self.window.add_accel_group(accel_group)
     self.entSearch.add_accelerator('grab-focus', accel_group, ord('f'), gtk.gdk.CONTROL_MASK, 0)
     self.btnClearSearch.add_accelerator('clicked', accel_group, ord('e'), gtk.gdk.CONTROL_MASK, 0)
-    self.cbSearchPath.add_accelerator('activate', accel_group, ord('1'), gtk.gdk.MOD1_MASK, 0)
-    self.cbSearchArtist.add_accelerator('activate', accel_group, ord('2'), gtk.gdk.MOD1_MASK, 0)
-    self.cbSearchAlbum.add_accelerator('activate', accel_group, ord('3'), gtk.gdk.MOD1_MASK, 0)
-    self.cbSearchTitle.add_accelerator('activate', accel_group, ord('4'), gtk.gdk.MOD1_MASK, 0)
-    self.cbSearchTrack.add_accelerator('activate', accel_group, ord('5'), gtk.gdk.MOD1_MASK, 0)
-    self.cbSearchYear.add_accelerator('activate', accel_group, ord('6'), gtk.gdk.MOD1_MASK, 0)
-    self.cbSearchGenre.add_accelerator('activate', accel_group, ord('7'), gtk.gdk.MOD1_MASK, 0)
-    self.cbSearchComment.add_accelerator('activate', accel_group, ord('8'), gtk.gdk.MOD1_MASK, 0)
+# FIXME:
+    for i in range(0, 8):
+      accel_group.connect_group(ord(str(i + 1)), gtk.gdk.MOD1_MASK, 0, self.on_toggle_search_field)
 
     # Connect destroy signal and show the window
     self.window.connect('destroy', gtk.main_quit)
@@ -370,6 +396,49 @@ class MethLabWindow:
       os.path.makedirs(config_dir)
     self.config.write(open(config_path, 'w'))
 
+  # Call this to get a list of enabled search fields (according to the model)
+  def get_active_search_fields(self):
+    active_fields = []
+    iter = self.search_options_model.get_iter_first()
+    while iter:
+      field, active = self.search_options_model.get(iter, 0, 1)
+      if active:
+        active_fields.append(field)
+      iter = self.search_options_model.iter_next(iter)
+    return active_fields
+
+  # Update DB's search view. If requested, also save the active search fields
+  def update_search_fields(self, save = True):
+    active_fields = self.get_active_search_fields()
+    self.db.set_search_fields(*active_fields)
+    if save:
+      self.set_config('options', 'search_fields', ' '.join(active_fields))
+
+  # Set the active search fields and save them to the config.
+  def set_active_search_fields(self, fields):
+    iter = self.search_options_model.get_iter_first()
+    while iter:
+      field = self.search_options_model.get_value(iter, 0)
+      self.search_options_model.set_value(iter, 1, field in fields)
+      iter = self.search_options_model.iter_next(iter)
+    self.update_search_fields()
+
+  # Call this to get the sort order
+  def get_sort_order(self):
+    fields = []
+    iter = self.search_options_model.get_iter_first()
+    while iter:
+      fields.append(self.search_options_model.get_value(iter, 0))
+      iter = self.search_options_model.iter_next(iter)
+    return fields
+
+  # Update DB's sort order. If requested, also save the active search fields
+  def update_sort_order(self, save = True):
+    field_order = self.get_sort_order()
+    self.db.set_sort_order(*field_order)
+    if save:
+      self.set_config('options', 'sort_order', ' '.join(field_order))
+
   def get_artists_albums_cell_data(self, column, cell, model, iter):
     value = model.get_value(iter, 0)
     if not value:
@@ -402,45 +471,6 @@ class MethLabWindow:
     else:
       self.tvArtistsAlbums.set_property('level-indentation', 25)
       self.tvArtistsAlbums.expand_all()
-
-  # Get a list of fields that are enabled
-  def get_active_search_fields(self):
-    fields = []
-    if self.cbSearchPath.get_active():
-      fields.append('path')
-    if self.cbSearchArtist.get_active():
-      fields.append('artist')
-    if self.cbSearchAlbum.get_active():
-      fields.append('album')
-    if self.cbSearchTitle.get_active():
-      fields.append('title')
-    if self.cbSearchTrack.get_active():
-      fields.append('track')
-    if self.cbSearchYear.get_active():
-      fields.append('year')
-    if self.cbSearchGenre.get_active():
-      fields.append('genre')
-    if self.cbSearchComment.get_active():
-      fields.append('comment')
-    return fields
-
-  # Set active fields (fields is a list or tuple)
-  def set_active_search_fields(self, fields = ('artist', 'album', 'title')):
-    self.inhibit_search += 1
-    self.cbSearchPath.set_active('path' in fields)
-    self.cbSearchArtist.set_active('artist' in fields)
-    self.cbSearchAlbum.set_active('album' in fields)
-    self.cbSearchTitle.set_active('title' in fields)
-    self.cbSearchTrack.set_active('track' in fields)
-    self.cbSearchYear.set_active('year' in fields)
-    self.cbSearchGenre.set_active('genre' in fields)
-    self.cbSearchComment.set_active('comment' in fields)
-    self.inhibit_search -= 1
-    self.search()
-
-  def update_search_fields(self):
-    fields = self.get_active_search_fields()
-    self.db.set_search_fields(*fields)
 
   def update_artists_albums_model(self):
     artists = [row['artist'] for row in self.db.get_artists()]
@@ -510,10 +540,10 @@ class MethLabWindow:
         results = self.db.query_tracks(query[1:])
       else:
         results = self.db.search_tracks(query)
-    except sqlite.OperationalError:
+    except sqlite.OperationalError, e:
       self.flash_search_entry()
       return
-    except QueryTranslatorException:
+    except QueryTranslatorException, e:
       self.flash_search_entry()
       return
 
@@ -606,22 +636,35 @@ class MethLabWindow:
 
   def on_section_button_clicked(self, button):
     if button == self.btnSearchOptions:
-      self.frSearchOptions.show()
+      self.swSearchOptions.show()
       self.swSearches.hide()
       self.swArtistsAlbums.hide()
       self.entSearch.grab_focus()
     elif button == self.btnSearches:
       self.swSearches.show()
-      self.frSearchOptions.hide()
+      self.swSearchOptions.hide()
       self.swArtistsAlbums.hide()
       self.tvSearches.realize()
       self.tvSearches.grab_focus()
     else:
       self.swArtistsAlbums.show()
-      self.frSearchOptions.hide()
+      self.swSearchOptions.hide()
       self.swSearches.hide()
       self.tvArtistsAlbums.realize()
       self.tvArtistsAlbums.grab_focus()
+
+  def on_search_options_row_deleted(self, model, path):
+    self.update_sort_order()
+    self.search()
+
+  def on_search_field_toggled(self, cell_renderer_toggle, path):
+    iter = self.search_options_model.get_iter(path)
+    active = self.search_options_model.get_value(iter, 1)
+    self.search_options_model.set_value(iter, 1, not active)
+    self.update_search_fields()
+    query = self.entSearch.get_text()
+    if query[:1] != '@':
+      self.search()
 
   def on_artists_albums_button_press_event(self, widget, event):
     if event.button == 3:
@@ -670,6 +713,41 @@ class MethLabWindow:
 
     self.entSearch.set_text('@' + ' OR '.join(queries))
     self.search()
+
+  def on_searches_selection_changed(self, selection):
+    model, iter = selection.get_selected()
+    if iter is None:
+      return
+    self.inhibit_search += 1
+    query, fields = model.get(iter, 1, 2)
+    fields = fields.split(' ')
+    self.set_active_search_fields(fields)
+    self.entSearch.set_text(query)
+    self.inhibit_search -= 1
+    self.search()
+
+  def on_searches_button_press_event(self, treeview, event):
+    if event.button == 3:
+      data = treeview.get_path_at_pos(int(event.x), int(event.y))
+      if data is not None:
+        path, col, r_x, r_y = data
+        iter = treeview.get_model().get_iter(path)
+        name = treeview.get_model().get_value(iter, 0)
+        treeview.get_selection().select_iter(iter)
+        menu = gtk.Menu()
+        item = gtk.MenuItem('Remove')
+        item.connect('activate', self.on_searches_popup_remove, name)
+        menu.append(item)
+        menu.show_all()
+        menu.popup(None, None, None, event.button, event.time)
+      else:
+        treeview.get_selection().unselect_all()
+      return True
+
+  def on_searches_popup_remove(self, menuitem, name):
+    self.db.delete_search(name)
+    self.tvSearches.get_model().remove(self.search_iters[name])
+    del self.search_iters[name]
 
   def on_search_focus_in_event(self, widget, event):
     self.btnSearchOptions.clicked()
@@ -738,17 +816,11 @@ class MethLabWindow:
     if files:
       self.ap_driver.enqueue(files)
 
-  def on_search_field_toggled(self, button):
-    self.update_search_fields()
-    text = self.entSearch.get_text()
-    if text and text[0] != '@':
-      self.search()
-
   def on_save_search(self, button):
     query = self.entSearch.get_text()
     if not query:
       return
-    fields = self.get_active_search_fields()
+    fields = self.config.get('options', 'search_fields')
 
     sel = self.tvSearches.get_selection()
     model, iter = sel.get_selected()
@@ -783,41 +855,6 @@ class MethLabWindow:
         self.tvSearches.get_selection().select_iter(self.search_iters[name])
         self.btnSearches.clicked()
     dialog.destroy()
-
-  def on_searches_selection_changed(self, selection):
-    model, iter = selection.get_selected()
-    if iter is None:
-      return
-    self.inhibit_search += 1
-    query, fields = model.get(iter, 1, 2)
-    fields = fields.split()
-    self.set_active_search_fields(fields)
-    self.entSearch.set_text(query)
-    self.inhibit_search -= 1
-    self.search()
-
-  def on_searches_button_press_event(self, treeview, event):
-    if event.button == 3:
-      data = treeview.get_path_at_pos(int(event.x), int(event.y))
-      if data is not None:
-        path, col, r_x, r_y = data
-        iter = treeview.get_model().get_iter(path)
-        name = treeview.get_model().get_value(iter, 0)
-        treeview.get_selection().select_iter(iter)
-        menu = gtk.Menu()
-        item = gtk.MenuItem('Remove')
-        item.connect('activate', self.on_searches_popup_remove, name)
-        menu.append(item)
-        menu.show_all()
-        menu.popup(None, None, None, event.button, event.time)
-      else:
-        treeview.get_selection().unselect_all()
-      return True
-
-  def on_searches_popup_remove(self, menuitem, name):
-    self.db.delete_search(name)
-    self.tvSearches.get_model().remove(self.search_iters[name])
-    del self.search_iters[name]
 
   def on_clear_search(self, button):
     self.entSearch.set_text('')
@@ -870,12 +907,10 @@ class MethLabWindow:
       dirs = [row[0] for row in model]
       for root in roots:
         if not root in dirs:
-          print 'Purging', root
           self.db.delete_root(root + '/')
           changed = True
       for dir in dirs:
         if not dir in roots:
-          print 'Adding', dir
           self.db.add_root(dir)
           changed = True
 
@@ -902,3 +937,9 @@ class MethLabWindow:
     dialog.set_authors(['Ingmar Steen <iksteen@gmail.com> (Main developer)'])
     dialog.run()
     dialog.destroy()
+
+  def on_toggle_search_field(self, accel_group, acceleratable, keyval, modifier):
+    path = int(chr(keyval)) - 1
+    iter = self.search_options_model.get_iter(path)
+    value = self.search_options_model.get_value(iter, 1)
+    self.search_options_model.set(iter, 1, not value)

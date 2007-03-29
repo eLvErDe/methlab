@@ -18,7 +18,6 @@ Usability:
 Features:
  - Tag editor / tag corrector.
  - Support more audioplayers (mpd comes to mind?).
- - Custom sorting.
  - Tray icon and a global hotkey to bring MethLab to the foreground.
  - A menu for search result items that does useful things (search album,
    things like that).
