@@ -38,8 +38,11 @@ def query_escape(s):
 # The main window
 class MethLabWindow:
   CONFIG_PATH = '~/.methlab/config'
+  # Generic options
   DEFAULT_DRIVER = DummyDriver.name
   DEFAULT_UPDATE_ON_STARTUP = True
+  DEFAULT_SEARCH_ON_ARTIST_AND_ALBUM = True
+  # User interface options
   DEFAULT_COLUMN_ORDER = 'path artist album track title year genre comment'
   DEFAULT_VISIBLE_COLUMNS = 'artist album track title'
   DEFAULT_ARTISTS_COLLAPSIBLE = False
@@ -48,6 +51,7 @@ class MethLabWindow:
     'options': {
       'driver': DEFAULT_DRIVER,
       'update_on_startup': `DEFAULT_UPDATE_ON_STARTUP`,
+      'search_on_artist_and_album': `DEFAULT_SEARCH_ON_ARTIST_AND_ALBUM`,
     },
     'interface': {
       'column_order': DEFAULT_COLUMN_ORDER,
@@ -593,10 +597,17 @@ class MethLabWindow:
   def on_artists_albums_button_press_event(self, widget, event):
     if event.button == 3:
       menu = gtk.Menu()
+      # Collapsible artists menu item
       item = gtk.CheckMenuItem('Collapsible artists')
       item.set_active(self.config.getboolean('interface', 'artists_collapsible'))
       item.connect('toggled', self.on_artists_albums_popup_collapsible_artists_toggled)
       menu.append(item)
+      # Search album on artist as well menu item
+      item = gtk.CheckMenuItem('Search album on artist as well')
+      item.set_active(self.config.getboolean('options', 'search_on_artist_and_album'))
+      item.connect('toggled', self.on_artists_albums_popup_search_on_artist_and_album_toggled)
+      menu.append(item)
+      # Run the menu
       menu.show_all()
       menu.popup(None, None, None, event.button, event.time)
       return True
@@ -604,6 +615,9 @@ class MethLabWindow:
   def on_artists_albums_popup_collapsible_artists_toggled(self, menuitem):
     self.set_config('interface', 'artists_collapsible', menuitem.get_active())
     self.update_artists_collapsible()
+
+  def on_artists_albums_popup_search_on_artist_and_album_toggled(self, menuitem):
+    self.set_config('options', 'search_on_artist_and_album', menuitem.get_active())
 
   def on_artists_albums_selection_changed(self, selection):
     model, paths = selection.get_selected_rows()
@@ -618,9 +632,12 @@ class MethLabWindow:
         artist = query_escape(model.get_value(iter, 0))
         queries.append('(artist = %s)' % artist)
       else:
-        artist = query_escape(model.get_value(parent, 0))
         album = query_escape(model.get_value(iter, 0))
-        queries.append('(artist = %s AND album = %s)' % (artist, album))
+        if self.config.getboolean('options', 'search_on_artist_and_album'):
+          artist = query_escape(model.get_value(parent, 0))
+          queries.append('(artist = %s AND album = %s)' % (artist, album))
+        else:
+          queries.append('(album = %s)' % album)
 
     self.entSearch.set_text('@' + ' OR '.join(queries))
     self.search()
