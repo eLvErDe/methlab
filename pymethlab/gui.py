@@ -184,9 +184,7 @@ class MethLabWindow:
       column.set_clickable(True)
       column.set_widget(gtk.Label(column_name))
       column.get_widget().show()
-      parent = column.get_widget().parent
-      while parent and not isinstance(parent, gtk.Button):
-        parent = parent.parent
+      parent = column.get_widget().get_ancestor(gtk.Button)
       if parent:
         parent.connect('button-press-event', self.on_results_header_button_press_event)
     self.tvResults.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
