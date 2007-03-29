@@ -34,24 +34,24 @@ from querytranslator import *
 CreateRootTableQuery = '''
 CREATE TABLE IF NOT EXISTS roots
 (
-  path TEXT NOT NULL PRIMARY KEY
+  dir TEXT NOT NULL PRIMARY KEY
 )'''
 AddRootQuery = '''INSERT OR IGNORE INTO roots VALUES (?)'''
-GetRootStartsWithQuery = '''SELECT path FROM roots WHERE SUBSTR(path, 1, ?) = ?'''
-GetRootsQuery = '''SELECT path FROM roots'''
-DeleteRootQuery = '''DELETE FROM roots WHERE path = ?'''
+GetRootStartsWithQuery = '''SELECT dir FROM roots WHERE SUBSTR(dir, 1, ?) = ?'''
+GetRootsQuery = '''SELECT dir FROM roots'''
+DeleteRootQuery = '''DELETE FROM roots WHERE dir = ?'''
 
 CreateDirTableQuery = '''
 CREATE TABLE IF NOT EXISTS dirs
 (
-  path TEXT NOT NULL PRIMARY KEY,
+  dir TEXT NOT NULL PRIMARY KEY,
   parent_id INTEGER
 )'''
-AddDirQuery = '''INSERT INTO dirs VALUES (?, ?)'''
-GetDirIdQuery = '''SELECT OID FROM dirs WHERE path = ?'''
-GetSubdirsByDirIdQuery = '''SELECT OID, path FROM dirs WHERE parent_id = ?'''
-DeleteDirQuery = '''DELETE FROM dirs WHERE OID = ?'''
 
+AddDirQuery = '''INSERT INTO dirs VALUES (?, ?)'''
+GetDirIdQuery = '''SELECT OID FROM dirs WHERE dir = ?'''
+GetSubdirsByDirIdQuery = '''SELECT OID, dir FROM dirs WHERE parent_id = ?'''
+DeleteDirQuery = '''DELETE FROM dirs WHERE OID = ?'''
 CreateTrackTableQuery = '''
 CREATE TABLE IF NOT EXISTS tracks
 (
@@ -73,10 +73,10 @@ GetFilenamesByDirIdQuery = '''SELECT filename FROM tracks WHERE dir_id = ?'''
 DeleteTrackQuery = '''DELETE FROM tracks WHERE dir_id = ? AND filename = ?'''
 DeleteTracksByDirIdQuery = '''DELETE FROM tracks WHERE dir_id = ?'''
 GetDistinctTrackInfoQuery = '''SELECT DISTINCT %s FROM tracks'''
-QueryTracksQuery = '''SELECT dirs.path || filename AS path, album, artist, comment, genre, title, track, year FROM tracks INNER JOIN dirs ON tracks.dir_id == dirs.OID WHERE %s ORDER BY album, track, title'''
-
+QueryTracksQuery = '''SELECT dirs.dir || filename AS path, album, artist, comment, genre, title, track, year FROM tracks INNER JOIN dirs ON tracks.dir_id == dirs.OID WHERE %s'''
+SearchTracksQuery = '''SELECT path, album, artist, comment, genre, title, track, year FROM search WHERE (%s)'''
 DropSearchViewQuery = '''DROP VIEW IF EXISTS search'''
-CreateSearchViewQuery = '''CREATE TEMPORARY VIEW search AS SELECT dirs.path || filename AS path, album, artist, comment, genre, title, track, year, %s AS field FROM tracks INNER JOIN dirs ON tracks.dir_id == dirs.OID'''
+CreateSearchViewQuery = '''CREATE TEMPORARY VIEW search AS SELECT dirs.dir || filename AS path, album, artist, comment, genre, title, track, year, %s AS field FROM tracks INNER JOIN dirs ON tracks.dir_id == dirs.OID'''
 
 CreateSearchTableQuery = '''
 CREATE TABLE IF NOT EXISTS searches
@@ -88,6 +88,17 @@ CREATE TABLE IF NOT EXISTS searches
 AddSearchQuery = '''INSERT OR REPLACE INTO searches VALUES (?, ?, ?)'''
 GetSearchesQuery = '''SELECT * FROM searches'''
 DeleteSearchQuery = '''DELETE FROM searches WHERE name = ?'''
+
+PathToDirMigrationScript = '''
+ALTER TABLE roots RENAME TO roots_old;
+CREATE TABLE roots (dir TEXT NOT NULL PRIMARY KEY);
+INSERT INTO roots (OID, dir) SELECT OID, path FROM roots_old;
+DROP TABLE roots_old;
+ALTER TABLE dirs RENAME TO dirs_old;
+CREATE TABLE dirs (dir TEXT NOT NULL PRIMARY KEY, parent_id INTEGER);
+INSERT INTO dirs (OID, dir, parent_id) SELECT OID, path, parent_id FROM dirs_old;
+DROP TABLE dirs_old;
+'''
 
 class DB:
   def __init__(self, path = None):
@@ -109,47 +120,57 @@ class DB:
     cursor.execute(CreateDirTableQuery)
     cursor.execute(CreateTrackTableQuery)
     cursor.execute(CreateSearchTableQuery)
+    self.migrate_path_to_dir()
+    self.set_sort_order('album', 'track', 'title')
     self.set_search_fields('artist', 'album', 'title')
 
   def __del__(self):
     self.conn.close()
+
+  def migrate_path_to_dir(self):
+    cursor = self.conn.cursor()
+    try:
+      self.get_roots()
+    except sqlite.OperationalError:
+      print 'Note: Migrating database (rename path to dir in roots and dirs).'
+      cursor.executescript(PathToDirMigrationScript)
 
   def update(self, yield_func):
     from scanner import Scanner
     scanner = Scanner(self, yield_func)
     scanner.update()
 
-  def add_root(self, path):
-    path = os.path.abspath(path) + '/'
+  def add_root(self, dir):
+    dir = os.path.join(os.path.abspath(dir), '')
     cursor = self.conn.cursor()
-    symbols = (len(path), path)
+    symbols = (len(dir), dir)
     result = cursor.execute(GetRootStartsWithQuery, symbols)
     for row in result:
-      if row[0] != path:
+      if row[0] != dir:
         self.delete_root(row[0])
-    symbols = (path, )
+    symbols = (dir, )
     cursor.execute(AddRootQuery, symbols)
 
   def get_roots(self):
     cursor = self.conn.cursor()
     return cursor.execute(GetRootsQuery)
 
-  def delete_root(self, path):
+  def delete_root(self, dir):
     cursor = self.conn.cursor()
-    symbols = (path, )
+    symbols = (dir, )
     row = cursor.execute(GetDirIdQuery, symbols).fetchone()
     if row is not None:
       self.delete_dir_by_dir_id(row[0])
     cursor.execute(DeleteRootQuery, symbols)
 
-  def get_dir_id(self, parent, path):
+  def get_dir_id(self, parent, dir):
     cursor = self.conn.cursor()
-    symbols = (path, )
+    symbols = (dir, )
     row = cursor.execute(GetDirIdQuery, symbols).fetchone()
     if row is None:
-      symbols = (path, parent)
+      symbols = (dir, parent)
       cursor.execute(AddDirQuery, symbols)
-      return self.get_dir_id(parent, path)
+      return self.get_dir_id(parent, dir)
     else:
       return row[0]
 
@@ -198,25 +219,28 @@ class DB:
     cursor.execute(DropSearchViewQuery)
     if fields:
       symbol = ' || " " || '.join(fields)
-      symbol = symbol.replace('path', 'dirs.path||filename')
+      symbol = symbol.replace('path', 'dirs.dir || filename')
       cursor.execute(CreateSearchViewQuery % symbol)
 
-  def find_tracks(self, **kwargs):
-    cursor = self.conn.cursor()
-    query = 'SELECT * FROM search WHERE'
-    symbols = []
-    where = ''
-    for key, value in kwargs.items():
-      if where:
-        where += ' AND'
-      where += ' ' + key + ' LIKE ?'
-      symbols.append(value)
-    return cursor.execute(query + ' ' + where, symbols)
+  def set_sort_order(self, *fields):
+    self.sort_order = []
+    for field in fields:
+#      if field == 'path':
+#        self.sort_order.append('dirs.path')
+#        self.sort_order.append('filename')
+#      else:
+        self.sort_order.append(field)
+
+  def get_sort_order(self):
+    if self.sort_order:
+      return ' ORDER BY ' + ', '.join(self.sort_order)
+    else:
+      return ''
 
   def query_tracks(self, query):
     cursor = self.conn.cursor()
     query, symbols = translate_query(query)
-    query = QueryTracksQuery % query
+    query = QueryTracksQuery % query + self.get_sort_order()
     return cursor.execute(query, symbols)
 
   def search_tracks(self, query):
@@ -233,7 +257,8 @@ class DB:
       symbols += ['%%%s%%' % part for part in query]
 
     cursor = self.conn.cursor()
-    query = 'SELECT * FROM search WHERE (' + ') OR ('.join(clauses) + ') ORDER BY album, track, title'
+    query = SearchTracksQuery % ') OR ('.join(clauses)
+    query += self.get_sort_order()
     return cursor.execute(query, symbols)
 
   def get_distinct_track_info(self, *fields):
