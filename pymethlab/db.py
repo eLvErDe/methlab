@@ -203,7 +203,8 @@ class DB:
     cursor = self.conn.cursor()
     cursor.execute(DropSearchViewQuery)
     if fields:
-      symbol = ' || " " ||'.join(fields)
+      symbol = ' || " " || '.join(fields)
+      symbol = symbol.replace('path', 'dirs.path||filename')
       cursor.execute(CreateSearchViewQuery % symbol)
 
   def find_tracks(self, **kwargs):
