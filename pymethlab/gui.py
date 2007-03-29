@@ -37,13 +37,31 @@ def query_escape(s):
 
 # The main window
 class MethLabWindow:
+  CONFIG_PATH = '~/.methlab/config'
+  DEFAULT_DRIVER = DummyDriver.name
+  DEFAULT_UPDATE_ON_STARTUP = True
+  DEFAULT_COLUMN_ORDER = 'path artist album track title year genre comment'
+  DEFAULT_VISIBLE_COLUMNS = 'artist album track title'
+
+  DEFAULT_CONFIG = {
+    'options': {
+      'driver': DEFAULT_DRIVER,
+      'update_on_startup': `DEFAULT_UPDATE_ON_STARTUP`
+    },
+    'interface': {
+      'column_order': DEFAULT_COLUMN_ORDER,
+      'visible_columns': DEFAULT_VISIBLE_COLUMNS
+    }
+  }
+
   def __init__(self):
     # Set the default configuration and load the configuration file
     self.config = ConfigParser()
-    self.config.add_section('options')
-    self.config.set('options', 'driver', DummyDriver.name)
-    self.config.set('options', 'update_on_startup', 'True')
-    self.config.read(os.path.expanduser('~/.methlab/config'))
+    for section, options in self.DEFAULT_CONFIG.items():
+      self.config.add_section(section)
+      for key, value in options.items():
+        self.config.set(section, key, value)
+    self.config.read(os.path.expanduser(self.CONFIG_PATH))
 
     # Create our database back-end
     self.db = DB()
@@ -54,6 +72,19 @@ class MethLabWindow:
     # Some timeout tags we may wish to cancel
     self.search_timeout_tag = None
     self.flash_timeout_tag = None
+
+    # A tuple describing all the result columns (name, field, model_col)
+    self.result_columns = \
+    {
+      'path': ('Path', 0),
+      'artist': ('Artist', 1),
+      'album': ('Album', 2),
+      'track': ('#', 3),
+      'title': ('Title', 4),
+      'year': ('Year', 5),
+      'genre': ('Genre', 6),
+      'comment': ('Comment', 7)
+    }
 
     # Load the gui from the XML file
     self.gladefile = os.path.join(os.path.split(__file__)[0], 'methlab.glade')
@@ -125,16 +156,42 @@ class MethLabWindow:
     # 7: Comment
     self.results_model.set_sort_func(7, case_insensitive_cmp)
 
+    # Get the column order and do a sanity check
+    column_order = self.config.get('interface', 'column_order').split(' ')
+    a = column_order[:]
+    a.sort()
+    b = self.result_columns.keys()
+    b.sort()
+    if a != b:
+      column_order = self.DEFAULT_COLUMN_ORDER.split(' ')
+
+    # What fields does the user wish to see and do a sanity check
+    visible_columns = self.config.get('interface', 'visible_columns').split(' ')
+    visible_columns = [column for column in visible_columns if column in column_order]
+    if not visible_columns:
+      visible_columns = self.DEFAULT_VISIBLE_COLUMNS
+
     # Set up the results tree view
-    self.tvResults.append_column(gtk.TreeViewColumn('Artist', cell_renderer, text = 1))
-    self.tvResults.append_column(gtk.TreeViewColumn('Album', cell_renderer, text = 2))
-    self.tvResults.append_column(gtk.TreeViewColumn('#', cell_renderer, text = 3))
-    self.tvResults.append_column(gtk.TreeViewColumn('Title', cell_renderer, text = 4))
-    for col in self.tvResults.get_columns():
-      col.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
-      col.set_reorderable(True)
+    for column_field in column_order:
+      column_name, column_id = self.result_columns[column_field]
+      column = gtk.TreeViewColumn(None, cell_renderer, text = column_id)
+      column.field = column_field
+      column.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
+      column.set_reorderable(True)
+      column.set_visible(column_field in visible_columns)
+      self.tvResults.append_column(column)
+      # Haxory and trixory to be able to catch right click on the header
+      column.set_clickable(True)
+      column.set_widget(gtk.Label(column_name))
+      column.get_widget().show()
+      parent = column.get_widget().parent
+      while parent and not isinstance(parent, gtk.Button):
+        parent = parent.parent
+      if parent:
+        parent.connect('button-press-event', self.on_results_header_button_press_event)
     self.tvResults.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
     self.tvResults.set_model(self.results_model)
+    self.tvResults.connect('columns-changed', self.on_results_columns_changed)
 
     # Fix and hook up the expanders
     self.btnSearchOptions.connect('clicked', self.on_section_button_clicked)
@@ -295,9 +352,11 @@ class MethLabWindow:
     if not self.config.has_section(section):
       self.config.add_section(option)
     self.config.set(section, option, value)
-    if not os.path.exists(os.path.expanduser('~/.methlab')):
-      os.path.makedirs(os.path.expanduser('~/.methlab'))
-    self.config.write(open(os.path.expanduser('~/.methlab/config'), 'w'))
+    config_path = os.path.expanduser(self.CONFIG_PATH)
+    config_dir = os.path.split(config_path)[0]
+    if not os.path.exists(config_dir):
+      os.path.makedirs(config_dir)
+    self.config.write(open(config_path, 'w'))
 
   # Get a list of fields that are enabled
   def get_active_search_fields(self):
@@ -549,22 +608,52 @@ class MethLabWindow:
     self.cancel_search_timeout()
     if self.inhibit_search:
       return
-
     text = editable.get_text()
-
     if not text:
       self.search()
       return
-
     if text[0] == '@' or len(text) <= 3:
       return
-
     self.search_timeout_tag = gobject.timeout_add(500, self.on_search_timeout)
 
   def on_search_timeout(self):
     self.search_timeout_tag = None
     self.search(True)
     return False
+
+  def on_results_header_button_press_event(self, widget, event):
+    if event.button == 3:
+      columns = self.tvResults.get_columns()
+      visible_columns = [column for column in columns if column.get_visible()]
+      one_visible_column = len(visible_columns) == 1
+      menu = gtk.Menu()
+      for column in columns:
+        item = gtk.CheckMenuItem(column.get_widget().get_text())
+        if column in visible_columns:
+          item.set_active(True)
+          if one_visible_column:
+            item.set_sensitive(False)
+        else:
+          item.set_active(False)
+        item.connect('activate', self.on_result_header_popup_activate, column)
+        menu.append(item)
+      menu.show_all()
+      menu.popup(None, None, None, event.button, event.time)
+      return True
+    return False
+
+  def on_result_header_popup_activate(self, menuitem, column):
+    column.set_visible(not column.get_visible())
+    visible_columns = ' '.join([column.field for column in self.tvResults.get_columns() if column.get_visible()])
+    self.set_config('interface', 'visible_columns', visible_columns)
+
+  def on_results_columns_changed(self, treeview):
+    columns = treeview.get_columns()
+    if len(columns) != len(self.result_columns):
+      # Don't save the column order during destruction
+      return
+    column_order = ' '.join([column.field for column in columns])
+    self.set_config('interface', 'column_order', column_order)
 
   def on_play_results(self, button):
     files = self.get_selected_result_paths()
