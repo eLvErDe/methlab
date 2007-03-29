@@ -462,8 +462,7 @@ class MethLabWindow:
       if query[0] == '@':
         results = self.db.query_tracks(query[1:])
       else:
-        args = query.split()
-        results = self.db.search(*args)
+        results = self.db.search_tracks(query)
     except sqlite.OperationalError:
       self.flash_search_entry()
       return

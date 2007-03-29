@@ -225,15 +225,21 @@ class DB:
     query = QueryTracksQuery % query
     return cursor.execute(query, symbols)
 
-  def search(self, *args):
+  def search_tracks(self, query):
+    # Chop op the query:
+    # a b | c d --> (a AND b) OR (c AND d)
+
+    clauses = []
+    symbols = []
+
+    queries = [q.strip() for q in query.split('|') if q.strip()]
+    queries = [[p.strip() for p in q.split() if p.strip()] for q in queries]
+    for query in queries:
+      clauses.append(' AND '.join(['field LIKE ?'] * len(query)))
+      symbols += ['%%%s%%' % part for part in query]
+
     cursor = self.conn.cursor()
-    query = "SELECT * FROM search WHERE"
-    for i in range(len(args)):
-      if i > 0:
-        query += ' AND'
-      query += ' field LIKE ?'
-    query += ' ORDER BY album, track, title'
-    symbols = tuple(['%%%s%%' % arg for arg in args])
+    query = 'SELECT * FROM search WHERE (' + ') OR ('.join(clauses) + ') ORDER BY album, track, title'
     return cursor.execute(query, symbols)
 
   def get_distinct_track_info(self, *fields):
