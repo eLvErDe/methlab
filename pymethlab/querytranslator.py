@@ -1,3 +1,20 @@
+#  methlab - A music library application
+#  Copyright (C) 2007 Ingmar K. Steen (iksteen@gmail.com)
+#
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 2 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
 __all__ = ['QueryTranslatorException', 'translate_query']
 
 import string
@@ -116,7 +133,7 @@ class QueryTranslator:
     if not self.query:
       raise QueryTranslatorException('Unterminated string near end of query')
 
-    token = ""
+    token = ''
     escape = False
     while not (self.query[0] == quote and not escape):
       c = self.query[0]
@@ -134,7 +151,7 @@ class QueryTranslator:
     return token
 
   def get_word_token(self):
-    token = ""
+    token = ''
     while self.query and not self.query[0] in self.SYMBOLS + (' ', ):
       token += self.query[0]
       self.query = self.query[1:]

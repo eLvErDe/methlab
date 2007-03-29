@@ -27,7 +27,7 @@ class DummyDriver:
     pass
 
 class PyXmmsDriver:
-  name = "XMMS driver (using PyXMMS)"
+  name = 'XMMS driver (using PyXMMS)'
   def __init__(self):
     import xmms.control
     self.xmms = xmms.control
@@ -40,7 +40,7 @@ class PyXmmsDriver:
     self.xmms.playlist_add(files)
 
 class XmmsAlikeDriver:
-  name = "XMMS driver (using xmmsalike)"
+  name = 'XMMS driver (using xmmsalike)'
   flavor = 'xmms'
   def __init__(self):
     import xmmsalike
@@ -55,11 +55,11 @@ class XmmsAlikeDriver:
     self.xmms.playlist_add(files)
 
 class AudaciousDriver(XmmsAlikeDriver):
-  name = "Audacious driver (using xmmsalike)"
+  name = 'Audacious driver (using xmmsalike)'
   flavor = 'audacious'
 
 class BeepDriver(XmmsAlikeDriver):
-  name = "Beep driver (using xmmsalike)"
+  name = 'Beep driver (using xmmsalike)'
   flavor = 'beep'
 
 DRIVERS = (DummyDriver, PyXmmsDriver, XmmsAlikeDriver, AudaciousDriver, BeepDriver)

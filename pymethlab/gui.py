@@ -118,7 +118,7 @@ class MethLabWindow:
     self.update_artists_albums_model()
 
     # Set up the artists / albums tree view
-    col = gtk.TreeViewColumn("Artist / Album", cell_renderer, text = 0)
+    col = gtk.TreeViewColumn('Artist / Album', cell_renderer, text = 0)
     self.tvArtistsAlbums.append_column(col)
     self.tvArtistsAlbums.set_model(self.artists_albums_model)
     self.update_artists_collapsible()
@@ -133,7 +133,7 @@ class MethLabWindow:
     self.update_searches_model()
 
     # Set up the saved searches tree view
-    self.tvSearches.append_column(gtk.TreeViewColumn("Saved search", cell_renderer, text = 0))
+    self.tvSearches.append_column(gtk.TreeViewColumn('Saved search', cell_renderer, text = 0))
     self.tvSearches.set_model(self.searches_model)
     self.tvSearches.get_selection().connect('changed', self.on_searches_selection_changed)
     self.tvSearches.connect('button-press-event', self.on_searches_button_press_event)
@@ -260,7 +260,7 @@ class MethLabWindow:
   def build_menus(self):
     # Create the File menu
     self.filemenu = gtk.Menu()
-    filemenu_item = gtk.MenuItem("_File")
+    filemenu_item = gtk.MenuItem('_File')
     filemenu_item.set_submenu(self.filemenu)
     self.menubar.append(filemenu_item)
 
@@ -410,7 +410,7 @@ class MethLabWindow:
     self.db.set_search_fields(*fields)
 
   def update_artists_albums_model(self):
-    artists = [row["artist"] for row in self.db.get_artists()]
+    artists = [row['artist'] for row in self.db.get_artists()]
     for artist in artists:
       if not self.artist_iters.has_key(artist):
         iter = self.artists_albums_model.append(None)
@@ -537,7 +537,7 @@ class MethLabWindow:
 
     dialog = gtk.Dialog \
     (
-      "Please wait...",
+      'Please wait...',
       self.window,
       gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT
     )
@@ -716,13 +716,13 @@ class MethLabWindow:
 
     dialog = gtk.Dialog \
     (
-      "Save search",
+      'Save search',
       self.window,
       gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
       (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
        gtk.STOCK_OK,     gtk.RESPONSE_ACCEPT)
     )
-    dialog.vbox.pack_start(gtk.Label("Name of the search"))
+    dialog.vbox.pack_start(gtk.Label('Name of the search'))
     entry = gtk.Entry()
     entry.set_text(name)
     entry.connect('activate', lambda w: dialog.response(gtk.RESPONSE_ACCEPT))
