@@ -42,25 +42,28 @@ class MethLabWindow:
   DEFAULT_UPDATE_ON_STARTUP = True
   DEFAULT_COLUMN_ORDER = 'path artist album track title year genre comment'
   DEFAULT_VISIBLE_COLUMNS = 'artist album track title'
+  DEFAULT_ARTISTS_COLLAPSIBLE = False
 
   DEFAULT_CONFIG = {
     'options': {
       'driver': DEFAULT_DRIVER,
-      'update_on_startup': `DEFAULT_UPDATE_ON_STARTUP`
+      'update_on_startup': `DEFAULT_UPDATE_ON_STARTUP`,
     },
     'interface': {
       'column_order': DEFAULT_COLUMN_ORDER,
-      'visible_columns': DEFAULT_VISIBLE_COLUMNS
+      'visible_columns': DEFAULT_VISIBLE_COLUMNS,
+      'artists_collapsible': `DEFAULT_ARTISTS_COLLAPSIBLE`,
     }
   }
 
   def __init__(self):
-    # Set the default configuration and load the configuration file
+    # Set the default configuration options
     self.config = ConfigParser()
     for section, options in self.DEFAULT_CONFIG.items():
       self.config.add_section(section)
       for key, value in options.items():
         self.config.set(section, key, value)
+    # Merge configuration file with default options
     self.config.read(os.path.expanduser(self.CONFIG_PATH))
 
     # Create our database back-end
@@ -118,7 +121,7 @@ class MethLabWindow:
     col = gtk.TreeViewColumn("Artist / Album", cell_renderer, text = 0)
     self.tvArtistsAlbums.append_column(col)
     self.tvArtistsAlbums.set_model(self.artists_albums_model)
-    self.tvArtistsAlbums.expand_all()
+    self.update_artists_collapsible()
     self.tvArtistsAlbums.get_selection().connect('changed', self.on_artists_albums_selection_changed)
     self.tvArtistsAlbums.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
 
@@ -195,6 +198,7 @@ class MethLabWindow:
     self.btnSearchOptions.connect('clicked', self.on_section_button_clicked)
     self.btnSearches.connect('clicked', self.on_section_button_clicked)
     self.btnArtistsAlbums.connect('clicked', self.on_section_button_clicked)
+    self.btnArtistsAlbums.connect('button-press-event', self.on_artists_albums_button_press_event)
 
     # Hook up the search options
     self.cbSearchPath.connect('toggled', self.on_search_field_toggled)
@@ -355,6 +359,16 @@ class MethLabWindow:
     if not os.path.exists(config_dir):
       os.path.makedirs(config_dir)
     self.config.write(open(config_path, 'w'))
+
+  def update_artists_collapsible(self):
+    collapsible = self.config.getboolean('interface', 'artists_collapsible')
+    self.tvArtistsAlbums.set_enable_tree_lines(not collapsible)
+    self.tvArtistsAlbums.set_property('show-expanders', collapsible)
+    if collapsible:
+      self.tvArtistsAlbums.set_property('level-indentation', 0)
+    else:
+      self.tvArtistsAlbums.set_property('level-indentation', 25)
+      self.tvArtistsAlbums.expand_all()
 
   # Get a list of fields that are enabled
   def get_active_search_fields(self):
@@ -534,7 +548,8 @@ class MethLabWindow:
     self.db.update(yield_func)
     dialog.destroy()
     self.update_artists_albums_model()
-    self.tvArtistsAlbums.expand_all()
+    if self.config.getboolean('interface', 'artists_collapsible'):
+      self.tvArtistsAlbums.expand_all()
     self.search()
 
   def add_to_history(self, query):
@@ -574,6 +589,21 @@ class MethLabWindow:
       self.swSearches.hide()
       self.tvArtistsAlbums.realize()
       self.tvArtistsAlbums.grab_focus()
+
+  def on_artists_albums_button_press_event(self, widget, event):
+    if event.button == 3:
+      menu = gtk.Menu()
+      item = gtk.CheckMenuItem('Collapsible artists')
+      item.set_active(self.config.getboolean('interface', 'artists_collapsible'))
+      item.connect('toggled', self.on_artists_albums_popup_collapsible_artists_toggled)
+      menu.append(item)
+      menu.show_all()
+      menu.popup(None, None, None, event.button, event.time)
+      return True
+
+  def on_artists_albums_popup_collapsible_artists_toggled(self, menuitem):
+    self.set_config('interface', 'artists_collapsible', menuitem.get_active())
+    self.update_artists_collapsible()
 
   def on_artists_albums_selection_changed(self, selection):
     model, paths = selection.get_selected_rows()
