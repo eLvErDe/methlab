@@ -180,7 +180,13 @@ class DB:
   def add_track(self, dir_id, filename, mtime, tag):
     cursor = self.conn.cursor()
     symbols = (dir_id, filename, mtime, tag.album, tag.artist, tag.comment, tag.genre, tag.title, tag.track, tag.year)
-    cursor.execute(AddTrackQuery, symbols)
+    symbols_ = []
+    for symbol in symbols:
+      if callable(symbol):
+        symbols_.append(symbol())
+      else:
+        symbols_.append(symbol)
+    cursor.execute(AddTrackQuery, symbols_)
 
   def get_filenames_by_dir_id(self, dir_id):
     cursor = self.conn.cursor()
