@@ -2,12 +2,12 @@ Things to do before MethLab will be totally and utterly finished until
 someone comes up with another idea:
 
 Infrastructure:
- - Homepage / trac / something
+ - Homepage / trac / something.
 
 Core-stuff / dependencies:
- - Support Python 2.? - 2.4, py-sqlite2.
- - Check which PyGTK version is required and check that at runtime.
- - Look into supporting mutagen instead of TagPy.
+ - Check which python version is required at least.
+ - Check which PyGTK version is required at least and disable features that
+   are not supported by the PyGTK version in use.
 
 Usability:
  - Some way of telling the user a search came up empty.

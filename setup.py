@@ -11,7 +11,6 @@ setup(name = 'methlab',
       license = 'GPL',
       scripts = ['methlab', 'methlab-db'],
       packages = ['pymethlab'],
-#      package_dir = {'pymethlab': 'pymethlab'},
       package_data = {'pymethlab': ['*.glade']},
 )
       

@@ -15,7 +15,8 @@
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import os, stat, tagpy
+import os, stat
+from tagwrap import get_tag
 
 class Scanner:
   def __init__(self, db, yield_func = None):
@@ -54,10 +55,11 @@ class Scanner:
           continue
         found_files.append(file)
         if self.db.get_track_mtime(dir_id, file) != statdata.st_mtime:
-          ref = tagpy.FileRef(path)
-          if not ref.isNull():
-            print "Adding '%s'..." % path
-            self.db.add_track(dir_id, file, long(statdata.st_mtime), ref.tag())
+          tag = get_tag(path)
+          if tag:
+            self.db.add_track(dir_id, file, long(statdata.st_mtime), tag)
+          else:
+            print "Skipping '%s'..." % path
 
     db_subdirs = self.db.get_subdirs_by_dir_id(dir_id)
     for subdir in db_subdirs:
