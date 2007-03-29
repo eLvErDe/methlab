@@ -356,9 +356,9 @@ class MethLabWindow:
       if not artist in artists:
         self.artists_albums_model.remove(iter)
         del self.artist_iters[artist]
-        for (artist_, album_) in self.artist_albums.keys():
+        for (artist_, album_), iter in self.album_iters.items():
           if artist_ == artist:
-            self.artist_albums.remove((artist_, album_))
+            del self.album_iters[(artist_, album_)]
 
     artists_albums = [(row['artist'], row['album']) for row in self.db.get_artists_albums()]
     for artist, album in artists_albums:
@@ -484,6 +484,9 @@ class MethLabWindow:
     dialog.show_all()
     self.db.update(yield_func)
     dialog.destroy()
+    self.update_artists_albums_model()
+    self.tvArtistsAlbums.expand_all()
+    self.search()
 
   def add_to_history(self, query):
     iter = self.history_model.get_iter_first()
