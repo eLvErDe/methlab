@@ -264,8 +264,8 @@ class MethLabWindow:
     filemenu_item.set_submenu(self.filemenu)
     self.menubar.append(filemenu_item)
 
-    # File -> Update library
-    self.filemenu_update = gtk.ImageMenuItem('_Update library')
+    # File -> Update library now
+    self.filemenu_update = gtk.ImageMenuItem('_Update library now')
     self.filemenu_update.set_image(gtk.image_new_from_stock(gtk.STOCK_REFRESH, gtk.ICON_SIZE_MENU))
     self.filemenu_update.connect('activate', self.on_file_update)
     self.filemenu.append(self.filemenu_update)
