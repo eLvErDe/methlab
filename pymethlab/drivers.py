@@ -62,4 +62,22 @@ class BeepDriver(XmmsAlikeDriver):
   name = 'Beep driver (using xmmsalike)'
   flavor = 'beep'
 
-DRIVERS = (DummyDriver, PyXmmsDriver, XmmsAlikeDriver, AudaciousDriver, BeepDriver)
+class MpdDriver:
+  name = 'MPD driver'
+  def __init__(self):
+    import mpdclient3
+    self.mpdclient = mpdclient3
+
+  def play(self, files):
+    mpd = self.mpdclient.connect()
+    mpd.do.clear()
+    for file in files:
+      mpd.do.add(file)
+    mpd.do.play(0)
+
+  def enqueue(self, files):
+    mpd = self.mpdclient.connect()
+    for file in files:
+      mpd.do.add(file)
+
+DRIVERS = (DummyDriver, PyXmmsDriver, XmmsAlikeDriver, AudaciousDriver, BeepDriver, MpdDriver)

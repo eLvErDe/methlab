@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
-<!--Generated with glade3 3.2.0 on Thu Mar 29 21:56:51 2007 by hyriand@doombox-->
+<!--Generated with glade3 3.2.0 on Fri Mar 30 02:25:39 2007 by hyriand@doombox-->
 <glade-interface>
   <widget class="GtkWindow" id="window">
     <property name="title" translatable="yes">MethLab Music Library</property>
@@ -246,7 +246,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="label" translatable="yes">S_ave</property>
+                        <property name="label" translatable="yes">S_ave query</property>
                         <property name="use_underline">True</property>
                         <property name="focus_on_click">False</property>
                       </widget>

@@ -136,7 +136,7 @@ class DB:
       cursor.executescript(PathToDirMigrationScript)
 
   def update(self, yield_func):
-    from scanner import Scanner
+    from mpdscanner import Scanner
     scanner = Scanner(self, yield_func)
     scanner.update()
 
