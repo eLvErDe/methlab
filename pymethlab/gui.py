@@ -98,14 +98,14 @@ class MethLabWindow:
     # A tuple describing all the result columns (name, field, model_col)
     self.result_columns = \
     {
-      'path': ('Path', 0),
-      'artist': ('Artist', 1),
-      'album': ('Album', 2),
-      'track': ('#', 3),
-      'title': ('Title', 4),
-      'year': ('Year', 5),
-      'genre': ('Genre', 6),
-      'comment': ('Comment', 7)
+      'path': (0, 'Path', 'Path'),
+      'artist': (1, 'Artist', 'Artist'),
+      'album': (2, 'Album', 'Album'),
+      'track': (3, '#', 'Track number'),
+      'title': (4, 'Title', 'Track title'),
+      'year': (5, 'Year', 'Year'),
+      'genre': (6, 'Genre', 'Genre'),
+      'comment': (7, 'Comment', 'Comment')
     }
 
     # Load the gui from the XML file
@@ -144,7 +144,7 @@ class MethLabWindow:
       iter = self.search_options_model.append()
       self.search_options_model.set_value(iter, 0, field)
       self.search_options_model.set_value(iter, 1, field in search_fields)
-      self.search_options_model.set_value(iter, 2, self.result_columns[field][0])
+      self.search_options_model.set_value(iter, 2, self.result_columns[field][2])
     # The reason we connect 'row-deleted' is because 'rows-reordered' does
     # not get emitted when a user re-orders the columns. The order of signals
     # that get emitted is: row-inserted, row-changed, row-deleted.
@@ -235,10 +235,11 @@ class MethLabWindow:
     # Set up the results tree view
     results_renderer = gtk.CellRendererText()
     for column_field in column_order:
-      column_name, column_id = self.result_columns[column_field]
+      column_id, column_name, column_long = self.result_columns[column_field]
       column = gtk.TreeViewColumn(None, results_renderer, text = column_id)
       column.field = column_field
       column.column_id = column_id
+      column.column_long = column_long
       column.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
       column.set_reorderable(True)
       column.set_visible(column_field in visible_columns)
@@ -815,7 +816,7 @@ class MethLabWindow:
       one_visible_column = len(visible_columns) == 1
       menu = gtk.Menu()
       for column in columns:
-        item = gtk.CheckMenuItem(column.get_widget().get_text())
+        item = gtk.CheckMenuItem(column.column_long)
         if column in visible_columns:
           item.set_active(True)
           if one_visible_column:
