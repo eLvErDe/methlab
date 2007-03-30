@@ -586,7 +586,7 @@ class MethLabWindow:
     for result in results:
       iter = self.results_model.append()
       self.results_model.set(iter,
-        0, result['path'],
+        0, result[0],
         1, result['artist'],
         2, result['album'],
         3, result['track'],
