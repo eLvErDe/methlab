@@ -13,33 +13,38 @@ MethLab depends on the following things:
    http://www.initd.org/tracker/pysqlite/wiki/pysqlite
 
 
-You'll also want a supported tagging library:
- - TagPy 0.91. Python bindings for TagLib. Fast and recommended.
-   http://news.tiker.net/software/tagpy
+MethLab comes with two database sources. Each has its own dependencies:
 
-or:
- - Mutagen ?.?.? (tested version 1.10.1). Pure python so probably easy to
-   install.
-   http://www.sacredchao.net/quodlibet/wiki/Development/Mutagen
+ - Filesystem database source (for use with xmms/audacious/beep):
 
+     You'll also need a support tagging library:
+     - TagPy 0.91. Python bindings for TagLib. Fast and recommended.
+       http://news.tiker.net/software/tagpy
+     or:
+     - Mutagen ?.?.? (tested version 1.10.1). Pure python so probably easy to
+       install.
+       http://www.sacredchao.net/quodlibet/wiki/Development/Mutagen
 
-It's useful to have the following things:
- - A supported audio player (xmms, audacious, beep). Beep wasn't tested
-   though.
-   http://www.xmms.org/download.php
-   http://audacious-media-player.org/Downloads
-   http://bmp.beep-media-player.org/index.php/Downloads   
+     It's useful to have the following things:
+     - A supported audio player (xmms, audacious, beep). Beep wasn't tested
+       though.
+       http://www.xmms.org/download.php
+       http://audacious-media-player.org/Downloads
+       http://bmp.beep-media-player.org/index.php/Downloads   
 
+     If you want to use MethLab with XMMS, you'll also need:
+     - PyXMMS (use the PyXMMS driver).
+       http://people.via.ecp.fr/~flo/2002/PyXMMS/dist
+     or:
+     - python-ctypes (part of Python 2.5) (use the xmmsalike driver).
+       http://python.net/crew/theller/ctypes/
 
-If you want to use MethLab with XMMS, you'll also need:
- - PyXMMS (use the PyXMMS driver).
-   http://people.via.ecp.fr/~flo/2002/PyXMMS/dist
+     If you want to use MethLab with audacious or beep, you'll need:
+     - python-ctypes (again, this is part of Python 2.5).
+       http://python.net/crew/theller/ctypes/
 
-or:
- - python-ctypes (part of Python 2.5) (use the xmmsalike driver).
-   http://python.net/crew/theller/ctypes/
+ - MPD database source:
 
-
-If you want to use MethLab with audacious or beep, you'll need:
- - python-ctypes (again, this is part of Python 2.5).
-   http://python.net/crew/theller/ctypes/
+     - You'll need mpd up and running and accept passwordless connections on
+       localhost:6600. If you can't make that work, you'll have to manually
+       edit the pymethlab/mpdclient3.py file (look at the end).
