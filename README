@@ -1,4 +1,12 @@
-MethLab depends on the following things:
+MethLab is a music library application that can interface with various
+music players (at the time of writing: xmms, beep, audacity and mpd).
+
+
+The homepage of MethLab is: http://trac.cz/trac/methlab
+
+
+MethLab has the following dependencies:
+
  - Python 2.5 (with the bundled sqlite3 library).
    http://www.python.org/download/
 

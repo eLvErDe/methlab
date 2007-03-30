@@ -1,9 +1,6 @@
 Things to do before MethLab will be totally and utterly finished until
 someone comes up with another idea:
 
-Infrastructure:
- - Homepage / trac / something.
-
 Core-stuff / dependencies:
  - Check which python version is required at least.
  - Check which PyGTK version is required at least and disable features that
