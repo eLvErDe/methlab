@@ -107,7 +107,7 @@ DROP TABLE dirs_old;
 class DB:
   def __init__(self, path = None, scanner_class = None):
     if path is None:
-      path = os.path.expanduser(os.path.join('~', '.methlab', 'methlab.db')
+      path = os.path.expanduser(os.path.join('~', '.methlab', 'methlab.db'))
     dir = os.path.split(path)[0]
     if not os.path.exists(dir):
       os.makedirs(dir)
