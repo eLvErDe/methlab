@@ -19,6 +19,7 @@ import os, stat
 from tagwrap import get_tag
 
 class Scanner:
+  name = 'Filesystem'
   def __init__(self, db, yield_func = None):
     self.db = db
     self.yield_func = yield_func

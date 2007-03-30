@@ -80,4 +80,4 @@ class MpdDriver:
     for file in files:
       mpd.do.add(file)
 
-DRIVERS = (DummyDriver, PyXmmsDriver, XmmsAlikeDriver, AudaciousDriver, BeepDriver)
+DRIVERS = (DummyDriver, PyXmmsDriver, XmmsAlikeDriver, AudaciousDriver, BeepDriver, MpdDriver)

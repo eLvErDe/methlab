@@ -26,6 +26,7 @@ from ConfigParser import ConfigParser
 from db import DB
 from querytranslator import QueryTranslatorException
 from drivers import DRIVERS, DummyDriver
+from db_sources import DB_SOURCES
 from db import sqlite
 
 # Case insensitive string compare
@@ -40,6 +41,7 @@ def query_escape(s):
 class MethLabWindow:
   CONFIG_PATH = '~/.methlab/config'
   # Generic options
+  DEFAULT_DB_SOURCE = 'Filesystem'
   DEFAULT_DRIVER = DummyDriver.name
   DEFAULT_UPDATE_ON_STARTUP = True
   DEFAULT_SEARCH_ON_ARTIST_AND_ALBUM = True
@@ -52,6 +54,7 @@ class MethLabWindow:
 
   DEFAULT_CONFIG = {
     'options': {
+      'db_source': DEFAULT_DB_SOURCE,
       'driver': DEFAULT_DRIVER,
       'update_on_startup': `DEFAULT_UPDATE_ON_STARTUP`,
       'search_on_artist_and_album': `DEFAULT_SEARCH_ON_ARTIST_AND_ALBUM`,
@@ -75,8 +78,15 @@ class MethLabWindow:
     # Merge configuration file with default options
     self.config.read(os.path.expanduser(self.CONFIG_PATH))
 
+    db_source = self.config.get('options', 'db_source')
+    for db_source_class in DB_SOURCES:
+      if db_source_class.name == db_source:
+        break
+    else:
+      db_source_class = FilesystemDbSource
+
     # Create our database back-end
-    self.db = DB()
+    self.db = DB(scanner_class = db_source_class)
 
     # If this value is not 0, searches will not occur
     self.inhibit_search = 1
@@ -267,7 +277,6 @@ class MethLabWindow:
     self.window.add_accel_group(accel_group)
     self.entSearch.add_accelerator('grab-focus', accel_group, ord('f'), gtk.gdk.CONTROL_MASK, 0)
     self.btnClearSearch.add_accelerator('clicked', accel_group, ord('e'), gtk.gdk.CONTROL_MASK, 0)
-# FIXME:
     for i in range(0, 8):
       accel_group.connect_group(ord(str(i + 1)), gtk.gdk.MOD1_MASK, 0, self.on_toggle_search_field)
 
@@ -320,11 +329,21 @@ class MethLabWindow:
     settingsmenu_item.set_submenu(self.settingsmenu)
     self.menubar.append(settingsmenu_item)
 
-    # Settings -> Update on startup
-    self.settingsmenu_update_on_startup = gtk.CheckMenuItem('_Update library on startup')
-    self.settingsmenu_update_on_startup.set_active(self.config.getboolean('options', 'update_on_startup'))
-    self.settingsmenu_update_on_startup.connect('toggled', self.on_settings_update_on_startup_toggled)
-    self.settingsmenu.append(self.settingsmenu_update_on_startup)
+    # Settings -> Database source
+    self.dbsourcemenu = gtk.Menu()
+    dbsourcemenu_item = gtk.MenuItem('_Database source')
+    dbsourcemenu_item.set_submenu(self.dbsourcemenu)
+    self.settingsmenu.append(dbsourcemenu_item)
+
+    # Settings -> Database source -> <...>
+    group = None
+    for db_source_class in DB_SOURCES:
+      item = gtk.RadioMenuItem(group, db_source_class.name)
+      if group is None:
+        group = item
+      item.set_active(db_source_class == self.db.get_scanner_class())
+      item.connect('toggled', self.on_settings_db_source_toggled, db_source_class)
+      self.dbsourcemenu.append(item)
 
     # Settings -> Directories
     self.settingsmenu_directories = gtk.ImageMenuItem('_Directories')
@@ -332,13 +351,22 @@ class MethLabWindow:
     self.settingsmenu_directories.connect('activate', self.on_settings_directories)
     self.settingsmenu.append(self.settingsmenu_directories)
 
+    # Settings -> Update on startup
+    self.settingsmenu_update_on_startup = gtk.CheckMenuItem('_Update library on startup')
+    self.settingsmenu_update_on_startup.set_active(self.config.getboolean('options', 'update_on_startup'))
+    self.settingsmenu_update_on_startup.connect('toggled', self.on_settings_update_on_startup_toggled)
+    self.settingsmenu.append(self.settingsmenu_update_on_startup)
+
+    # Separator
+    self.settingsmenu.append(gtk.SeparatorMenuItem())
+
     # Settings -> Audio player
     self.drivermenu = gtk.Menu()
     drivermenu_item = gtk.MenuItem('_Audio player')
     drivermenu_item.set_submenu(self.drivermenu)
     self.settingsmenu.append(drivermenu_item)
 
-    # Settings -> Driver -> <...>
+    # Settings -> Audio player -> <...>
     group = None
     for driver in DRIVERS:
       item = gtk.RadioMenuItem(group, driver.name)
@@ -383,6 +411,11 @@ class MethLabWindow:
       dialog.run()
       dialog.destroy()
       self.ap_driver = DummyDriver()
+
+  def set_db_source(self, db_source):
+    self.db.purge()
+    self.db.set_scanner_class(db_source)
+    self.update_db()
 
   def set_config(self, section, option, value):
     if type(value) != str:
@@ -608,7 +641,10 @@ class MethLabWindow:
     dialog.vbox.pack_start(gtk.Label('Please wait while MethLab updates the library...'))
     dialog.connect('delete_event', lambda w, e: True)
     dialog.show_all()
-    self.db.update(yield_func)
+    try:
+      self.db.update(yield_func)
+    except Exception, e:
+      print e
     dialog.destroy()
     self.update_artists_albums_model()
     if not self.config.getboolean('interface', 'artists_collapsible'):
@@ -923,6 +959,11 @@ class MethLabWindow:
     if menuitem.get_active():
       self.set_driver(driver)
       self.set_config('options', 'driver', driver)
+
+  def on_settings_db_source_toggled(self, menuitem, db_source_class):
+    if menuitem.get_active():
+      self.set_db_source(db_source_class)
+      self.set_config('options', 'db_source', db_source_class.name)
 
   def on_settings_update_on_startup_toggled(self, menuitem):
     self.set_config('options', 'update_on_startup', menuitem.get_active())

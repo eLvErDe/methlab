@@ -52,6 +52,8 @@ AddDirQuery = '''INSERT INTO dirs VALUES (?, ?)'''
 GetDirIdQuery = '''SELECT OID FROM dirs WHERE dir = ?'''
 GetSubdirsByDirIdQuery = '''SELECT OID, dir FROM dirs WHERE parent_id = ?'''
 DeleteDirQuery = '''DELETE FROM dirs WHERE OID = ?'''
+PurgeDirsQuery = '''DELETE FROM dirs'''
+
 CreateTrackTableQuery = '''
 CREATE TABLE IF NOT EXISTS tracks
 (
@@ -74,9 +76,11 @@ DeleteTrackQuery = '''DELETE FROM tracks WHERE dir_id = ? AND filename = ?'''
 DeleteTracksByDirIdQuery = '''DELETE FROM tracks WHERE dir_id = ?'''
 GetDistinctTrackInfoQuery = '''SELECT DISTINCT %s FROM tracks'''
 QueryTracksQuery = '''SELECT dirs.dir || filename AS path, album, artist, comment, genre, title, track, year FROM tracks INNER JOIN dirs ON tracks.dir_id == dirs.OID WHERE %s'''
-SearchTracksQuery = '''SELECT path, album, artist, comment, genre, title, track, year FROM search WHERE (%s)'''
+PurgeTracksQuery = '''DELETE FROM tracks'''
+
 DropSearchViewQuery = '''DROP VIEW IF EXISTS search'''
 CreateSearchViewQuery = '''CREATE TEMPORARY VIEW search AS SELECT dirs.dir || filename AS path, album, artist, comment, genre, title, track, year, %s AS field FROM tracks INNER JOIN dirs ON tracks.dir_id == dirs.OID'''
+SearchTracksQuery = '''SELECT path, album, artist, comment, genre, title, track, year FROM search WHERE (%s)'''
 
 CreateSearchTableQuery = '''
 CREATE TABLE IF NOT EXISTS searches
@@ -101,7 +105,7 @@ DROP TABLE dirs_old;
 '''
 
 class DB:
-  def __init__(self, path = None):
+  def __init__(self, path = None, scanner_class = None):
     if path is None:
       path = os.path.expanduser('~/.methlab/methlab.db')
     dir = os.path.split(path)[0]
@@ -109,7 +113,9 @@ class DB:
       os.makedirs(dir)
     self.path = path
 
-    self.scanner = None
+    if scanner_class is None:
+      from scanner import Scanner as scanner_class
+    self.scanner_class = scanner_class
 
     self.conn = conn = sqlite.connect(path)
     conn.isolation_level = None
@@ -135,9 +141,19 @@ class DB:
       print 'Note: Migrating database (rename path to dir in roots and dirs).'
       cursor.executescript(PathToDirMigrationScript)
 
+  def get_scanner_class(self):
+    return self.scanner_class
+
+  def set_scanner_class(self, scanner_class):
+    self.scanner_class = scanner_class
+
+  def purge(self):
+    cursor = self.conn.cursor()
+    cursor.execute(PurgeDirsQuery)
+    cursor.execute(PurgeTracksQuery)
+
   def update(self, yield_func):
-    from scanner import Scanner
-    scanner = Scanner(self, yield_func)
+    scanner = self.scanner_class(self, yield_func)
     scanner.update()
 
   def add_root(self, dir):
