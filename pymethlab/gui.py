@@ -39,7 +39,7 @@ def query_escape(s):
 
 # The main window
 class MethLabWindow:
-  CONFIG_PATH = '~/.methlab/config'
+  CONFIG_PATH = os.path.join('~', '.methlab', 'config')
   # Generic options
   DEFAULT_DB_SOURCE = 'Filesystem'
   DEFAULT_DRIVER = DummyDriver.name
@@ -943,7 +943,7 @@ class MethLabWindow:
       dirs = [row[0] for row in model]
       for root in roots:
         if not root in dirs:
-          self.db.delete_root(root + '/')
+          self.db.delete_root(os.path.join(root, ''))
           changed = True
       for dir in dirs:
         if not dir in roots:

@@ -49,8 +49,8 @@ class Scanner:
       if stat.S_ISDIR(statdata.st_mode):
         if not os.access(path, os.R_OK | os.X_OK):
           continue
-        found_subdirs.append(path + '/')
-        self.update_dir(dir_id, path + '/')
+        found_subdirs.append(os.path.join(path, ''))
+        self.update_dir(dir_id, os.path.join(path, ''))
       elif stat.S_ISREG(statdata.st_mode):
         if not os.access(path, os.R_OK):
           continue
