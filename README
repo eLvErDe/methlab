@@ -2,7 +2,7 @@ MethLab is a music library application that can interface with various
 music players (at the time of writing: xmms, beep, audacity and mpd).
 
 
-The homepage of MethLab is: http://trac.cz/trac/methlab
+The homepage of MethLab is: http://methlab.thegraveyard.org/
 
 
 MethLab has the following dependencies:
