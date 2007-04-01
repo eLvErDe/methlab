@@ -1,24 +1,3 @@
-Things to do before MethLab will be totally and utterly finished until
-someone comes up with another idea:
-
-Core-stuff / dependencies:
- - Check which python version is required at least.
- - Check which PyGTK version is required at least and disable features that
-   are not supported by the PyGTK version in use.
-
-Usability:
- - Some way of telling the user a search came up empty.
- - Configurable hot-keys.
- - A proper settings dialog instead of a crappy settings menu,
-   scattered context menus and the directory dialog.
-
-Features:
- - Tag editor / tag corrector.
- - Support more audioplayers.
- - Tray icon and a global hotkey to bring MethLab to the foreground.
- - A menu for search result items that does useful things (search album,
-   things like that).
- - Shove the DB handling into a seperate thread so the user interface won't
-   ever lock up (well, unless your query yields lots of results).
- - MPD backend / driver settings.
- - Album art?
+To see an up-to-date list of future enhancements, see this report on the
+trac:
+http://methlab.thegraveyard.org/report/9
