@@ -55,4 +55,5 @@ MethLab comes with two database sources. Each has its own dependencies:
 
      - You'll need mpd up and running and accept passwordless connections on
        localhost:6600. If you can't make that work, you'll have to manually
-       edit the pymethlab/mpdclient3.py file (look at the end).
+       edit the pymethlab/drivers|db_sources/mpdclient3.py file (look at the
+       end).
