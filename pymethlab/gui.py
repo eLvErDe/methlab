@@ -757,8 +757,9 @@ class MethLabWindow:
       return
     self.inhibit_search += 1
     query, fields = model.get(iter, 1, 2)
-    fields = fields.split(' ')
-    self.set_active_search_fields(fields)
+    if query[:1] != '@':
+      fields = fields.split(' ')
+      self.set_active_search_fields(fields)
     self.entSearch.set_text(query)
     self.inhibit_search -= 1
     self.search()
@@ -857,7 +858,11 @@ class MethLabWindow:
     query = self.entSearch.get_text()
     if not query:
       return
-    fields = self.config.get('options', 'search_fields')
+
+    if query[0] != '@':
+      fields = self.get_active_search_fields()
+    else:
+      fields = []
 
     sel = self.tvSearches.get_selection()
     model, iter = sel.get_selected()
@@ -867,7 +872,8 @@ class MethLabWindow:
       if query[:1] == '@':
         name = query
       else:
-        name = "'" + query + "' in " + ', '.join(fields)
+        fields_long = [self.result_columns[field][2] for field in fields]
+        name = "'%s' in %s" % (query, ', '.join(fields_long))
 
     dialog = gtk.Dialog \
     (
