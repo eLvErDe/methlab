@@ -217,6 +217,10 @@ class MethLabWindow:
     # 7: Comment
     self.results_model.set_sort_func(7, case_insensitive_cmp)
 
+    # Set up the no_results model
+    self.no_results_model = gtk.ListStore(str, str, str, int, str, int, str, str)
+    self.no_results_model.append()
+
     # Get the column order and do a sanity check
     column_order = self.config.get('interface', 'column_order').split(' ')
     a = column_order[:]
@@ -482,6 +486,15 @@ class MethLabWindow:
       cell.set_property('style', pango.STYLE_NORMAL)
 
   def get_results_cell_data(self, column, cell, model, iter):
+    if model == self.no_results_model:
+      if column is self.tvResults.get_column(0):
+        cell.set_property('style', pango.STYLE_ITALIC)
+        cell.set_property('text', 'Your search did not return any results.')
+      else:
+        cell.set_property('style', pango.STYLE_NORMAL)
+        cell.set_property('text', '')
+      return
+
     field = column.field
     column_id = column.column_id
     value = model.get_value(iter, column_id)
@@ -566,6 +579,10 @@ class MethLabWindow:
     self.unflash_search_entry()
 
     self.results_model.clear()
+    if self.tvResults.get_model() != self.results_model:
+      self.tvResults.set_model(self.results_model)
+      self.tvResults.set_sensitive(True)
+
     query = self.entSearch.get_text()
     if not query:
       return
@@ -584,7 +601,9 @@ class MethLabWindow:
     if add_to_history:
       self.add_to_history(query)
 
+    have_results = False
     for result in results:
+      have_results = True
       iter = self.results_model.append()
       self.results_model.set(iter,
         0, result[0],
@@ -596,6 +615,10 @@ class MethLabWindow:
         6, result['genre'],
         7, result['comment']
       )
+
+    if not have_results:
+      self.tvResults.set_model(self.no_results_model)
+      self.tvResults.set_sensitive(False)
 
   def cancel_flash_search_entry(self):
     if self.flash_timeout_tag is not None:
