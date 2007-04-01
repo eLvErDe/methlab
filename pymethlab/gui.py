@@ -865,15 +865,11 @@ class MethLabWindow:
       fields = []
 
     sel = self.tvSearches.get_selection()
-    model, iter = sel.get_selected()
-    if iter:
-      name = model.get_value(iter, 0)
+    if query[:1] == '@':
+      name = query
     else:
-      if query[:1] == '@':
-        name = query
-      else:
-        fields_long = [self.result_columns[field][2] for field in fields]
-        name = "'%s' in %s" % (query, ', '.join(fields_long))
+      fields_long = [self.result_columns[field][2] for field in fields]
+      name = "'%s' in %s" % (query, ', '.join(fields_long))
 
     dialog = gtk.Dialog \
     (
