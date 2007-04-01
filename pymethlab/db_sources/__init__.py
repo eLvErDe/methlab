@@ -34,6 +34,5 @@ def init():
 
 DB_SOURCES = init()
 for db_source in DB_SOURCES:
-  print `db_source.__name__`
   locals()[db_source.__name__] = db_source
 del db_source
