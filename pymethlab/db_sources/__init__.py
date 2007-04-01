@@ -15,10 +15,25 @@
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from scanner import Scanner as FilesystemDbSource
-from mpdscanner import Scanner as MpdDbSource
+__all__ = ['DB_SOURCES']
 
-DB_SOURCES = (
-  FilesystemDbSource,
-  MpdDbSource,
-)
+def init():
+  db_sources = []
+  import os, glob
+  dirname = os.path.split(__file__)[0]
+  for path in glob.glob(os.path.join(dirname, '*.py')):
+    filename = os.path.split(path)[1]
+    name = os.path.splitext(filename)[0]
+    if name == '__init__':
+      continue
+    mod = __import__(name, globals(), locals(), ['DB_SOURCES'], -1)
+    if hasattr(mod, 'DB_SOURCES'):
+      for db_source in mod.DB_SOURCES:
+        db_sources.append(getattr(mod, db_source))
+  return db_sources
+
+DB_SOURCES = init()
+for db_source in DB_SOURCES:
+  print `db_source.__name__`
+  locals()[db_source.__name__] = db_source
+del db_source

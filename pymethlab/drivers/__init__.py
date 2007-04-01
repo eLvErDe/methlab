@@ -26,10 +26,7 @@ def init():
     name = os.path.splitext(filename)[0]
     if name == '__init__':
       continue
-    try:
-      mod = __import__(name, globals(), locals(), ['DRIVERS'], -1)
-    except ImportError, e:
-      continue
+    mod = __import__(name, globals(), locals(), ['DRIVERS'], -1)
     if hasattr(mod, 'DRIVERS'):
       for driver in mod.DRIVERS:
         drivers.append(getattr(mod, driver))

@@ -26,7 +26,7 @@ from ConfigParser import ConfigParser
 from db import DB
 from querytranslator import QueryTranslatorException
 from drivers import DRIVERS, DummyDriver
-from db_sources import DB_SOURCES
+from db_sources import DB_SOURCES, FilesystemSource
 from db import sqlite
 
 # Case insensitive string compare
@@ -83,7 +83,7 @@ class MethLabWindow:
       if db_source_class.name == db_source:
         break
     else:
-      db_source_class = FilesystemDbSource
+      db_source_class = FilesystemSource
 
     # Create our database back-end
     self.db = DB(scanner_class = db_source_class)

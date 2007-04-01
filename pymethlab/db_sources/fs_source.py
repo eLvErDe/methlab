@@ -15,10 +15,12 @@
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+DB_SOURCES = ['FilesystemSource']
+
 import os, stat
 from tagwrap import get_tag
 
-class Scanner:
+class FilesystemSource:
   name = 'Filesystem'
   def __init__(self, db, yield_func = None):
     self.db = db
