@@ -203,7 +203,8 @@ class MethLabWindow:
     col.set_cell_data_func(artist_album_renderer, self.get_artists_albums_cell_data)
     self.tvArtistsAlbums.append_column(col)
     self.tvArtistsAlbums.set_model(self.artists_albums_model)
-    self.update_artists_collapsible()
+    if self.supports_not_collapsible():
+      self.update_artists_collapsible()
     self.tvArtistsAlbums.get_selection().connect('changed', self.on_artists_albums_selection_changed)
     self.tvArtistsAlbums.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
 
@@ -581,6 +582,14 @@ class MethLabWindow:
     else:
       cell.set_property('style', pango.STYLE_NORMAL)
 
+  def supports_not_collapsible(self):
+    try:
+      self.tvArtistsAlbums.get_property('show-expanders')
+      self.tvArtistsAlbums.get_property('level-indentation')
+    except TypeError:
+      return False
+    return True
+
   def update_artists_collapsible(self):
     collapsible = self.config.getboolean('interface', 'artists_collapsible')
     self.tvArtistsAlbums.set_enable_tree_lines(not collapsible)
@@ -818,10 +827,11 @@ class MethLabWindow:
     if event.button == 3:
       menu = gtk.Menu()
       # Collapsible artists menu item
-      item = gtk.CheckMenuItem(_('Collapsible artists'))
-      item.set_active(self.config.getboolean('interface', 'artists_collapsible'))
-      item.connect('toggled', self.on_artists_albums_popup_collapsible_artists_toggled)
-      menu.append(item)
+      if self.supports_not_collapsible():
+        item = gtk.CheckMenuItem(_('Collapsible artists'))
+        item.set_active(self.config.getboolean('interface', 'artists_collapsible'))
+        item.connect('toggled', self.on_artists_albums_popup_collapsible_artists_toggled)
+        menu.append(item)
       # Search album on artist as well menu item
       item = gtk.CheckMenuItem(_('Search album on artist as well'))
       item.set_active(self.config.getboolean('options', 'search_on_artist_and_album'))
