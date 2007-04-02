@@ -23,11 +23,13 @@ EXT_MPEG = ['.mp3', '.m4a', '.mp4', '.m4p', '.aac']
 EXT_WHITELIST = EXT_OPEN + EXT_PROP + EXT_MPEG
 
 import os
+from gettext import gettext as _
+from utils import scan_number
 
 class DummyTag:
   artist = ''
   album = ''
-  comment = 'unsupported or no tag'
+  comment = _('unsupported or no tag')
   genre = ''
   title = ''
   track = 0
@@ -50,8 +52,8 @@ class MutagenTagAbsorber:
     self.comment = self.get_value(tag, '', 'COMM', 'comment')
     self.genre = self.get_value(tag, '', 'TCON', 'genre')
     self.title = self.get_value(tag, '', 'TIT2', 'title')
-    self.track = int(self.get_value(tag, '0', 'TRCK', 'tracknumber').split('/')[0])
-    self.year = int(self.get_value(tag, '0', 'TYER', 'year'))
+    self.track = scan_number(self.get_value(tag, '0', 'TRCK', 'tracknumber'))
+    self.year = scan_number(self.get_value(tag, '0', 'TYER', 'year'))
 
   def get_value(self, tag, default, *keys):
     for key in keys:

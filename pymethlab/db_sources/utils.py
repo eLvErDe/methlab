@@ -15,23 +15,12 @@
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-__all__ = ['DRIVERS']
+import re
 
-def init():
-  drivers = []
-  import os, glob
-  dirname = os.path.split(__file__)[0]
-  for path in glob.glob(os.path.join(dirname, '*.py')):
-    filename = os.path.split(path)[1]
-    name = os.path.splitext(filename)[0]
-    if name == '__init__':
-      continue
-    mod = __import__(name, globals(), locals())
-    if hasattr(mod, 'DRIVERS'):
-      for driver in mod.DRIVERS:
-        drivers.append(getattr(mod, driver))
-  return drivers
-
-DRIVERS = init()
-for driver in DRIVERS:
-  locals()[driver.__name__.split('.')[-1]] = driver
+_scan_number_re = re.compile('\\d+')
+def scan_number(s):
+  m = _scan_number_re.search(str(s))
+  if m:
+    return int(m.group())
+  else:
+    return 0

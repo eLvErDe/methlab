@@ -19,17 +19,18 @@ DB_SOURCES = ['MpdSource']
 
 import os, stat, mpdclient3
 from gettext import gettext as _
+from utils import scan_number
 
 class MpdTagAbsorber:
   def __init__(self, info):
     self.album = info.get('album', '')
     self.title = info.get('title', '')
-    self.track = int(info.get('track', '0').split('/')[0])
+    self.track = scan_number(info.get('track', '0'))
     self.artist = info.get('artist', '')
     self.genre = info.get('genre', '')
-    self.year = int(info.get('date', '0'))
+    self.year = scan_number(info.get('date', '0'))
     self.comment = info.get('comment', '')
-                                     
+
 class MpdSource:
   name = 'mpd'
   name_tr = _('Music Player Daemon')
@@ -57,7 +58,7 @@ class MpdSource:
           tag = MpdTagAbsorber(mpd_track)
           self.db.add_track(dir_id, filename, 1, tag)
 
-    db_subdirs = self.db.get_subdirs_by_dir_id(dir_id)
+    db_subdirs = self.db.get_dirs()
     for subdir in db_subdirs:
       if not subdir[1] in found.keys():
         self.db.delete_dir_by_dir_id(subdir[0])

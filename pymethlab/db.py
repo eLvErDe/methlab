@@ -51,6 +51,7 @@ CREATE TABLE IF NOT EXISTS dirs
 AddDirQuery = '''INSERT INTO dirs VALUES (?, ?)'''
 GetDirIdQuery = '''SELECT OID FROM dirs WHERE dir = ?'''
 GetSubdirsByDirIdQuery = '''SELECT OID, dir FROM dirs WHERE parent_id = ?'''
+GetDirsQuery = '''SELECT OID, dir FROM dirs'''
 DeleteDirQuery = '''DELETE FROM dirs WHERE OID = ?'''
 PurgeDirsQuery = '''DELETE FROM dirs'''
 
@@ -194,6 +195,10 @@ class DB:
     cursor = self.conn.cursor()
     symbols = (dir_id, )
     return cursor.execute(GetSubdirsByDirIdQuery, symbols)
+
+  def get_dirs(self):
+    cursor = self.conn.cursor()
+    return cursor.execute(GetDirsQuery)
 
   def delete_dir_by_dir_id(self, dir_id):
     cursor = self.conn.cursor()

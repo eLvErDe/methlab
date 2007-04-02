@@ -26,7 +26,7 @@ def init():
     name = os.path.splitext(filename)[0]
     if name == '__init__':
       continue
-    mod = __import__(name, globals(), locals(), ['DB_SOURCES'], -1)
+    mod = __import__(name, globals(), locals())
     if hasattr(mod, 'DB_SOURCES'):
       for db_source in mod.DB_SOURCES:
         db_sources.append(getattr(mod, db_source))

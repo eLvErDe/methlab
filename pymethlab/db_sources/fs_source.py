@@ -60,7 +60,11 @@ class FilesystemSource:
           continue
         found_files.append(file)
         if self.db.get_track_mtime(dir_id, file) != statdata.st_mtime:
-          tag = get_tag(path)
+          try:
+            tag = get_tag(path)
+          except Exception, e:
+            print 'WARNING:', str(e)
+            tag = None
           if tag:
             self.db.add_track(dir_id, file, long(statdata.st_mtime), tag)
 
