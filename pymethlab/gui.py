@@ -106,6 +106,7 @@ class MethLabWindow:
     self.config.read(os.path.expanduser(self.CONFIG_PATH))
 
     # Pick a database source
+    need_purge = False
     db_source = self.config.get('options', 'db_source')
     for db_source_class in DB_SOURCES:
       if db_source_class.name == db_source:
@@ -113,6 +114,8 @@ class MethLabWindow:
     else:
       self.error_dialog(_('The database source you have previously selected is not or no longer available.\n\nFalling back to the filesystem database source.'))
       db_source_class = FilesystemSource
+      self.set_config('options', 'db_source', 'fs')
+      need_purge = True
 
     # Create our database back-end
     self.db = DB(scanner_class = db_source_class)
@@ -337,7 +340,9 @@ class MethLabWindow:
     self.entSearch.grab_focus()
 
     # Start updating the library
-    if self.config.getboolean('options', 'update_on_startup'):
+    if need_purge or self.config.getboolean('options', 'update_on_startup'):
+      if need_purge:
+        self.db.purge()
       self.update_db()
 
   def build_menus(self):
