@@ -870,7 +870,15 @@ class MethLabWindow:
     self.search()
 
   def on_searches_button_press_event(self, treeview, event):
-    if event.button == 3:
+    if event.button == 1:
+      data = treeview.get_path_at_pos(int(event.x), int(event.y))
+      if data is not None:
+        path, col, r_x, r_y = data
+        iter = treeview.get_model().get_iter(path)
+        treeview.get_selection().unselect_all()
+        treeview.get_selection().select_iter(iter)
+        return True
+    elif event.button == 3:
       data = treeview.get_path_at_pos(int(event.x), int(event.y))
       if data is not None:
         path, col, r_x, r_y = data
