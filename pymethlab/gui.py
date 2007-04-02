@@ -29,6 +29,10 @@ from drivers import DRIVERS, DummyDriver
 from db_sources import DB_SOURCES, FilesystemSource
 from db import sqlite
 from gettext import gettext as _
+try:
+  from dbus_service import MethLabDBusService
+except ImportError:
+  MethLabDBusService = None
 
 # Case insensitive string compare
 def case_insensitive_cmp(model, a, b):
@@ -321,6 +325,10 @@ class MethLabWindow:
     self.window.resize(640, 380)
     if not (self.config.getboolean('interface', 'show_statusicon') and self.config.getboolean('interface', 'start_hidden')):
       self.window.show()
+
+    # Create the DBUS service
+    if MethLabDBusService:
+      self.dbus_service = MethLabDBusService(self)
 
     # Finished initializing
     self.inhibit_search = 0
@@ -751,6 +759,18 @@ class MethLabWindow:
       self.history_model.remove(next)
       next = self.history_model.iter_next(node)
 
+  def show_window(self):
+    if self.window.get_property('visible'):
+      self.window.window.raise_()
+      self.window.emit('map')
+    else:
+      self.window.show()
+    self.window.grab_focus()
+    self.entSearch.grab_focus()
+
+  def hide_window(self):
+    self.window.hide()
+
   def on_section_button_clicked(self, button):
     if button == self.btnSearchOptions:
       self.swSearchOptions.show()
@@ -1091,13 +1111,7 @@ class MethLabWindow:
     self.statusicon_menu.popup(None, None, None, button, activate_time)
 
   def on_statusicon_menu_show(self, menuitem):
-    if self.window.get_property('visible'):
-      self.window.window.raise_()
-      self.window.emit('map')
-    else:
-      self.window.show()
-    self.window.grab_focus()
-    self.entSearch.grab_focus()
+    self.show_window()
 
   def on_statusicon_menu_hide(self, menuitem):
-    self.window.hide()
+    self.hide_window()

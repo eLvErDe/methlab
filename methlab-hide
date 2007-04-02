@@ -1,0 +1,6 @@
+#! /bin/sh
+dbus-send --session \
+          --dest=org.thegraveyard.MethLab \
+          --type=method_call \
+          /org/thegraveyard/MethLab/MainWindow \
+          org.thegraveyard.MethLab.MainWindow.hide

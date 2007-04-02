@@ -61,6 +61,16 @@ if __name__ == '__main__':
 
   gtk.glade.textdomain('methlab')
 
+  from gettext import gettext as _
+
+  # Check for python-dbus and set it up to use a GLib mainloop.
+  try:
+    import dbus
+    from dbus.mainloop.glib import DBusGMainLoop
+    DBusGMainLoop(set_as_default=True)
+  except ImportError:
+    print >> sys.stderr, _('The python-dbus library was not found. Consider installing it.')
+
   from pymethlab.gui import MethLabWindow
   win = MethLabWindow()
   gtk.main()
