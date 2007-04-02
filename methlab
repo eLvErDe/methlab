@@ -51,7 +51,7 @@ if __name__ == '__main__':
         # Check for gtk.glade
         import gtk.glade
       except ImportError:
-        pygtk_error = _('Error: GTK+-2 2.8 or newer was found, but the glade component is missing.')
+        pygtk_error = _('Error: GTK+ 2.8 or newer was found, but the glade component is missing.')
     except ImportError:
       pygtk_error = _('Error: Could not import the GTK+-2 library.')
   except ImportError:
@@ -79,7 +79,7 @@ if __name__ == '__main__':
 
   # Check for PyGTK and GTK < 2.10.0 and emit a warning
   if gtk.check_version(2, 10, 0):
-    print >> sys.stderr, _('Warning: PyGTK < 2.10.0 detected. Certain user interface options will be disabled')
+    print >> sys.stderr, _('Warning: GTK older than 2.10.0 detected. Certain user interface options will be disabled')
 
   # Check for python-dbus and set it up to use a GLib mainloop.
   try:

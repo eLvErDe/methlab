@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-04-02 15:31+0200\n"
+"POT-Creation-Date: 2007-04-03 01:29+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -28,28 +28,62 @@ msgstr ""
 msgid "Search options"
 msgstr ""
 
-#: pymethlab/methlab.glade:65
+#: pymethlab/methlab.glade:64
 msgid "Sa_ved searches"
 msgstr ""
 
-#: pymethlab/methlab.glade:100
+#: pymethlab/methlab.glade:99
 msgid "Artists / Al_bums"
 msgstr ""
 
-#: pymethlab/methlab.glade:146
+#: pymethlab/methlab.glade:145
 msgid "Sea_rch:"
 msgstr ""
 
-#: pymethlab/methlab.glade:228
+#: pymethlab/methlab.glade:227
 msgid "_Play"
 msgstr ""
 
-#: pymethlab/methlab.glade:238
+#: pymethlab/methlab.glade:237
 msgid "En_queue"
 msgstr ""
 
-#: pymethlab/methlab.glade:251
+#: pymethlab/methlab.glade:250
 msgid "S_ave query"
+msgstr ""
+
+#: methlab:43
+msgid "Error: Could not find PyGTK 2.0 installed on your system."
+msgstr ""
+
+#: methlab:49
+msgid "Error: GTK+-2 version is too old. MethLab requires PyGTK 2.8 or newer."
+msgstr ""
+
+#: methlab:54
+msgid "Error: GTK+ 2.8 or newer was found, but the glade component is missing."
+msgstr ""
+
+#: methlab:56
+msgid "Error: Could not import the GTK+-2 library."
+msgstr ""
+
+#: methlab:58
+msgid "Error: Could not find PyGTK installed on your system."
+msgstr ""
+
+#: methlab:82
+msgid ""
+"Warning: GTK older than 2.10.0 detected. Certain user interface options will "
+"be disabled"
+msgstr ""
+
+#: methlab:94
+msgid "MethLab is already running. Bringing the window to the front."
+msgstr ""
+
+#: methlab:101
+msgid "The python-dbus library was not found. Consider installing it."
 msgstr ""
 
 #: pymethlab/db_sources/fs_source.py:26
@@ -61,8 +95,12 @@ msgstr ""
 msgid "Updating directory %s"
 msgstr ""
 
-#: pymethlab/db_sources/mpd_source.py:35 pymethlab/drivers/mpd.py:24
+#: pymethlab/db_sources/mpd_source.py:36 pymethlab/drivers/mpd.py:24
 msgid "Music Player Daemon"
+msgstr ""
+
+#: pymethlab/db_sources/tagwrap.py:32
+msgid "unsupported or no tag"
 msgstr ""
 
 #: pymethlab/drivers/dummy.py:24
@@ -94,7 +132,7 @@ msgstr ""
 msgid "Beep Media Player (using xmmsalike)"
 msgstr ""
 
-#: pymethlab/gui.py:96
+#: pymethlab/gui.py:117
 msgid ""
 "The database source you have previously selected is not or no longer "
 "available.\n"
@@ -102,79 +140,99 @@ msgid ""
 "Falling back to the filesystem database source."
 msgstr ""
 
-#: pymethlab/gui.py:112
+#: pymethlab/gui.py:135
 msgid "Path"
 msgstr ""
 
-#: pymethlab/gui.py:113
+#: pymethlab/gui.py:136
 msgid "Artist"
 msgstr ""
 
-#: pymethlab/gui.py:114
+#: pymethlab/gui.py:137
 msgid "Album"
 msgstr ""
 
-#: pymethlab/gui.py:115
+#: pymethlab/gui.py:138
 msgid "#"
 msgstr ""
 
-#: pymethlab/gui.py:115
+#: pymethlab/gui.py:138
 msgid "Track number"
 msgstr ""
 
-#: pymethlab/gui.py:116
+#: pymethlab/gui.py:139
 msgid "Title"
 msgstr ""
 
-#: pymethlab/gui.py:116
+#: pymethlab/gui.py:139
 msgid "Track title"
 msgstr ""
 
-#: pymethlab/gui.py:117
+#: pymethlab/gui.py:140
 msgid "Year"
 msgstr ""
 
-#: pymethlab/gui.py:118
+#: pymethlab/gui.py:141
 msgid "Genre"
 msgstr ""
 
-#: pymethlab/gui.py:119
+#: pymethlab/gui.py:142
 msgid "Comment"
 msgstr ""
 
-#: pymethlab/gui.py:316
+#: pymethlab/gui.py:370
 msgid "_File"
 msgstr ""
 
-#: pymethlab/gui.py:321
+#: pymethlab/gui.py:375
 msgid "_Update library now"
 msgstr ""
 
-#: pymethlab/gui.py:336
+#: pymethlab/gui.py:390
 msgid "_Settings"
 msgstr ""
 
-#: pymethlab/gui.py:342
+#: pymethlab/gui.py:396
+msgid "Show status _icon"
+msgstr ""
+
+#: pymethlab/gui.py:401
+msgid "Close to _tray"
+msgstr ""
+
+#: pymethlab/gui.py:408
+msgid "Start _hidden"
+msgstr ""
+
+#: pymethlab/gui.py:423
 msgid "Database _source"
 msgstr ""
 
-#: pymethlab/gui.py:357
+#: pymethlab/gui.py:438
 msgid "_Directories"
 msgstr ""
 
-#: pymethlab/gui.py:363
+#: pymethlab/gui.py:444
 msgid "_Update library on startup"
 msgstr ""
 
-#: pymethlab/gui.py:373
+#: pymethlab/gui.py:454
 msgid "_Audio player"
 msgstr ""
 
-#: pymethlab/gui.py:390
+#: pymethlab/gui.py:471
 msgid "_Help"
 msgstr ""
 
-#: pymethlab/gui.py:420
+#: pymethlab/gui.py:488
+msgid "_Show MethLab"
+msgstr ""
+
+#: pymethlab/gui.py:493
+msgid "_Hide MethLab"
+msgstr ""
+
+#: pymethlab/gui.py:526
 msgid ""
 "The audio player driver you have previously selected is not or no longer "
 "available.\n"
@@ -182,7 +240,7 @@ msgid ""
 "Falling back to the dummy driver."
 msgstr ""
 
-#: pymethlab/gui.py:425
+#: pymethlab/gui.py:531
 #, python-format
 msgid ""
 "An error has occured while activating the selected driver.\n"
@@ -192,68 +250,68 @@ msgid ""
 "Falling back to the dummy driver."
 msgstr ""
 
-#: pymethlab/gui.py:500
+#: pymethlab/gui.py:606
 msgid "Your search did not return any results."
 msgstr ""
 
-#: pymethlab/gui.py:668
+#: pymethlab/gui.py:777
 msgid "Please wait..."
 msgstr ""
 
-#: pymethlab/gui.py:673
+#: pymethlab/gui.py:782
 msgid "Please wait while MethLab updates the library..."
 msgstr ""
 
-#: pymethlab/gui.py:741
+#: pymethlab/gui.py:872
 msgid "Collapsible artists"
 msgstr ""
 
-#: pymethlab/gui.py:746
+#: pymethlab/gui.py:877
 msgid "Search album on artist as well"
 msgstr ""
 
-#: pymethlab/gui.py:807
+#: pymethlab/gui.py:946
 msgid "Remove"
 msgstr ""
 
-#: pymethlab/gui.py:906
+#: pymethlab/gui.py:1045
 #, python-format
 msgid "'%(query)s' in %(field)s field"
 msgstr ""
 
-#: pymethlab/gui.py:908
+#: pymethlab/gui.py:1047
 #, python-format
 msgid "'%(query)s' in %(fields)s and %(last_field)s fields"
 msgstr ""
 
-#: pymethlab/gui.py:916
+#: pymethlab/gui.py:1055
 msgid "Save search"
 msgstr ""
 
-#: pymethlab/gui.py:922
+#: pymethlab/gui.py:1061
 msgid "Name of the search"
 msgstr ""
 
-#: pymethlab/gui.py:949
+#: pymethlab/gui.py:1103
 msgid "Add directory"
 msgstr ""
 
-#: pymethlab/gui.py:978
+#: pymethlab/gui.py:1132
 msgid "Directory"
 msgstr ""
 
-#: pymethlab/gui.py:1018
+#: pymethlab/gui.py:1173
 msgid "Copyright (c) 2007 Ingmar Steen."
 msgstr ""
 
-#: pymethlab/gui.py:1019
+#: pymethlab/gui.py:1174
 msgid "The bundled xmmsalike library is (C) 2006 Ben Wolfson and Risto A. Paju"
 msgstr ""
 
-#: pymethlab/gui.py:1020
+#: pymethlab/gui.py:1175
 msgid "The bundled mpdclient3 library is (C) 2006 Scott Horowitz"
 msgstr ""
 
-#: pymethlab/gui.py:1024
+#: pymethlab/gui.py:1179
 msgid "Ingmar Steen <iksteen@gmail.com> (Main developer)"
 msgstr ""

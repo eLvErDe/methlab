@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MethLab 0.0.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-04-02 15:31+0200\n"
-"PO-Revision-Date: 2007-04-02 15:33+0100\n"
+"POT-Creation-Date: 2007-04-03 01:29+0200\n"
+"PO-Revision-Date: 2007-04-03 01:30+0100\n"
 "Last-Translator: Ingmar Steen <iksteen@gmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -27,29 +27,61 @@ msgstr "MethLab Muziek Bibliotheek"
 msgid "Search options"
 msgstr "Zoekopties"
 
-#: pymethlab/methlab.glade:65
+#: pymethlab/methlab.glade:64
 msgid "Sa_ved searches"
 msgstr "Opgeslagen zoek_opdrachten"
 
-#: pymethlab/methlab.glade:100
+#: pymethlab/methlab.glade:99
 msgid "Artists / Al_bums"
 msgstr "Artiesten / Alb_ums"
 
-#: pymethlab/methlab.glade:146
+#: pymethlab/methlab.glade:145
 msgid "Sea_rch:"
 msgstr "_Zoeken:"
 
-#: pymethlab/methlab.glade:228
+#: pymethlab/methlab.glade:227
 msgid "_Play"
 msgstr "_Afspelen"
 
-#: pymethlab/methlab.glade:238
+#: pymethlab/methlab.glade:237
 msgid "En_queue"
 msgstr "_Toevoegen"
 
-#: pymethlab/methlab.glade:251
+#: pymethlab/methlab.glade:250
 msgid "S_ave query"
 msgstr "Zoekopdracht o_pslaan"
+
+#: methlab:43
+msgid "Error: Could not find PyGTK 2.0 installed on your system."
+msgstr "Fout: Kan PyGTK 2.0 niet vinden."
+
+#: methlab:49
+msgid "Error: GTK+-2 version is too old. MethLab requires PyGTK 2.8 or newer."
+msgstr "Fout: GTK+-2 versie is te oud. MethLab heeft tenminste PyGTK 2.8 nodig."
+
+#: methlab:54
+msgid "Error: GTK+ 2.8 or newer was found, but the glade component is missing."
+msgstr "Fout: GTK+ 2.8 of nieuwer gevonden maar het glade onderdeel ontbreekt."
+
+#: methlab:56
+msgid "Error: Could not import the GTK+-2 library."
+msgstr "Fout: Kan de GTK+2 hulpbibliotheek niet laden."
+
+#: methlab:58
+msgid "Error: Could not find PyGTK installed on your system."
+msgstr "Fout: PyGTK niet gevonden."
+
+#: methlab:82
+msgid "Warning: GTK older than 2.10.0 detected. Certain user interface options will be disabled"
+msgstr "Waarschuwing: PyGTK ouder dan 2.10.0 gevonden. Bepaalde onderdelen van de gebruikersinterface zullen niet beschikbaar zijn."
+
+#: methlab:94
+msgid "MethLab is already running. Bringing the window to the front."
+msgstr "MethLab is al gestart. Het hoofdscherm wordt naar de voorgrond gebracht."
+
+#: methlab:101
+msgid "The python-dbus library was not found. Consider installing it."
+msgstr "De python-dbus hulpbibliotheek werd niet gevonden. Overweeg het te installeren."
 
 #: pymethlab/db_sources/fs_source.py:26
 msgid "Filesystem"
@@ -60,10 +92,14 @@ msgstr "Bestandssysteem"
 msgid "Updating directory %s"
 msgstr "Bezig met verversen van %s"
 
-#: pymethlab/db_sources/mpd_source.py:35
+#: pymethlab/db_sources/mpd_source.py:36
 #: pymethlab/drivers/mpd.py:24
 msgid "Music Player Daemon"
 msgstr "Music Player Daemon"
+
+#: pymethlab/db_sources/tagwrap.py:32
+msgid "unsupported or no tag"
+msgstr "niet ondersteunde of ontbrekend etiket"
 
 #: pymethlab/drivers/dummy.py:24
 msgid "Dummy driver (doesn't do anything)"
@@ -94,7 +130,7 @@ msgstr "Audacious (met behulp van xmmsalike)"
 msgid "Beep Media Player (using xmmsalike)"
 msgstr "Beep Media Player (met behulp van xmmsalike)"
 
-#: pymethlab/gui.py:96
+#: pymethlab/gui.py:117
 msgid ""
 "The database source you have previously selected is not or no longer available.\n"
 "\n"
@@ -104,79 +140,99 @@ msgstr ""
 "\n"
 "De bestandssysteem database bron zal worden gebruikt."
 
-#: pymethlab/gui.py:112
+#: pymethlab/gui.py:135
 msgid "Path"
 msgstr "Pad"
 
-#: pymethlab/gui.py:113
+#: pymethlab/gui.py:136
 msgid "Artist"
 msgstr "Artiest"
 
-#: pymethlab/gui.py:114
+#: pymethlab/gui.py:137
 msgid "Album"
 msgstr "Album"
 
-#: pymethlab/gui.py:115
+#: pymethlab/gui.py:138
 msgid "#"
 msgstr "#"
 
-#: pymethlab/gui.py:115
+#: pymethlab/gui.py:138
 msgid "Track number"
 msgstr "Nummer"
 
-#: pymethlab/gui.py:116
+#: pymethlab/gui.py:139
 msgid "Title"
 msgstr "Titel"
 
-#: pymethlab/gui.py:116
+#: pymethlab/gui.py:139
 msgid "Track title"
 msgstr "Titel"
 
-#: pymethlab/gui.py:117
+#: pymethlab/gui.py:140
 msgid "Year"
 msgstr "Jaar"
 
-#: pymethlab/gui.py:118
+#: pymethlab/gui.py:141
 msgid "Genre"
 msgstr "Genre"
 
-#: pymethlab/gui.py:119
+#: pymethlab/gui.py:142
 msgid "Comment"
 msgstr "Opmerking"
 
-#: pymethlab/gui.py:316
+#: pymethlab/gui.py:370
 msgid "_File"
 msgstr "_Bestand"
 
-#: pymethlab/gui.py:321
+#: pymethlab/gui.py:375
 msgid "_Update library now"
 msgstr "_Bibliotheek nu verversen"
 
-#: pymethlab/gui.py:336
+#: pymethlab/gui.py:390
 msgid "_Settings"
 msgstr "_Instellingen"
 
-#: pymethlab/gui.py:342
+#: pymethlab/gui.py:396
+msgid "Show status _icon"
+msgstr "Status_pictogram weergeven"
+
+#: pymethlab/gui.py:401
+msgid "Close to _tray"
+msgstr "Sluiten naar _taakbalk"
+
+#: pymethlab/gui.py:408
+msgid "Start _hidden"
+msgstr "_Verborgen opstarten"
+
+#: pymethlab/gui.py:423
 msgid "Database _source"
 msgstr "_Database bron"
 
-#: pymethlab/gui.py:357
+#: pymethlab/gui.py:438
 msgid "_Directories"
 msgstr "_Mappen"
 
-#: pymethlab/gui.py:363
+#: pymethlab/gui.py:444
 msgid "_Update library on startup"
 msgstr "_Bibliotheek bij opstarten verversen"
 
-#: pymethlab/gui.py:373
+#: pymethlab/gui.py:454
 msgid "_Audio player"
 msgstr "Muziek_speler"
 
-#: pymethlab/gui.py:390
+#: pymethlab/gui.py:471
 msgid "_Help"
 msgstr "_Help"
 
-#: pymethlab/gui.py:420
+#: pymethlab/gui.py:488
+msgid "_Show MethLab"
+msgstr "_Toon MethLab"
+
+#: pymethlab/gui.py:493
+msgid "_Hide MethLab"
+msgstr "_Verberg MethLab"
+
+#: pymethlab/gui.py:526
 msgid ""
 "The audio player driver you have previously selected is not or no longer available.\n"
 "\n"
@@ -186,7 +242,7 @@ msgstr ""
 "\n"
 "Het blanco stuurprogramma zal worden gebruikt."
 
-#: pymethlab/gui.py:425
+#: pymethlab/gui.py:531
 #, python-format
 msgid ""
 "An error has occured while activating the selected driver.\n"
@@ -201,69 +257,69 @@ msgstr ""
 "\n"
 "Het blanco stuurprogramma zal worden gebruikt."
 
-#: pymethlab/gui.py:500
+#: pymethlab/gui.py:606
 msgid "Your search did not return any results."
 msgstr "Uw zoekopdracht heeft geen resultaten opgeleverd."
 
-#: pymethlab/gui.py:668
+#: pymethlab/gui.py:777
 msgid "Please wait..."
 msgstr "Een ogenblik geduld..."
 
-#: pymethlab/gui.py:673
+#: pymethlab/gui.py:782
 msgid "Please wait while MethLab updates the library..."
 msgstr "Een ogenblik geduld terwijl MethLab de bibiliotheek ververst..."
 
-#: pymethlab/gui.py:741
+#: pymethlab/gui.py:872
 msgid "Collapsible artists"
 msgstr "Artiesten zijn inklapbaar"
 
-#: pymethlab/gui.py:746
+#: pymethlab/gui.py:877
 msgid "Search album on artist as well"
 msgstr "Album ook op artiest zoeken"
 
-#: pymethlab/gui.py:807
+#: pymethlab/gui.py:946
 msgid "Remove"
 msgstr "Verwijder"
 
-#: pymethlab/gui.py:906
+#: pymethlab/gui.py:1045
 #, python-format
 msgid "'%(query)s' in %(field)s field"
 msgstr "'%(query)s' in het %(field)s veld"
 
-#: pymethlab/gui.py:908
+#: pymethlab/gui.py:1047
 #, python-format
 msgid "'%(query)s' in %(fields)s and %(last_field)s fields"
 msgstr "'%(query)s' in de %(fields)s en %(last_field)s velden"
 
-#: pymethlab/gui.py:916
+#: pymethlab/gui.py:1055
 msgid "Save search"
 msgstr "Zoekopdracht opslaan"
 
-#: pymethlab/gui.py:922
+#: pymethlab/gui.py:1061
 msgid "Name of the search"
 msgstr "Naam van de zoekopdracht"
 
-#: pymethlab/gui.py:949
+#: pymethlab/gui.py:1103
 msgid "Add directory"
 msgstr "Map toevoegen"
 
-#: pymethlab/gui.py:978
+#: pymethlab/gui.py:1132
 msgid "Directory"
 msgstr "Map"
 
-#: pymethlab/gui.py:1018
+#: pymethlab/gui.py:1173
 msgid "Copyright (c) 2007 Ingmar Steen."
 msgstr "Copyright (c) 2007 Ingmar Steen"
 
-#: pymethlab/gui.py:1019
+#: pymethlab/gui.py:1174
 msgid "The bundled xmmsalike library is (C) 2006 Ben Wolfson and Risto A. Paju"
 msgstr "The meegeleverde xmmsalike hulpbibliotheek is (C) 2006 Ben Wolfson en Risto A. Paju"
 
-#: pymethlab/gui.py:1020
+#: pymethlab/gui.py:1175
 msgid "The bundled mpdclient3 library is (C) 2006 Scott Horowitz"
 msgstr "The meegeleverde mpdclient3 hulpbibliotheek is (C) 2006 Scott Horowitz"
 
-#: pymethlab/gui.py:1024
+#: pymethlab/gui.py:1179
 msgid "Ingmar Steen <iksteen@gmail.com> (Main developer)"
 msgstr "Ingmar Steen <iksteen@gmail.com> (Hoofdontwikkelaar)"
 

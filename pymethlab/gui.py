@@ -393,19 +393,19 @@ class MethLabWindow:
 
     if self.supports_status_icon():
       # Settings -> Show status icon
-      item1 = gtk.CheckMenuItem(_('Show status icon'))
+      item1 = gtk.CheckMenuItem(_('Show status _icon'))
       item1.set_active(self.config.getboolean('interface', 'show_status_icon'))
       self.settingsmenu.append(item1)
 
       # Settings -> Close to tray
-      item2 = gtk.CheckMenuItem(_('Close to tray'))
+      item2 = gtk.CheckMenuItem(_('Close to _tray'))
       item2.set_sensitive(self.config.getboolean('interface', 'show_status_icon'))
       item2.set_active(self.config.getboolean('interface', 'close_to_tray'))
       item2.connect('toggled', self.on_settings_close_to_tray_toggled)
       self.settingsmenu.append(item2)
 
       # Settings -> Start hidden
-      item3 = gtk.CheckMenuItem(_('Start hidden'))
+      item3 = gtk.CheckMenuItem(_('Start _hidden'))
       item3.set_sensitive(self.config.getboolean('interface', 'show_status_icon'))
       item3.set_active(self.config.getboolean('interface', 'start_hidden'))
       item3.connect('toggled', self.on_settings_start_hidden_toggled)
@@ -485,12 +485,12 @@ class MethLabWindow:
     self.status_icon_menu = gtk.Menu()
 
     # Show MethLab
-    item = gtk.MenuItem(_('Show MethLab'))
+    item = gtk.MenuItem(_('_Show MethLab'))
     item.connect('activate', self.on_status_icon_menu_show)
     self.status_icon_menu.append(item)
 
     # Hide MethLab
-    item = gtk.MenuItem(_('Hide MethLab'))
+    item = gtk.MenuItem(_('_Hide MethLab'))
     item.connect('activate', self.on_status_icon_menu_hide)
     self.status_icon_menu.append(item)
 
