@@ -46,7 +46,7 @@ def query_escape(s):
 class MethLabWindow:
   CONFIG_PATH = os.path.join('~', '.methlab', 'config')
   # Generic options
-  DEFAULT_DB_SOURCE = 'Filesystem'
+  DEFAULT_DB_SOURCE = 'fs'
   DEFAULT_DRIVER = DummyDriver.name
   DEFAULT_UPDATE_ON_STARTUP = True
   DEFAULT_SEARCH_ON_ARTIST_AND_ALBUM = True
@@ -56,7 +56,7 @@ class MethLabWindow:
   DEFAULT_COLUMN_ORDER = 'path artist album track title year genre comment'
   DEFAULT_VISIBLE_COLUMNS = 'artist album track title'
   DEFAULT_ARTISTS_COLLAPSIBLE = False
-  DEFAULT_SHOW_STATUSICON = True
+  DEFAULT_SHOW_STATUS_ICON = True
   DEFAULT_START_HIDDEN = False
 
   DEFAULT_CONFIG = {
@@ -72,7 +72,7 @@ class MethLabWindow:
       'column_order': DEFAULT_COLUMN_ORDER,
       'visible_columns': DEFAULT_VISIBLE_COLUMNS,
       'artists_collapsible': `DEFAULT_ARTISTS_COLLAPSIBLE`,
-      'show_statusicon': `DEFAULT_SHOW_STATUSICON`,
+      'show_status_icon': `DEFAULT_SHOW_STATUS_ICON`,
       'start_hidden': `DEFAULT_START_HIDDEN`,
     }
   }
@@ -311,13 +311,13 @@ class MethLabWindow:
       accel_group.connect_group(ord(str(i + 1)), gtk.gdk.MOD1_MASK, 0, self.on_toggle_search_field)
 
     # Create the status icon
-    if hasattr(gtk, 'status_icon_new_from_pixbuf'):
+    if self.supports_status_icon():
       self.build_status_icon_menu()
       self.status_icon = gtk.status_icon_new_from_pixbuf(self.icons[24])
       self.status_icon.set_tooltip('MethLab')
-      self.status_icon.connect('activate', self.on_statusicon_activate)
-      self.status_icon.connect('popup-menu', self.on_statusicon_popup_menu)
-      self.status_icon.set_visible(self.config.getboolean('interface', 'show_statusicon'))
+      self.status_icon.connect('activate', self.on_status_icon_activate)
+      self.status_icon.connect('popup-menu', self.on_status_icon_popup_menu)
+      self.status_icon.set_visible(self.config.getboolean('interface', 'show_status_icon'))
     else:
       self.status_icon = None
 
@@ -331,7 +331,7 @@ class MethLabWindow:
     # Connect destroy signal and show the window
     self.window.connect('destroy', gtk.main_quit)
     self.window.resize(640, 380)
-    if not (self.status_icon and self.config.getboolean('interface', 'show_statusicon') and self.config.getboolean('interface', 'start_hidden')):
+    if not (self.status_icon and self.config.getboolean('interface', 'show_status_icon') and self.config.getboolean('interface', 'start_hidden')):
       self.window.show()
 
     # Create the DBUS service
@@ -349,6 +349,17 @@ class MethLabWindow:
       if need_purge:
         self.db.purge()
       self.update_db()
+
+  def supports_status_icon(self):
+    return hasattr(gtk, 'status_icon_new_from_pixbuf')
+
+  def supports_not_collapsible(self):
+    try:
+      self.tvArtistsAlbums.get_property('show-expanders')
+      self.tvArtistsAlbums.get_property('level-indentation')
+    except TypeError:
+      return False
+    return True
 
   def build_menus(self):
     # Create the File menu
@@ -376,6 +387,26 @@ class MethLabWindow:
     settingsmenu_item = gtk.MenuItem(_('_Settings'))
     settingsmenu_item.set_submenu(self.settingsmenu)
     self.menubar.append(settingsmenu_item)
+
+    if self.supports_status_icon():
+      # Settings -> Show status icon
+      item1 = gtk.CheckMenuItem(_('Show status icon'))
+      item1.set_active(self.config.getboolean('interface', 'show_status_icon'))
+      self.settingsmenu.append(item1)
+
+      # Settings -> Start hidden
+      item2 = gtk.CheckMenuItem(_('Start hidden'))
+      item2.set_sensitive(self.config.getboolean('interface', 'show_status_icon'))
+      item2.set_active(self.config.getboolean('interface', 'start_hidden'))
+      item2.connect('toggled', self.on_settings_start_hidden_toggled)
+      self.settingsmenu.append(item2)
+
+      # Connect 'Show status icon's toggled signal since it adds item2
+      # as a user arg.
+      item1.connect('toggled', self.on_settings_show_status_icon_toggled, item2)
+
+      # Seperator
+      self.settingsmenu.append(gtk.SeparatorMenuItem())
 
     # Settings -> Database source
     self.dbsourcemenu = gtk.Menu()
@@ -441,28 +472,28 @@ class MethLabWindow:
 
   def build_status_icon_menu(self):
     # Build the status icon popup menu
-    self.statusicon_menu = gtk.Menu()
+    self.status_icon_menu = gtk.Menu()
 
     # Open MethLab
     item = gtk.MenuItem(_('Open MethLab'))
-    item.connect('activate', self.on_statusicon_menu_show)
-    self.statusicon_menu.append(item)
+    item.connect('activate', self.on_status_icon_menu_show)
+    self.status_icon_menu.append(item)
 
     # Hide MethLab
     item = gtk.MenuItem(_('Hide MethLab'))
-    item.connect('activate', self.on_statusicon_menu_hide)
-    self.statusicon_menu.append(item)
+    item.connect('activate', self.on_status_icon_menu_hide)
+    self.status_icon_menu.append(item)
 
     # Seperator
-    self.statusicon_menu.append(gtk.SeparatorMenuItem())
+    self.status_icon_menu.append(gtk.SeparatorMenuItem())
 
     # Quit
     item = gtk.ImageMenuItem(gtk.STOCK_QUIT)
     item.connect('activate', gtk.main_quit)
-    self.statusicon_menu.append(item)
+    self.status_icon_menu.append(item)
 
     # Show everything
-    self.statusicon_menu.show_all()
+    self.status_icon_menu.show_all()
 
   # Helper function to show an error dialog
   def error_dialog(self, message):
@@ -504,7 +535,7 @@ class MethLabWindow:
     config_path = os.path.expanduser(self.CONFIG_PATH)
     config_dir = os.path.split(config_path)[0]
     if not os.path.exists(config_dir):
-      os.path.makedirs(config_dir)
+      os.makedirs(config_dir)
     self.config.write(open(config_path, 'w'))
 
   # Call this to get a list of enabled search fields (according to the model)
@@ -581,14 +612,6 @@ class MethLabWindow:
         cell.set_property('text', '')
     else:
       cell.set_property('style', pango.STYLE_NORMAL)
-
-  def supports_not_collapsible(self):
-    try:
-      self.tvArtistsAlbums.get_property('show-expanders')
-      self.tvArtistsAlbums.get_property('level-indentation')
-    except TypeError:
-      return False
-    return True
 
   def update_artists_collapsible(self):
     collapsible = self.config.getboolean('interface', 'artists_collapsible')
@@ -1040,6 +1063,16 @@ class MethLabWindow:
   def on_file_update(self, menuitem):
     self.update_db()
 
+  def on_settings_show_status_icon_toggled(self, menuitem, start_hidden):
+    active = menuitem.get_active()
+    self.set_config('interface', 'show_status_icon', active)
+    start_hidden.set_sensitive(active)
+    self.status_icon.set_visible(active)
+
+  def on_settings_start_hidden_toggled(self, menuitem):
+    active = menuitem.get_active()
+    self.set_config('interface', 'start_hidden', active)
+
   def on_settings_directories(self, menuitem):
     def on_add_directory(button, model):
       dialog = gtk.FileChooserDialog \
@@ -1130,17 +1163,17 @@ class MethLabWindow:
     value = self.search_options_model.get_value(iter, 1)
     self.search_options_model.set(iter, 1, not value)
 
-  def on_statusicon_activate(self, status_icon):
+  def on_status_icon_activate(self, status_icon):
     if self.window.get_property('visible'):
       self.window.hide()
     else:
       self.window.show()
 
-  def on_statusicon_popup_menu(self, status_icon, button, activate_time):
-    self.statusicon_menu.popup(None, None, None, button, activate_time)
+  def on_status_icon_popup_menu(self, status_icon, button, activate_time):
+    self.status_icon_menu.popup(None, None, None, button, activate_time)
 
-  def on_statusicon_menu_show(self, menuitem):
+  def on_status_icon_menu_show(self, menuitem):
     self.show_window()
 
-  def on_statusicon_menu_hide(self, menuitem):
+  def on_status_icon_menu_hide(self, menuitem):
     self.hide_window()
