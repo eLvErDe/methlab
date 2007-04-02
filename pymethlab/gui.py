@@ -82,7 +82,7 @@ class MethLabWindow:
     self.icons = {}
     basedir = os.path.split(__file__)[0]
     imagedir = os.path.join(basedir, 'images')
-    for width in 16, 32, 48, 64:
+    for width in 16, 24, 32, 48, 64:
       icon_name = 'logo_%ix%i.png' % (width, width)
       icon = gtk.gdk.pixbuf_new_from_file(os.path.join(imagedir, icon_name))
       self.icons[width] = icon
@@ -307,7 +307,7 @@ class MethLabWindow:
       accel_group.connect_group(ord(str(i + 1)), gtk.gdk.MOD1_MASK, 0, self.on_toggle_search_field)
 
     # Create the status icon
-    self.status_icon = gtk.status_icon_new_from_pixbuf(self.icons[16])
+    self.status_icon = gtk.status_icon_new_from_pixbuf(self.icons[24])
     self.status_icon.set_tooltip('MethLab')
     self.status_icon.connect('activate', self.on_statusicon_activate)
     self.status_icon.connect('popup-menu', self.on_statusicon_popup_menu)
