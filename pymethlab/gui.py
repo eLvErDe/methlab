@@ -52,6 +52,8 @@ class MethLabWindow:
   DEFAULT_COLUMN_ORDER = 'path artist album track title year genre comment'
   DEFAULT_VISIBLE_COLUMNS = 'artist album track title'
   DEFAULT_ARTISTS_COLLAPSIBLE = False
+  DEFAULT_SHOW_STATUSICON = True
+  DEFAULT_START_HIDDEN = False
 
   DEFAULT_CONFIG = {
     'options': {
@@ -66,10 +68,22 @@ class MethLabWindow:
       'column_order': DEFAULT_COLUMN_ORDER,
       'visible_columns': DEFAULT_VISIBLE_COLUMNS,
       'artists_collapsible': `DEFAULT_ARTISTS_COLLAPSIBLE`,
+      'show_statusicon': `DEFAULT_SHOW_STATUSICON`,
+      'start_hidden': `DEFAULT_START_HIDDEN`,
     }
   }
 
   def __init__(self):
+    # Set up the window icon list
+    self.icons = {}
+    basedir = os.path.split(__file__)[0]
+    imagedir = os.path.join(basedir, 'images')
+    for width in 16, 32, 48, 64:
+      icon_name = 'logo_%ix%i.png' % (width, width)
+      icon = gtk.gdk.pixbuf_new_from_file(os.path.join(imagedir, icon_name))
+      self.icons[width] = icon
+    gtk.window_set_default_icon_list(*self.icons.values())
+
     # Load the gui from the XML file
     self.gladefile = os.path.join(os.path.split(__file__)[0], 'methlab.glade')
     wtree = gtk.glade.XML(self.gladefile)
@@ -288,10 +302,12 @@ class MethLabWindow:
     for i in range(0, 8):
       accel_group.connect_group(ord(str(i + 1)), gtk.gdk.MOD1_MASK, 0, self.on_toggle_search_field)
 
-    # Connect destroy signal and show the window
-    self.window.connect('destroy', gtk.main_quit)
-    self.window.resize(640, 380)
-    self.window.show()
+    # Create the status icon
+    self.status_icon = gtk.status_icon_new_from_pixbuf(self.icons[16])
+    self.status_icon.set_tooltip('MethLab')
+    self.status_icon.connect('activate', self.on_statusicon_activate)
+    self.status_icon.connect('popup-menu', self.on_statusicon_popup_menu)
+    self.status_icon.set_visible(self.config.getboolean('interface', 'show_statusicon'))
 
     # Haxory and trixory to prevent widgets from needlessly rearranging
     self.swSearches.realize()
@@ -299,6 +315,12 @@ class MethLabWindow:
     self.swArtistsAlbums.realize()
     self.tvArtistsAlbums.realize()
     self.hpaned1.set_position(self.hpaned1.get_position())
+
+    # Connect destroy signal and show the window
+    self.window.connect('destroy', gtk.main_quit)
+    self.window.resize(640, 380)
+    if not (self.config.getboolean('interface', 'show_statusicon') and self.config.getboolean('interface', 'start_hidden')):
+      self.window.show()
 
     # Finished initializing
     self.inhibit_search = 0
@@ -398,6 +420,30 @@ class MethLabWindow:
 
     # Show everything
     self.menubar.show_all()
+
+    # Build the status icon popup menu
+    self.statusicon_menu = gtk.Menu()
+
+    # Open MethLab
+    item = gtk.MenuItem(_('Open MethLab'))
+    item.connect('activate', self.on_statusicon_menu_show)
+    self.statusicon_menu.append(item)
+
+    # Hide MethLab
+    item = gtk.MenuItem(_('Hide MethLab'))
+    item.connect('activate', self.on_statusicon_menu_hide)
+    self.statusicon_menu.append(item)
+
+    # Seperator
+    self.statusicon_menu.append(gtk.SeparatorMenuItem())
+
+    # Quit
+    item = gtk.ImageMenuItem(gtk.STOCK_QUIT)
+    item.connect('activate', gtk.main_quit)
+    self.statusicon_menu.append(item)
+
+    # Show everything
+    self.statusicon_menu.show_all()
 
   # Helper function to show an error dialog
   def error_dialog(self, message):
@@ -1016,6 +1062,7 @@ class MethLabWindow:
 
   def on_about(self, menuitem):
     dialog = gtk.AboutDialog()
+    dialog.set_logo(self.icons[64])
     dialog.set_name('MethLab')
     dialog.set_version('0.0.0')
     c1 = _('Copyright (c) 2007 Ingmar Steen.')
@@ -1033,3 +1080,24 @@ class MethLabWindow:
     iter = self.search_options_model.get_iter(path)
     value = self.search_options_model.get_value(iter, 1)
     self.search_options_model.set(iter, 1, not value)
+
+  def on_statusicon_activate(self, status_icon):
+    if self.window.get_property('visible'):
+      self.window.hide()
+    else:
+      self.window.show()
+
+  def on_statusicon_popup_menu(self, status_icon, button, activate_time):
+    self.statusicon_menu.popup(None, None, None, button, activate_time)
+
+  def on_statusicon_menu_show(self, menuitem):
+    if self.window.get_property('visible'):
+      self.window.window.raise_()
+      self.window.emit('map')
+    else:
+      self.window.show()
+    self.window.grab_focus()
+    self.entSearch.grab_focus()
+
+  def on_statusicon_menu_hide(self, menuitem):
+    self.window.hide()

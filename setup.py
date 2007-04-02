@@ -37,6 +37,8 @@ if __name__ == '__main__':
         license = 'GPL',
         scripts = ['methlab'],
         packages = ['pymethlab'],
-        package_data = {'pymethlab': ['*.glade']},
+        package_data = {
+          'pymethlab': ['*.glade', 'images/*.png'],
+        },
         data_files = mo_files(),
   )
