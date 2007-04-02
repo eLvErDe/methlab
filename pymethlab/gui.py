@@ -58,6 +58,7 @@ class MethLabWindow:
   DEFAULT_ARTISTS_COLLAPSIBLE = False
   DEFAULT_SHOW_STATUS_ICON = True
   DEFAULT_START_HIDDEN = False
+  DEFAULT_CLOSE_TO_TRAY = True
 
   DEFAULT_CONFIG = {
     'options': {
@@ -74,6 +75,7 @@ class MethLabWindow:
       'artists_collapsible': `DEFAULT_ARTISTS_COLLAPSIBLE`,
       'show_status_icon': `DEFAULT_SHOW_STATUS_ICON`,
       'start_hidden': `DEFAULT_START_HIDDEN`,
+      'close_to_tray': `DEFAULT_CLOSE_TO_TRAY`,
     }
   }
 
@@ -329,6 +331,7 @@ class MethLabWindow:
     self.hpaned1.set_position(self.hpaned1.get_position())
 
     # Connect destroy signal and show the window
+    self.window.connect('delete_event', self.on_window_delete)
     self.window.connect('destroy', gtk.main_quit)
     self.window.resize(640, 380)
     if not (self.status_icon and self.config.getboolean('interface', 'show_status_icon') and self.config.getboolean('interface', 'start_hidden')):
@@ -394,16 +397,23 @@ class MethLabWindow:
       item1.set_active(self.config.getboolean('interface', 'show_status_icon'))
       self.settingsmenu.append(item1)
 
-      # Settings -> Start hidden
-      item2 = gtk.CheckMenuItem(_('Start hidden'))
+      # Settings -> Close to tray
+      item2 = gtk.CheckMenuItem(_('Close to tray'))
       item2.set_sensitive(self.config.getboolean('interface', 'show_status_icon'))
-      item2.set_active(self.config.getboolean('interface', 'start_hidden'))
-      item2.connect('toggled', self.on_settings_start_hidden_toggled)
+      item2.set_active(self.config.getboolean('interface', 'close_to_tray'))
+      item2.connect('toggled', self.on_settings_close_to_tray_toggled)
       self.settingsmenu.append(item2)
+
+      # Settings -> Start hidden
+      item3 = gtk.CheckMenuItem(_('Start hidden'))
+      item3.set_sensitive(self.config.getboolean('interface', 'show_status_icon'))
+      item3.set_active(self.config.getboolean('interface', 'start_hidden'))
+      item3.connect('toggled', self.on_settings_start_hidden_toggled)
+      self.settingsmenu.append(item3)
 
       # Connect 'Show status icon's toggled signal since it adds item2
       # as a user arg.
-      item1.connect('toggled', self.on_settings_show_status_icon_toggled, item2)
+      item1.connect('toggled', self.on_settings_show_status_icon_toggled, item2, item3)
 
       # Seperator
       self.settingsmenu.append(gtk.SeparatorMenuItem())
@@ -814,6 +824,14 @@ class MethLabWindow:
     if self.status_icon:
       self.window.hide()
 
+  def on_window_delete(self, window, event):
+    if self.status_icon and \
+       self.config.getboolean('interface', 'show_status_icon') and \
+       self.config.getboolean('interface', 'close_to_tray'):
+      self.hide_window()
+      return True
+    return False
+
   def on_section_button_clicked(self, button):
     if button == self.btnSearchOptions:
       self.swSearchOptions.show()
@@ -1063,11 +1081,16 @@ class MethLabWindow:
   def on_file_update(self, menuitem):
     self.update_db()
 
-  def on_settings_show_status_icon_toggled(self, menuitem, start_hidden):
+  def on_settings_show_status_icon_toggled(self, menuitem, close_to_tray, start_hidden):
     active = menuitem.get_active()
     self.set_config('interface', 'show_status_icon', active)
+    close_to_tray.set_sensitive(active)
     start_hidden.set_sensitive(active)
     self.status_icon.set_visible(active)
+
+  def on_settings_close_to_tray_toggled(self, menuitem):
+    active = menuitem.get_active()
+    self.set_config('interface', 'close_to_tray', active)
 
   def on_settings_start_hidden_toggled(self, menuitem):
     active = menuitem.get_active()
