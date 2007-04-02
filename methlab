@@ -18,20 +18,48 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 if __name__ == '__main__':
-  import pygtk
-  pygtk.require('2.0')
-  import gtk
-  import gtk.glade
+  import sys
+
+  # Set up a fake _() to aid the error translation.
+  def _(s):
+    return s
+
+  # Import gtk and check its version and components.
+  pygtk_error = None
+  try:
+    import pygtk
+    try:
+      pygtk.require('2.0')
+    except AssertionError:
+      pygtk_error = _('Could not find PyGTK 2.0 installed on your system.')
+
+    try:
+      import gtk
+      if gtk.check_version(2, 10, 0):
+        pygtk_error = _('PyGTK 2.0 version is too old. MethLab requires PyGTK 2.10 or newer.')
+      try:
+        import gtk.glade
+      except ImportError:
+        pygtk_error = _('PyGTK 2.10 or newer was found, but the glade component is missing.')
+    except ImportError:
+      pygtk_error = _('Could not import the PyGTK 2.0 library.')
+  except ImportError:
+    pygtk_error = _('Could not find PyGTK installed on your system.')
+
   import locale
   import gettext
 
   try:
     locale.setlocale(locale.LC_ALL, '')
   except:
-    print 'Cannot set locale'
+    print >> sys.stderr, 'Warning: Cannot set up locale.'
+
+  gettext.textdomain('methlab')
+  if pygtk_error:
+    print >> sys.stderr, gettext.gettext(pygtk_error)
+    sys.exit(-1)
 
   gtk.glade.textdomain('methlab')
-  gettext.textdomain('methlab')
 
   from pymethlab.gui import MethLabWindow
   win = MethLabWindow()
