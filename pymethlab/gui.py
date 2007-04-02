@@ -310,11 +310,15 @@ class MethLabWindow:
       accel_group.connect_group(ord(str(i + 1)), gtk.gdk.MOD1_MASK, 0, self.on_toggle_search_field)
 
     # Create the status icon
-    self.status_icon = gtk.status_icon_new_from_pixbuf(self.icons[24])
-    self.status_icon.set_tooltip('MethLab')
-    self.status_icon.connect('activate', self.on_statusicon_activate)
-    self.status_icon.connect('popup-menu', self.on_statusicon_popup_menu)
-    self.status_icon.set_visible(self.config.getboolean('interface', 'show_statusicon'))
+    if hasattr(gtk, 'status_icon_new_from_pixbuf'):
+      self.build_status_icon_menu()
+      self.status_icon = gtk.status_icon_new_from_pixbuf(self.icons[24])
+      self.status_icon.set_tooltip('MethLab')
+      self.status_icon.connect('activate', self.on_statusicon_activate)
+      self.status_icon.connect('popup-menu', self.on_statusicon_popup_menu)
+      self.status_icon.set_visible(self.config.getboolean('interface', 'show_statusicon'))
+    else:
+      self.status_icon = None
 
     # Haxory and trixory to prevent widgets from needlessly rearranging
     self.swSearches.realize()
@@ -326,7 +330,7 @@ class MethLabWindow:
     # Connect destroy signal and show the window
     self.window.connect('destroy', gtk.main_quit)
     self.window.resize(640, 380)
-    if not (self.config.getboolean('interface', 'show_statusicon') and self.config.getboolean('interface', 'start_hidden')):
+    if not (self.status_icon and self.config.getboolean('interface', 'show_statusicon') and self.config.getboolean('interface', 'start_hidden')):
       self.window.show()
 
     # Create the DBUS service
@@ -434,6 +438,7 @@ class MethLabWindow:
     # Show everything
     self.menubar.show_all()
 
+  def build_status_icon_menu(self):
     # Build the status icon popup menu
     self.statusicon_menu = gtk.Menu()
 
@@ -774,7 +779,8 @@ class MethLabWindow:
     self.entSearch.grab_focus()
 
   def hide_window(self):
-    self.window.hide()
+    if self.status_icon:
+      self.window.hide()
 
   def on_section_button_clicked(self, button):
     if button == self.btnSearchOptions:
