@@ -68,6 +68,16 @@ if __name__ == '__main__':
     import dbus
     from dbus.mainloop.glib import DBusGMainLoop
     DBusGMainLoop(set_as_default=True)
+
+    try:
+      bus = dbus.SessionBus()
+      obj = bus.get_object('org.thegraveyard.MethLab', '/org/thegraveyard/MethLab/MainWindow')
+      print >> sys.stderr, _('MethLab is already running. Bringing the window to the front.')
+      obj.show()
+      sys.exit(0)
+    except dbus.DBusException:
+      pass
+
   except ImportError:
     print >> sys.stderr, _('The python-dbus library was not found. Consider installing it.')
 
