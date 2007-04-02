@@ -644,6 +644,9 @@ class MethLabWindow:
     return False
 
   def get_selected_result_paths(self):
+    if self.tvResults.get_model() == self.no_results_model:
+      return []
+
     files = []
     sel = self.tvResults.get_selection()
     model, paths = sel.get_selected_rows()
