@@ -17,8 +17,11 @@
 
 DRIVERS = ['MpdDriver']
 
+from gettext import gettext as _
+
 class MpdDriver:
-  name = 'MPD driver'
+  name = 'mpd'
+  name_tr = _('Music Player Daemon')
   def __init__(self):
     import mpdclient3
     self.mpdclient = mpdclient3

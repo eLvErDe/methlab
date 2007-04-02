@@ -24,3 +24,10 @@ pymethlab/drivers/mpdclient3.py
 pymethlab/drivers/pyxmms.py
 pymethlab/drivers/xmmsalike.py
 pymethlab/drivers/xmmsbeepaudacious.py
+locale/README
+locale/add_lang.sh
+locale/compile.sh
+locale/merge.sh
+locale/update.sh
+locale/methlab.pot
+locale/nl/methlab.po

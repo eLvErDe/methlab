@@ -28,6 +28,7 @@ from querytranslator import QueryTranslatorException
 from drivers import DRIVERS, DummyDriver
 from db_sources import DB_SOURCES, FilesystemSource
 from db import sqlite
+from gettext import gettext as _
 
 # Case insensitive string compare
 def case_insensitive_cmp(model, a, b):
@@ -69,6 +70,14 @@ class MethLabWindow:
   }
 
   def __init__(self):
+    # Load the gui from the XML file
+    self.gladefile = os.path.join(os.path.split(__file__)[0], 'methlab.glade')
+    wtree = gtk.glade.XML(self.gladefile)
+
+    # Map the widgets from the wtree to the class
+    for w in wtree.get_widget_prefix(''):
+      setattr(self, w.name, w)
+
     # Set the default configuration options
     self.config = ConfigParser()
     for section, options in self.DEFAULT_CONFIG.items():
@@ -78,11 +87,13 @@ class MethLabWindow:
     # Merge configuration file with default options
     self.config.read(os.path.expanduser(self.CONFIG_PATH))
 
+    # Pick a database source
     db_source = self.config.get('options', 'db_source')
     for db_source_class in DB_SOURCES:
       if db_source_class.name == db_source:
         break
     else:
+      self.error_dialog(_('The database source you have previously selected is not or no longer available.\n\nFalling back to the filesystem database source.'))
       db_source_class = FilesystemSource
 
     # Create our database back-end
@@ -98,23 +109,15 @@ class MethLabWindow:
     # A tuple describing all the result columns (name, field, model_col)
     self.result_columns = \
     {
-      'path': (0, 'Path', 'Path'),
-      'artist': (1, 'Artist', 'Artist'),
-      'album': (2, 'Album', 'Album'),
-      'track': (3, '#', 'Track number'),
-      'title': (4, 'Title', 'Track title'),
-      'year': (5, 'Year', 'Year'),
-      'genre': (6, 'Genre', 'Genre'),
-      'comment': (7, 'Comment', 'Comment')
+      'path': (0, _('Path'), _('Path')),
+      'artist': (1, _('Artist'), _('Artist')),
+      'album': (2, _('Album'), _('Album')),
+      'track': (3, _('#'), _('Track number')),
+      'title': (4, _('Title'), _('Track title')),
+      'year': (5, _('Year'), _('Year')),
+      'genre': (6, _('Genre'), _('Genre')),
+      'comment': (7, _('Comment'), _('Comment'))
     }
-
-    # Load the gui from the XML file
-    self.gladefile = os.path.join(os.path.split(__file__)[0], 'methlab.glade')
-    wtree = gtk.glade.XML(self.gladefile)
-
-    # Map the widgets from the wtree to the class
-    for w in wtree.get_widget_prefix(''):
-      setattr(self, w.name, w)
 
     # Create the audio-player back-end
     self.set_driver(self.config.get('options', 'driver'))
@@ -154,8 +157,8 @@ class MethLabWindow:
     self.tvSortOrder.get_selection().set_mode(gtk.SELECTION_NONE)
     cell_renderer_toggle = gtk.CellRendererToggle()
     cell_renderer_toggle.connect('toggled', self.on_search_field_toggled)
-    self.tvSortOrder.append_column(gtk.TreeViewColumn('Enabled', cell_renderer_toggle, active = 1))
-    self.tvSortOrder.append_column(gtk.TreeViewColumn('Field', cell_renderer, text = 2))
+    self.tvSortOrder.append_column(gtk.TreeViewColumn('', cell_renderer_toggle, active = 1))
+    self.tvSortOrder.append_column(gtk.TreeViewColumn('', cell_renderer, text = 2))
     self.tvSortOrder.set_model(self.search_options_model)
     self.update_sort_order(False)
     self.update_search_fields(False)
@@ -175,7 +178,7 @@ class MethLabWindow:
 
     # Set up the artists / albums tree view
     artist_album_renderer = gtk.CellRendererText()
-    col = gtk.TreeViewColumn('Artist / Album', artist_album_renderer, text = 0)
+    col = gtk.TreeViewColumn('', artist_album_renderer, text = 0)
     col.set_cell_data_func(artist_album_renderer, self.get_artists_albums_cell_data)
     self.tvArtistsAlbums.append_column(col)
     self.tvArtistsAlbums.set_model(self.artists_albums_model)
@@ -191,7 +194,7 @@ class MethLabWindow:
     self.update_searches_model()
 
     # Set up the saved searches tree view
-    self.tvSearches.append_column(gtk.TreeViewColumn('Saved search', cell_renderer, text = 0))
+    self.tvSearches.append_column(gtk.TreeViewColumn('', cell_renderer, text = 0))
     self.tvSearches.set_model(self.searches_model)
     self.tvSearches.get_selection().connect('changed', self.on_searches_selection_changed)
     self.tvSearches.connect('button-press-event', self.on_searches_button_press_event)
@@ -310,12 +313,12 @@ class MethLabWindow:
   def build_menus(self):
     # Create the File menu
     self.filemenu = gtk.Menu()
-    filemenu_item = gtk.MenuItem('_File')
+    filemenu_item = gtk.MenuItem(_('_File'))
     filemenu_item.set_submenu(self.filemenu)
     self.menubar.append(filemenu_item)
 
     # File -> Update library now
-    self.filemenu_update = gtk.ImageMenuItem('_Update library now')
+    self.filemenu_update = gtk.ImageMenuItem(_('_Update library now'))
     self.filemenu_update.set_image(gtk.image_new_from_stock(gtk.STOCK_REFRESH, gtk.ICON_SIZE_MENU))
     self.filemenu_update.connect('activate', self.on_file_update)
     self.filemenu.append(self.filemenu_update)
@@ -330,20 +333,20 @@ class MethLabWindow:
 
     # Create the Settings menu
     self.settingsmenu = gtk.Menu()
-    settingsmenu_item = gtk.MenuItem('_Settings')
+    settingsmenu_item = gtk.MenuItem(_('_Settings'))
     settingsmenu_item.set_submenu(self.settingsmenu)
     self.menubar.append(settingsmenu_item)
 
     # Settings -> Database source
     self.dbsourcemenu = gtk.Menu()
-    dbsourcemenu_item = gtk.MenuItem('_Database source')
+    dbsourcemenu_item = gtk.MenuItem(_('Database _source'))
     dbsourcemenu_item.set_submenu(self.dbsourcemenu)
     self.settingsmenu.append(dbsourcemenu_item)
 
     # Settings -> Database source -> <...>
     group = None
     for db_source_class in DB_SOURCES:
-      item = gtk.RadioMenuItem(group, db_source_class.name)
+      item = gtk.RadioMenuItem(group, db_source_class.name_tr)
       if group is None:
         group = item
       item.set_active(db_source_class == self.db.get_scanner_class())
@@ -351,13 +354,13 @@ class MethLabWindow:
       self.dbsourcemenu.append(item)
 
     # Settings -> Directories
-    self.settingsmenu_directories = gtk.ImageMenuItem('_Directories')
+    self.settingsmenu_directories = gtk.ImageMenuItem(_('_Directories'))
     self.settingsmenu_directories.set_image(gtk.image_new_from_stock(gtk.STOCK_DIRECTORY, gtk.ICON_SIZE_MENU))
     self.settingsmenu_directories.connect('activate', self.on_settings_directories)
     self.settingsmenu.append(self.settingsmenu_directories)
 
     # Settings -> Update on startup
-    self.settingsmenu_update_on_startup = gtk.CheckMenuItem('_Update library on startup')
+    self.settingsmenu_update_on_startup = gtk.CheckMenuItem(_('_Update library on startup'))
     self.settingsmenu_update_on_startup.set_active(self.config.getboolean('options', 'update_on_startup'))
     self.settingsmenu_update_on_startup.connect('toggled', self.on_settings_update_on_startup_toggled)
     self.settingsmenu.append(self.settingsmenu_update_on_startup)
@@ -367,14 +370,14 @@ class MethLabWindow:
 
     # Settings -> Audio player
     self.drivermenu = gtk.Menu()
-    drivermenu_item = gtk.MenuItem('_Audio player')
+    drivermenu_item = gtk.MenuItem(_('_Audio player'))
     drivermenu_item.set_submenu(self.drivermenu)
     self.settingsmenu.append(drivermenu_item)
 
     # Settings -> Audio player -> <...>
     group = None
     for driver in DRIVERS:
-      item = gtk.RadioMenuItem(group, driver.name)
+      item = gtk.RadioMenuItem(group, driver.name_tr)
       if group is None:
         group = item
       if self.ap_driver.__class__ == driver:
@@ -384,7 +387,7 @@ class MethLabWindow:
 
     # Create the Help menu
     self.helpmenu = gtk.Menu()
-    helpmenu_item = gtk.MenuItem('_Help')
+    helpmenu_item = gtk.MenuItem(_('_Help'))
     helpmenu_item.set_submenu(self.helpmenu)
     self.menubar.append(helpmenu_item)
 
@@ -396,25 +399,30 @@ class MethLabWindow:
     # Show everything
     self.menubar.show_all()
 
+  # Helper function to show an error dialog
+  def error_dialog(self, message):
+    dialog = gtk.MessageDialog(self.window, 
+      flags = gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+      type = gtk.MESSAGE_ERROR, 
+      buttons = (gtk.BUTTONS_OK),
+      message_format = message
+    )
+    dialog.run()
+    dialog.destroy()
+
   # Set which backend driver to use
   def set_driver(self, drivername):
-    driver = DummyDriver
     for d in DRIVERS:
       if d.name == drivername:
         driver = d
         break
+    else:
+      self.error_dialog(_('The audio player driver you have previously selected is not or no longer available.\n\nFalling back to the dummy driver.'))
+      driver = DummyDriver
     try:
       self.ap_driver = driver()
     except Exception, e:
-      msg = 'An error has occured while activating the selected driver.\n\nThe error is: %s\n\nFalling back to the dummy driver.' % str(e.message)
-      dialog = gtk.MessageDialog(self.window, 
-        flags = gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-        type = gtk.MESSAGE_ERROR, 
-        buttons = (gtk.BUTTONS_OK),
-        message_format = msg
-      )
-      dialog.run()
-      dialog.destroy()
+      self.error_dialog(_('An error has occured while activating the selected driver.\n\nThe error is: %s\n\nFalling back to the dummy driver.') % str(e.message))
       self.ap_driver = DummyDriver()
 
   def set_db_source(self, db_source):
@@ -489,7 +497,7 @@ class MethLabWindow:
     if model == self.no_results_model:
       if column is self.tvResults.get_column(0):
         cell.set_property('style', pango.STYLE_ITALIC)
-        cell.set_property('text', 'Your search did not return any results.')
+        cell.set_property('text', _('Your search did not return any results.'))
       else:
         cell.set_property('style', pango.STYLE_NORMAL)
         cell.set_property('text', '')
@@ -657,12 +665,12 @@ class MethLabWindow:
 
     dialog = gtk.Dialog \
     (
-      'Please wait...',
+      _('Please wait...'),
       self.window,
       gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT
     )
     dialog.set_has_separator(False)
-    dialog.vbox.pack_start(gtk.Label('Please wait while MethLab updates the library...'))
+    dialog.vbox.pack_start(gtk.Label(_('Please wait while MethLab updates the library...')))
     dialog.connect('delete_event', lambda w, e: True)
     dialog.show_all()
     try:
@@ -730,12 +738,12 @@ class MethLabWindow:
     if event.button == 3:
       menu = gtk.Menu()
       # Collapsible artists menu item
-      item = gtk.CheckMenuItem('Collapsible artists')
+      item = gtk.CheckMenuItem(_('Collapsible artists'))
       item.set_active(self.config.getboolean('interface', 'artists_collapsible'))
       item.connect('toggled', self.on_artists_albums_popup_collapsible_artists_toggled)
       menu.append(item)
       # Search album on artist as well menu item
-      item = gtk.CheckMenuItem('Search album on artist as well')
+      item = gtk.CheckMenuItem(_('Search album on artist as well'))
       item.set_active(self.config.getboolean('options', 'search_on_artist_and_album'))
       item.connect('toggled', self.on_artists_albums_popup_search_on_artist_and_album_toggled)
       menu.append(item)
@@ -796,7 +804,7 @@ class MethLabWindow:
         name = treeview.get_model().get_value(iter, 0)
         treeview.get_selection().select_iter(iter)
         menu = gtk.Menu()
-        item = gtk.MenuItem('Remove')
+        item = gtk.MenuItem(_('Remove'))
         item.connect('activate', self.on_searches_popup_remove, name)
         menu.append(item)
         menu.show_all()
@@ -884,6 +892,8 @@ class MethLabWindow:
 
     if query[0] != '@':
       fields = self.get_active_search_fields()
+      if not fields:
+        return
     else:
       fields = []
 
@@ -892,17 +902,24 @@ class MethLabWindow:
       name = query
     else:
       fields_long = [self.result_columns[field][2] for field in fields]
-      name = "'%s' in %s" % (query, ', '.join(fields_long))
+      if len(fields_long) == 1:
+        name = _("'%(query)s' in %(field)s field") % { 'query': query, 'field': fields_long[0] }
+      else:
+        name = _("'%(query)s' in %(fields)s and %(last_field)s fields") % {
+          'query': query,
+          'fields': ', '.join(fields_long[:-1]),
+          'last_field': fields_long[-1]
+        }
 
     dialog = gtk.Dialog \
     (
-      'Save search',
+      _('Save search'),
       self.window,
       gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
       (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
        gtk.STOCK_OK,     gtk.RESPONSE_ACCEPT)
     )
-    dialog.vbox.pack_start(gtk.Label('Name of the search'))
+    dialog.vbox.pack_start(gtk.Label(_('Name of the search')))
     entry = gtk.Entry()
     entry.set_text(name)
     entry.connect('activate', lambda w: dialog.response(gtk.RESPONSE_ACCEPT))
@@ -929,7 +946,7 @@ class MethLabWindow:
     def on_add_directory(button, model):
       dialog = gtk.FileChooserDialog \
         (
-          'Add directory',
+          _('Add directory'),
           self.window,
           gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER,
           (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
@@ -958,7 +975,7 @@ class MethLabWindow:
     wtree = gtk.glade.XML(gladefile)
     dialog = wtree.get_widget('dialog')
     treeview = wtree.get_widget('tvDirs')
-    treeview.append_column(gtk.TreeViewColumn('Directory', gtk.CellRendererText(), text = 0))
+    treeview.append_column(gtk.TreeViewColumn(_('Directory'), gtk.CellRendererText(), text = 0))
     treeview.set_model(model)
     wtree.get_widget('btnAdd').connect('clicked', on_add_directory, model)
     wtree.get_widget('btnRemove').connect('clicked', on_remove_directory, treeview)
@@ -998,10 +1015,13 @@ class MethLabWindow:
     dialog = gtk.AboutDialog()
     dialog.set_name('MethLab')
     dialog.set_version('0.0.0')
-    dialog.set_copyright('MethLab is (C) 2007 Ingmar Steen.\nThe bundled xmmsalike library is (C) 2006 Ben Wolfson and Risto A. Paju')
+    c1 = _('Copyright (c) 2007 Ingmar Steen.')
+    c2 = _('The bundled xmmsalike library is (C) 2006 Ben Wolfson and Risto A. Paju')
+    c3 = _('The bundled mpdclient3 library is (C) 2006 Scott Horowitz')
+    dialog.set_copyright(c1 + '\n' + c2 + '\n' + c3)
     dialog.set_license(LICENSE)
-    dialog.set_website('http://thegraveyard.org/')
-    dialog.set_authors(['Ingmar Steen <iksteen@gmail.com> (Main developer)'])
+    dialog.set_website('http://methlab.thegraveyard.org/')
+    dialog.set_authors([_('Ingmar Steen <iksteen@gmail.com> (Main developer)')])
     dialog.run()
     dialog.destroy()
 

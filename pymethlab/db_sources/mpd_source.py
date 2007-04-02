@@ -18,6 +18,7 @@
 DB_SOURCES = ['MpdSource']
 
 import os, stat, mpdclient3
+from gettext import gettext as _
 
 class MpdTagAbsorber:
   def __init__(self, info):
@@ -30,7 +31,8 @@ class MpdTagAbsorber:
     self.comment = info.get('comment', '')
                                      
 class MpdSource:
-  name = 'MPD'
+  name = 'mpd'
+  name_tr = _('Music Player Daemon')
   def __init__(self, db, yield_func = None):
     self.db = db
     self.yield_func = yield_func
@@ -58,7 +60,6 @@ class MpdSource:
     db_subdirs = self.db.get_subdirs_by_dir_id(dir_id)
     for subdir in db_subdirs:
       if not subdir[1] in found.keys():
-        print "Purging dir '%s'..." % subdir[1]
         self.db.delete_dir_by_dir_id(subdir[0])
 
     for dir, filenames in found.items():
@@ -66,5 +67,4 @@ class MpdSource:
       db_filenames = self.db.get_filenames_by_dir_id(dir_id)
       for filename in db_filenames:
         if not filename[0] in filenames:
-          print "Purging track '%s'..." % (dir + filename[0])
           self.db.delete_track(dir_id, filename[0])

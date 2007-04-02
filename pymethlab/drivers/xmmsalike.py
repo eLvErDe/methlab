@@ -45,6 +45,7 @@ config file access basics, config_get()
 import os
 from glob import glob
 from ctypes import *
+from gettext import gettext as _
 
 import ConfigParser
 config = ConfigParser.SafeConfigParser()
@@ -58,7 +59,7 @@ class InvalidLibrary(ValueError): pass
 def swaplibrary(libname, searchpath=("/usr/lib","/usr/local/lib")):
     global library, config
     if libname not in libraries:
-        raise InvalidLibrary('Invalid library')
+        raise InvalidLibrary(_('Invalid library'))
     soname = "lib%s.so" % libname
     for path in searchpath:
         libpath = os.path.join(path, soname)
@@ -72,7 +73,7 @@ def swaplibrary(libname, searchpath=("/usr/lib","/usr/local/lib")):
             library = cdll.LoadLibrary(libpath)
             config.read(os.path.expanduser("~/." + libname + "/config"))
             return
-    raise LibraryNotFound('%s library not found' % libname)
+    raise LibraryNotFound(_('%s library not found') % libname)
 
 # by teknohog
 # note to self: you can initialize this library without the running

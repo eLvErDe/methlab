@@ -17,11 +17,22 @@
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import pygtk
-pygtk.require('2.0')
-import gtk
-from pymethlab.gui import MethLabWindow
-
 if __name__ == '__main__':
+  import pygtk
+  pygtk.require('2.0')
+  import gtk
+  import gtk.glade
+  import locale
+  import gettext
+
+  try:
+    locale.setlocale(locale.LC_ALL, '')
+  except:
+    print 'Cannot set locale'
+
+  gtk.glade.textdomain('methlab')
+  gettext.textdomain('methlab')
+
+  from pymethlab.gui import MethLabWindow
   win = MethLabWindow()
   gtk.main()

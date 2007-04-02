@@ -1,0 +1,19 @@
+To update the .pot file:
+$ ./update.sh
+
+To add a new language to the repository:
+$ ./add_lang.sh nl
+
+To merge the .pot file with all methlab.po files:
+$ ./merge.sh
+
+To merge the .pot file with the nl/methlab.po file:
+$ cd nl
+$ ../merge.sh
+
+To compile all methlab.po files to methlab.mo:
+$ ./compile.sh
+
+To compile the nl/methlab.po file to nl/methlab.mo:
+$ cd nl
+$ ../compile.sh

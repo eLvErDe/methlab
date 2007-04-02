@@ -17,8 +17,11 @@
 
 DRIVERS = ['XmmsAlikeDriver', 'AudaciousDriver', 'BeepDriver']
 
+from gettext import gettext as _
+
 class XmmsAlikeDriver:
-  name = 'XMMS driver (using xmmsalike)'
+  name = 'xmmsalike'
+  name_tr = _('XMMS (using xmmsalike)')
   flavor = 'xmms'
   def __init__(self):
     import xmmsalike
@@ -33,9 +36,11 @@ class XmmsAlikeDriver:
     self.xmms.playlist_add(files)
 
 class AudaciousDriver(XmmsAlikeDriver):
-  name = 'Audacious driver (using xmmsalike)'
+  name = 'audaciousalike'
+  name_tr = _('Audacious (using xmmsalike)')
   flavor = 'audacious'
 
 class BeepDriver(XmmsAlikeDriver):
-  name = 'Beep driver (using xmmsalike)'
+  name = 'beepalike'
+  name_tr = _('Beep Media Player (using xmmsalike)')
   flavor = 'beep'

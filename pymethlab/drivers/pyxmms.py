@@ -17,8 +17,11 @@
 
 DRIVERS = ['PyXmmsDriver']
 
+from gettext import gettext as _
+
 class PyXmmsDriver:
-  name = 'XMMS driver (using PyXMMS)'
+  name = 'pyxmms'
+  name_tr = _('XMMS (using PyXMMS)')
   def __init__(self):
     import xmms.control
     self.xmms = xmms.control

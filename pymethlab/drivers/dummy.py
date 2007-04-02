@@ -17,8 +17,11 @@
 
 DRIVERS = ['DummyDriver']
 
+from gettext import gettext as _
+
 class DummyDriver:
   name = "Dummy driver (doesn't do anything)"
+  name_tr = _("Dummy driver (doesn't do anything)")
   def __init__(self):
     pass
 

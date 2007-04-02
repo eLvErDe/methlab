@@ -43,7 +43,7 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <property name="label" translatable="yes">gtk-add</property>
+                <property name="label" translatable="no">gtk-add</property>
                 <property name="use_stock">True</property>
               </widget>
             </child>
@@ -52,7 +52,7 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <property name="label" translatable="yes">gtk-remove</property>
+                <property name="label" translatable="no">gtk-remove</property>
                 <property name="use_stock">True</property>
               </widget>
               <packing>
@@ -74,7 +74,7 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <property name="label" translatable="yes">gtk-cancel</property>
+                <property name="label" translatable="no">gtk-cancel</property>
                 <property name="use_stock">True</property>
               </widget>
             </child>
@@ -83,7 +83,7 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <property name="label" translatable="yes">gtk-ok</property>
+                <property name="label" translatable="no">gtk-ok</property>
                 <property name="use_stock">True</property>
               </widget>
               <packing>

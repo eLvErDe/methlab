@@ -19,9 +19,11 @@ DB_SOURCES = ['FilesystemSource']
 
 import os, stat
 from tagwrap import get_tag
+from gettext import gettext as _
 
 class FilesystemSource:
-  name = 'Filesystem'
+  name = 'fs'
+  name_tr = _('Filesystem')
   def __init__(self, db, yield_func = None):
     self.db = db
     self.yield_func = yield_func
@@ -34,7 +36,7 @@ class FilesystemSource:
         self.yield_func()
 
   def update_dir(self, parent, dir):
-    print 'Checking %s' % dir
+    print _('Updating directory %s') % dir
     dir_id = self.db.get_dir_id(parent, dir)
 
     found_subdirs = []
@@ -61,17 +63,13 @@ class FilesystemSource:
           tag = get_tag(path)
           if tag:
             self.db.add_track(dir_id, file, long(statdata.st_mtime), tag)
-          else:
-            print "Skipping '%s'..." % path
 
     db_subdirs = self.db.get_subdirs_by_dir_id(dir_id)
     for subdir in db_subdirs:
       if not subdir[1] in found_subdirs:
-        print "Purging dir '%s'..." % subdir[1]
         self.db.delete_dir_by_dir_id(subdir[0])
 
     db_filenames = self.db.get_filenames_by_dir_id(dir_id)
     for filename in db_filenames:
       if not filename[0] in found_files:
-        print "Purging track '%s'..." % (dir + filename[0])
         self.db.delete_track(dir_id, filename[0])
