@@ -484,8 +484,8 @@ class MethLabWindow:
     # Build the status icon popup menu
     self.status_icon_menu = gtk.Menu()
 
-    # Open MethLab
-    item = gtk.MenuItem(_('Open MethLab'))
+    # Show MethLab
+    item = gtk.MenuItem(_('Show MethLab'))
     item.connect('activate', self.on_status_icon_menu_show)
     self.status_icon_menu.append(item)
 
@@ -1187,10 +1187,10 @@ class MethLabWindow:
     self.search_options_model.set(iter, 1, not value)
 
   def on_status_icon_activate(self, status_icon):
-    if self.window.get_property('visible'):
-      self.window.hide()
+    if self.window.has_toplevel_focus():
+      self.hide_window()
     else:
-      self.window.show()
+      self.show_window()
 
   def on_status_icon_popup_menu(self, status_icon, button, activate_time):
     self.status_icon_menu.popup(None, None, None, button, activate_time)
