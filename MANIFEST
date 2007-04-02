@@ -4,7 +4,6 @@ MANIFEST
 README
 TODO
 methlab
-methlab-db
 setup.py
 pymethlab/__init__.py
 pymethlab/db.py

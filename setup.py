@@ -35,7 +35,7 @@ if __name__ == '__main__':
         author_email = 'iksteen@gmail.com',
         url = 'http://thegraveyard.org/',
         license = 'GPL',
-        scripts = ['methlab', 'methlab-db'],
+        scripts = ['methlab'],
         packages = ['pymethlab'],
         package_data = {'pymethlab': ['*.glade']},
         data_files = mo_files(),
