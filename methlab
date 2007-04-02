@@ -20,6 +20,14 @@
 if __name__ == '__main__':
   import sys
 
+  # Check for Python >= 2.4
+  if not hasattr(sys, 'version_info'):
+    print >> sys.stderr, 'Error: Python version is too old. Need at least python 2.4.'
+    sys.exit(-1)
+  if (sys.version_info[0] == 2) and (sys.version_info[1] < 4):
+    print >> sys.stderr, 'Error: Python version is too old. Need at least python 2.4.'
+    sys.exit(-1)
+
   # Set up a fake _() to aid the error translation.
   def _(s):
     return s
@@ -27,48 +35,59 @@ if __name__ == '__main__':
   # Import gtk and check its version and components.
   pygtk_error = None
   try:
+    # Import pygtk meta-module and demand PyGTK-2.0.
     import pygtk
     try:
       pygtk.require('2.0')
     except AssertionError:
-      pygtk_error = _('Could not find PyGTK 2.0 installed on your system.')
+      pygtk_error = _('Error: Could not find PyGTK 2.0 installed on your system.')
 
     try:
+      # Check for gtk version >= 2.8.0
       import gtk
-      if gtk.check_version(2, 10, 0):
-        pygtk_error = _('PyGTK 2.0 version is too old. MethLab requires PyGTK 2.10 or newer.')
+      if gtk.check_version(2, 8, 0):
+        pygtk_error = _('Error: GTK+-2 version is too old. MethLab requires PyGTK 2.8 or newer.')
       try:
+        # Check for gtk.glade
         import gtk.glade
       except ImportError:
-        pygtk_error = _('PyGTK 2.10 or newer was found, but the glade component is missing.')
+        pygtk_error = _('Error: GTK+-2 2.8 or newer was found, but the glade component is missing.')
     except ImportError:
-      pygtk_error = _('Could not import the PyGTK 2.0 library.')
+      pygtk_error = _('Error: Could not import the GTK+-2 library.')
   except ImportError:
-    pygtk_error = _('Could not find PyGTK installed on your system.')
+    pygtk_error = _('Error: Could not find PyGTK installed on your system.')
 
+  # Set up locale and gettext
   import locale
   import gettext
-
   try:
     locale.setlocale(locale.LC_ALL, '')
   except:
     print >> sys.stderr, 'Warning: Cannot set up locale.'
-
   gettext.textdomain('methlab')
+
+  from gettext import gettext as _
+
+  # If an error occured with importing PyGTK, print the translation and
+  # exit.
   if pygtk_error:
     print >> sys.stderr, gettext.gettext(pygtk_error)
     sys.exit(-1)
 
+  # Set up translation for the .glade files
   gtk.glade.textdomain('methlab')
 
-  from gettext import gettext as _
+  # Check for PyGTK and GTK < 2.10.0 and emit a warning
+  if gtk.check_version(2, 10, 0):
+    print >> sys.stderr, _('Warning: PyGTK < 2.10.0 detected. Certain user interface options will be disabled')
 
   # Check for python-dbus and set it up to use a GLib mainloop.
   try:
     import dbus
     from dbus.mainloop.glib import DBusGMainLoop
-    DBusGMainLoop(set_as_default=True)
+    DBusGMainLoop(set_as_default = True)
 
+    # Check if MethLab is already running
     try:
       bus = dbus.SessionBus()
       obj = bus.get_object('org.thegraveyard.MethLab', '/org/thegraveyard/MethLab/MainWindow')
@@ -81,6 +100,7 @@ if __name__ == '__main__':
   except ImportError:
     print >> sys.stderr, _('The python-dbus library was not found. Consider installing it.')
 
+  # Finally! Import the user interface and start it
   from pymethlab.gui import MethLabWindow
   win = MethLabWindow()
   gtk.main()
