@@ -928,30 +928,35 @@ class MethLabWindow:
     self.search()
 
   def on_searches_button_press_event(self, treeview, event):
-    if event.button == 1:
-      data = treeview.get_path_at_pos(int(event.x), int(event.y))
-      if data is not None:
-        path, col, r_x, r_y = data
-        iter = treeview.get_model().get_iter(path)
-        treeview.get_selection().unselect_all()
-        treeview.get_selection().select_iter(iter)
+    data = treeview.get_path_at_pos(int(event.x), int(event.y))
+    if data is not None:
+      path, col, r_x, r_y = data
+      iter = treeview.get_model().get_iter(path)
+    else:
+      iter = None
+
+    if event.type == gtk.gdk.BUTTON_PRESS:
+      if event.button == 1:
+        if iter:
+          treeview.get_selection().unselect_all()
+          treeview.get_selection().select_iter(iter)
+          return True
+      elif event.button == 3:
+        if iter:
+          name = treeview.get_model().get_value(iter, 0)
+          treeview.get_selection().select_iter(iter)
+          menu = gtk.Menu()
+          item = gtk.MenuItem(_('Remove'))
+          item.connect('activate', self.on_searches_popup_remove, name)
+          menu.append(item)
+          menu.show_all()
+          menu.popup(None, None, None, event.button, event.time)
+        else:
+          treeview.get_selection().unselect_all()
         return True
-    elif event.button == 3:
-      data = treeview.get_path_at_pos(int(event.x), int(event.y))
-      if data is not None:
-        path, col, r_x, r_y = data
-        iter = treeview.get_model().get_iter(path)
-        name = treeview.get_model().get_value(iter, 0)
-        treeview.get_selection().select_iter(iter)
-        menu = gtk.Menu()
-        item = gtk.MenuItem(_('Remove'))
-        item.connect('activate', self.on_searches_popup_remove, name)
-        menu.append(item)
-        menu.show_all()
-        menu.popup(None, None, None, event.button, event.time)
-      else:
-        treeview.get_selection().unselect_all()
-      return True
+    elif event.type == gtk.gdk._2BUTTON_PRESS and event.button == 1:
+      if iter:
+        self.on_play_results(treeview)
 
   def on_searches_popup_remove(self, menuitem, name):
     self.db.delete_search(name)
