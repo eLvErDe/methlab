@@ -59,6 +59,7 @@ class MethLabWindow:
   DEFAULT_SHOW_STATUS_ICON = True
   DEFAULT_START_HIDDEN = False
   DEFAULT_CLOSE_TO_TRAY = True
+  DEFAULT_DOUBLE_CLICK_ACTION = 'play'
 
   DEFAULT_CONFIG = {
     'options': {
@@ -76,6 +77,7 @@ class MethLabWindow:
       'show_status_icon': `DEFAULT_SHOW_STATUS_ICON`,
       'start_hidden': `DEFAULT_START_HIDDEN`,
       'close_to_tray': `DEFAULT_CLOSE_TO_TRAY`,
+      'double_click_action': DEFAULT_DOUBLE_CLICK_ACTION,
     }
   }
 
@@ -392,6 +394,27 @@ class MethLabWindow:
     settingsmenu_item = gtk.MenuItem(_('_Settings'))
     settingsmenu_item.set_submenu(self.settingsmenu)
     self.menubar.append(settingsmenu_item)
+
+    # Settings -> Double-click in list
+    menu = gtk.Menu()
+    item = gtk.MenuItem(_('Double-_click in list'))
+    item.set_submenu(menu)
+    self.settingsmenu.append(item)
+
+    # Settings -> Double-click in list -> Plays results
+    item = gtk.RadioMenuItem(None, _('_Plays results'))
+    item.set_active(self.config.get('interface', 'double_click_action') == 'play')
+    item.connect('activate', self.on_settings_set_double_click_action, 'play')
+    menu.append(item)
+
+    # Settings -> Double-click in list -> Enqueues results
+    item = gtk.RadioMenuItem(item, _('_Enqueues results'))
+    item.set_active(self.config.get('interface', 'double_click_action') != 'play')
+    item.connect('activate', self.on_settings_set_double_click_action, 'enqueue')
+    menu.append(item)
+
+    # Separator
+    self.settingsmenu.append(gtk.SeparatorMenuItem())
 
     if self.supports_status_icon():
       # Settings -> Show status icon
@@ -957,7 +980,12 @@ class MethLabWindow:
         return True
     elif event.type == gtk.gdk._2BUTTON_PRESS and event.button == 1:
       if iter:
-        self.on_play_results(treeview)
+        files = self.get_selected_result_paths()
+        if files:
+          if self.config.get('interface', 'double_click_action') == 'play':
+            self.ap_driver.play_files(files)
+          else:
+            self.ap_driver.enqueue_files(files)
 
   def on_searches_popup_remove(self, menuitem, name):
     self.db.delete_search(name)
@@ -1015,7 +1043,13 @@ class MethLabWindow:
         path, col, r_x, r_y = data
         iter = treeview.get_model().get_iter(path)
         treeview.get_selection().select_iter(iter)
-        self.on_play_results(treeview)
+
+        files = self.get_selected_result_paths()
+        if files:
+          if self.config.get('interface', 'double_click_action') == 'play':
+            self.ap_driver.play_files(files)
+          else:
+            self.ap_driver.enqueue_files(files)
 
   def on_result_header_popup_activate(self, menuitem, column):
     column.set_visible(not column.get_visible())
@@ -1180,6 +1214,9 @@ class MethLabWindow:
 
   def on_settings_update_on_startup_toggled(self, menuitem):
     self.set_config('options', 'update_on_startup', menuitem.get_active())
+
+  def on_settings_set_double_click_action(self, menuitem, action):
+    self.set_config('interface', 'double_click_action', action)
 
   def on_about(self, menuitem):
     dialog = gtk.AboutDialog()
