@@ -4,9 +4,14 @@ MANIFEST
 README
 TODO
 methlab
+methlab-hide
+methlab-quit
+methlab-show
+methlab-toggle
 setup.py
 pymethlab/__init__.py
 pymethlab/db.py
+pymethlab/dbus_service.py
 pymethlab/gui.py
 pymethlab/querytranslator.py
 pymethlab/dirdialog.glade
@@ -16,6 +21,7 @@ pymethlab/db_sources/fs_source.py
 pymethlab/db_sources/mpd_source.py
 pymethlab/db_sources/mpdclient3.py
 pymethlab/db_sources/tagwrap.py
+pymethlab/db_sources/utils.py
 pymethlab/drivers/__init__.py
 pymethlab/drivers/dummy.py
 pymethlab/drivers/mpd.py
@@ -23,6 +29,11 @@ pymethlab/drivers/mpdclient3.py
 pymethlab/drivers/pyxmms.py
 pymethlab/drivers/xmmsalike.py
 pymethlab/drivers/xmmsbeepaudacious.py
+pymethlab/images/logo_16x16.png
+pymethlab/images/logo_24x24.png
+pymethlab/images/logo_32x32.png
+pymethlab/images/logo_48x48.png
+pymethlab/images/logo_64x64.png
 locale/README
 locale/add_lang.sh
 locale/compile.sh
