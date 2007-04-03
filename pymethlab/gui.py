@@ -60,6 +60,7 @@ class MethLabWindow:
   DEFAULT_START_HIDDEN = False
   DEFAULT_CLOSE_TO_TRAY = True
   DEFAULT_DOUBLE_CLICK_ACTION = 'play'
+  DEFAULT_GEOMETRY = (640, 380, None, None)
 
   DEFAULT_CONFIG = {
     'options': {
@@ -337,9 +338,8 @@ class MethLabWindow:
     # Connect destroy signal and show the window
     self.window.connect('delete_event', self.on_window_delete)
     self.window.connect('destroy', gtk.main_quit)
-    self.window.resize(640, 380)
     if not (self.status_icon and self.config.getboolean('interface', 'show_status_icon') and (start_hidden or self.config.getboolean('interface', 'start_hidden'))):
-      self.window.show()
+      self.show_window()
 
     # Create the DBUS service
     if MethLabDBusService:
@@ -841,15 +841,31 @@ class MethLabWindow:
       self.window.window.raise_()
       self.window.emit('map')
     else:
+      self.restore_geometry()
       self.window.show()
     self.window.grab_focus()
     self.entSearch.grab_focus()
 
   def hide_window(self):
+    self.save_geometry()
     if self.status_icon:
       self.window.hide()
 
+  def save_geometry(self):
+    geometry = self.window.get_size() + self.window.get_position()
+    self.set_config('interface', 'geometry', ' '.join([str(i) for i in geometry]))
+
+  def restore_geometry(self):
+    try:
+      width, height, top, left = [int(s) for s in self.config.get('interface', 'geometry').split()]
+    except Exception, e:
+      width, height, top, left = self.DEFAULT_GEOMETRY
+    self.window.resize(width, height)
+    if top != None and left != None:
+      self.window.move(top, left)
+
   def on_window_delete(self, window, event):
+    self.save_geometry()
     if self.status_icon and \
        self.config.getboolean('interface', 'show_status_icon') and \
        self.config.getboolean('interface', 'close_to_tray'):
