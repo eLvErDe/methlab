@@ -209,6 +209,7 @@ class MethLabWindow:
       self.update_artists_collapsible()
     self.tvArtistsAlbums.get_selection().connect('changed', self.on_artists_albums_selection_changed)
     self.tvArtistsAlbums.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
+    self.tvArtistsAlbums.connect('button-press-event', self.on_results_button_press_event)
 
     # Set up the saved searches model
     self.searches_model = gtk.ListStore(str, str, str)
