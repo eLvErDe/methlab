@@ -25,8 +25,8 @@ class DummyDriver:
   def __init__(self):
     pass
 
-  def play(self, files):
+  def play_files(self, files):
     pass
 
-  def enqueue(self, files):
+  def enqueue_files(self, files):
     pass

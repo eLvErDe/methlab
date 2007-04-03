@@ -1017,12 +1017,12 @@ class MethLabWindow:
   def on_play_results(self, button):
     files = self.get_selected_result_paths()
     if files:
-      self.ap_driver.play(files)
+      self.ap_driver.play_files(files)
 
   def on_enqueue_results(self, button):
     files = self.get_selected_result_paths()
     if files:
-      self.ap_driver.enqueue(files)
+      self.ap_driver.enqueue_files(files)
 
   def on_save_search(self, button):
     query = self.entSearch.get_text()

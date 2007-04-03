@@ -26,9 +26,9 @@ class PyXmmsDriver:
     import xmms.control
     self.xmms = xmms.control
 
-  def play(self, files):
+  def play_files(self, files):
     self.xmms.playlist_clear()
     self.xmms.enqueue_and_play_launch_if_session_not_started(files)
 
-  def enqueue(self, files):
+  def enqueue_files(self, files):
     self.xmms.playlist_add(files)

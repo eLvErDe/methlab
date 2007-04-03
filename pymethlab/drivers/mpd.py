@@ -26,14 +26,14 @@ class MpdDriver:
     import mpdclient3
     self.mpdclient = mpdclient3
 
-  def play(self, files):
+  def play_files(self, files):
     mpd = self.mpdclient.connect()
     mpd.do.clear()
     for file in files:
       mpd.do.add(file)
     mpd.do.play(0)
 
-  def enqueue(self, files):
+  def enqueue_files(self, files):
     mpd = self.mpdclient.connect()
     for file in files:
       mpd.do.add(file)

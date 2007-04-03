@@ -28,11 +28,11 @@ class XmmsAlikeDriver:
     xmmsalike.init(self.flavor)
     self.xmms = xmmsalike
 
-  def play(self, files):
+  def play_files(self, files):
     self.xmms.playlist_set(files)
     self.xmms.play()
 
-  def enqueue(self, files):
+  def enqueue_files(self, files):
     self.xmms.playlist_add(files)
 
 class AudaciousDriver(XmmsAlikeDriver):
