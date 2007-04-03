@@ -79,7 +79,7 @@ class MethLabWindow:
     }
   }
 
-  def __init__(self):
+  def __init__(self, start_hidden = False):
     # Set up the window icon list
     self.icons = {}
     basedir = os.path.split(__file__)[0]
@@ -334,7 +334,7 @@ class MethLabWindow:
     self.window.connect('delete_event', self.on_window_delete)
     self.window.connect('destroy', gtk.main_quit)
     self.window.resize(640, 380)
-    if not (self.status_icon and self.config.getboolean('interface', 'show_status_icon') and self.config.getboolean('interface', 'start_hidden')):
+    if not (self.status_icon and self.config.getboolean('interface', 'show_status_icon') and (start_hidden or self.config.getboolean('interface', 'start_hidden'))):
       self.window.show()
 
     # Create the DBUS service

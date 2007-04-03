@@ -101,6 +101,7 @@ if __name__ == '__main__':
     print >> sys.stderr, _('The python-dbus library was not found. Consider installing it.')
 
   # Finally! Import the user interface and start it
+  start_hidden = '--start-hidden' in sys.argv[1:]
   from pymethlab.gui import MethLabWindow
-  win = MethLabWindow()
+  win = MethLabWindow(start_hidden = start_hidden)
   gtk.main()
