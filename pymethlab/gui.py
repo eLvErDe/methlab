@@ -286,6 +286,7 @@ class MethLabWindow:
     self.tvResults.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
     self.tvResults.set_model(self.results_model)
     self.tvResults.connect('columns-changed', self.on_results_columns_changed)
+    self.tvResults.connect('button-press-event', self.on_results_button_press_event)
 
     # Fix and hook up the expanders
     self.btnSearchOptions.connect('clicked', self.on_section_button_clicked)
@@ -1000,6 +1001,15 @@ class MethLabWindow:
       menu.popup(None, None, None, event.button, event.time)
       return True
     return False
+
+  def on_results_button_press_event(self, treeview, event):
+    if event.button == 1 and event.type == gtk.gdk._2BUTTON_PRESS:
+      data = treeview.get_path_at_pos(int(event.x), int(event.y))
+      if data is not None:
+        path, col, r_x, r_y = data
+        iter = treeview.get_model().get_iter(path)
+        treeview.get_selection().select_iter(iter)
+        self.on_play_results(treeview)
 
   def on_result_header_popup_activate(self, menuitem, column):
     column.set_visible(not column.get_visible())
