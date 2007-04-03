@@ -41,7 +41,15 @@ class MethLabMainWindowDBusProxy(dbus.service.Object):
                        in_signature='', out_signature='')
   def hide(self):
     self.window.hide_window()
-    
+
+  @dbus.service.method('org.thegraveyard.MethLab.MainWindow',
+                       in_signature='', out_signature='')
+  def toggle(self):
+    if self.window.window.get_property('visible'):
+      self.window.hide_window()
+    else:
+      self.window.show_window()
+
 class MethLabDBusService:
   def __init__(self, window):
     session_bus = dbus.SessionBus()
