@@ -661,12 +661,13 @@ class MethLabWindow:
   def update_artists_albums_model(self):
     artists = [row['artist'] for row in self.db.get_artists()]
     for artist in artists:
-      if not self.artist_iters.has_key(artist):
+      if not self.artist_iters.has_key(artist.lower()):
         iter = self.artists_albums_model.append(None)
         self.artists_albums_model.set_value(iter, 0, artist)
-        self.artist_iters[artist] = iter
+        self.artist_iters[artist.lower()] = iter
+    artists_lower = [artist.lower() for artist in artists]
     for artist, iter in self.artist_iters.items():
-      if not artist in artists:
+      if not artist in artists_lower:
         self.artists_albums_model.remove(iter)
         del self.artist_iters[artist]
         for (artist_, album_), iter in self.album_iters.items():
@@ -675,13 +676,15 @@ class MethLabWindow:
 
     artists_albums = [(row['artist'], row['album']) for row in self.db.get_artists_albums()]
     for artist, album in artists_albums:
-      if not self.album_iters.has_key((artist, album)):
-        artist_iter = self.artist_iters[artist]
+      key = (artist.lower(), album.lower())
+      if not self.album_iters.has_key(key):
+        artist_iter = self.artist_iters[artist.lower()]
         iter = self.artists_albums_model.append(artist_iter)
         self.artists_albums_model.set_value(iter, 0, album)
-        self.album_iters[(artist, album)] = iter
+        self.album_iters[key] = iter
+    artists_albums_lower = [(artist.lower(), album.lower()) for artist, album in artists_albums]
     for (artist, album), iter in self.album_iters.items():
-      if not (artist, album) in artists_albums:
+      if not (artist, album) in artists_albums_lower:
         self.artists_albums_model.remove(iter)
         del self.album_iters[(artist, album)]
 
