@@ -23,7 +23,10 @@ class QueryTranslatorException(Exception):
   pass
 
 class QueryTranslator:
-  SYMBOLS = ('(', ')', '=', '!=')
+  # Note about symbol order: when defining combined operators like <= where
+  # that start with a different operator (like <), make sure the longest one
+  # is first in the symbol list
+  SYMBOLS = ('(', ')', '=', '!=', '<=', '<', '>=', '>')
   KEYWORDS = ('AND', 'OR')
 
   def __init__(self):
@@ -33,7 +36,7 @@ class QueryTranslator:
 
   def is_safe(self, token):
     for c in token:
-      if not c in string.ascii_letters:
+      if not c in string.ascii_letters + string.digits:
         return False
     return True
 
@@ -70,6 +73,8 @@ class QueryTranslator:
           self.sql_query += ' LIKE ?'
         elif token == '!=':
           self.sql_query += ' NOT LIKE ?'
+        elif token in ('<', '<=', '>', '>='):
+          self.sql_query += ' %s ?' % token
         elif token in self.SYMBOLS:
           raise QueryTranslatorException('Unexpected symbol %s' % token)
         elif token in self.KEYWORDS:
