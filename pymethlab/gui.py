@@ -17,18 +17,24 @@ LICENSE = '''
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 '''
 
+# Python imports
 import os
+import urllib # For pathname2url
+from ConfigParser import ConfigParser
+from gettext import gettext as _
+
+# PyGTK imports
 import gobject
 import gtk
 import gtk.glade
 import pango
-from ConfigParser import ConfigParser
+
+# MethLab imports
 from db import DB
 from querytranslator import QueryTranslatorException
 from drivers import DRIVERS, DummyDriver
 from db_sources import DB_SOURCES, FilesystemSource
 from db import sqlite
-from gettext import gettext as _
 try:
   from dbus_service import MethLabDBusService
 except ImportError:
@@ -81,6 +87,10 @@ class MethLabWindow:
       'double_click_action': DEFAULT_DOUBLE_CLICK_ACTION,
     }
   }
+
+  TARGETS = [
+    ('text/uri-list', 0, 0),
+  ]
 
   def __init__(self, start_hidden = False):
     # Set up the window icon list
@@ -288,9 +298,11 @@ class MethLabWindow:
       if parent:
         parent.connect('button-press-event', self.on_results_header_button_press_event)
     self.tvResults.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
+    self.tvResults.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, self.TARGETS, gtk.gdk.ACTION_DEFAULT|gtk.gdk.ACTION_COPY)
     self.tvResults.set_model(self.results_model)
     self.tvResults.connect('columns-changed', self.on_results_columns_changed)
     self.tvResults.connect('button-press-event', self.on_results_button_press_event)
+    self.tvResults.connect('drag_data_get', self.on_results_drag_data_get)
 
     # Fix and hook up the expanders
     self.btnSearchOptions.connect('clicked', self.on_section_button_clicked)
@@ -1082,6 +1094,11 @@ class MethLabWindow:
       return
     column_order = ' '.join([column.field for column in columns])
     self.set_config('interface', 'column_order', column_order)
+
+  def on_results_drag_data_get(self, treeview, context, selection, target_id, etime):
+    paths = self.get_selected_result_paths()
+    uris = ['file://' + urllib.pathname2url(path) for path in paths]
+    selection.set_uris(uris)
 
   def on_play_results(self, button):
     files = self.get_selected_result_paths()
