@@ -219,11 +219,13 @@ class MethLabWindow:
     col = gtk.TreeViewColumn('', artist_album_renderer, text = 0)
     col.set_cell_data_func(artist_album_renderer, self.get_artists_albums_cell_data)
     self.tvArtistsAlbums.append_column(col)
+    self.tvArtistsAlbums.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, self.TARGETS, gtk.gdk.ACTION_DEFAULT|gtk.gdk.ACTION_COPY)
     self.tvArtistsAlbums.set_model(self.artists_albums_model)
     self.update_artists_collapsible()
     self.tvArtistsAlbums.get_selection().connect('changed', self.on_artists_albums_selection_changed)
     self.tvArtistsAlbums.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
     self.tvArtistsAlbums.connect('button-press-event', self.on_results_button_press_event)
+    self.tvArtistsAlbums.connect('drag_data_get', self.on_results_drag_data_get)
 
     # Set up the saved searches model
     self.searches_model = gtk.ListStore(str, str, str)
@@ -234,9 +236,11 @@ class MethLabWindow:
 
     # Set up the saved searches tree view
     self.tvSearches.append_column(gtk.TreeViewColumn('', cell_renderer, text = 0))
+    self.tvSearches.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, self.TARGETS, gtk.gdk.ACTION_DEFAULT|gtk.gdk.ACTION_COPY)
     self.tvSearches.set_model(self.searches_model)
     self.tvSearches.get_selection().connect('changed', self.on_searches_selection_changed)
     self.tvSearches.connect('button-press-event', self.on_searches_button_press_event)
+    self.tvSearches.connect('drag_data_get', self.on_results_drag_data_get)
 
     # Set up the search history model
     self.history_model = gtk.ListStore(str)
@@ -1050,7 +1054,7 @@ class MethLabWindow:
         if iter:
           treeview.get_selection().unselect_all()
           treeview.get_selection().select_iter(iter)
-          return True
+          return False
       elif event.button == 3:
         if iter:
           name = treeview.get_model().get_value(iter, 0)
