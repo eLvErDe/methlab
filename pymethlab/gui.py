@@ -1356,7 +1356,7 @@ class MethLabWindow:
     dialog.set_logo(self.icons[64])
     dialog.set_name('MethLab')
     dialog.set_version('0.0.0')
-    c1 = _('Copyright (c) 2007 Ingmar Steen.')
+    c1 = _('Copyright (C) 2007 Ingmar Steen.')
     c2 = _('The bundled xmmsalike library is (C) 2006 Ben Wolfson and Risto A. Paju')
     c3 = _('The bundled mpdclient3 library is (C) 2006 Scott Horowitz')
     dialog.set_copyright(c1 + '\n' + c2 + '\n' + c3)
