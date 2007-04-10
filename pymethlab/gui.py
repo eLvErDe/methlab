@@ -65,6 +65,7 @@ class MethLabWindow:
   DEFAULT_SHOW_STATUS_ICON = True
   DEFAULT_START_HIDDEN = False
   DEFAULT_CLOSE_TO_TRAY = True
+  DEFAULT_FOCUS_SEARCH_ON_SHOW = True
   DEFAULT_DOUBLE_CLICK_ACTION = 'play'
   DEFAULT_GEOMETRY = (640, 380, None, None)
 
@@ -84,6 +85,7 @@ class MethLabWindow:
       'show_status_icon': `DEFAULT_SHOW_STATUS_ICON`,
       'start_hidden': `DEFAULT_START_HIDDEN`,
       'close_to_tray': `DEFAULT_CLOSE_TO_TRAY`,
+      'focus_search_on_show': `DEFAULT_FOCUS_SEARCH_ON_SHOW`,
       'double_click_action': DEFAULT_DOUBLE_CLICK_ACTION,
     }
   }
@@ -349,6 +351,7 @@ class MethLabWindow:
     # Connect destroy signal and show the window
     self.window.connect('delete_event', self.on_window_delete)
     self.window.connect('destroy', gtk.main_quit)
+    self.entSearch.grab_focus()
     if not (self.status_icon and self.config.getboolean('interface', 'show_status_icon') and (start_hidden or self.config.getboolean('interface', 'start_hidden'))):
       self.show_window()
 
@@ -437,19 +440,26 @@ class MethLabWindow:
       item2 = gtk.CheckMenuItem(_('Close to _tray'))
       item2.set_sensitive(self.config.getboolean('interface', 'show_status_icon'))
       item2.set_active(self.config.getboolean('interface', 'close_to_tray'))
-      item2.connect('toggled', self.on_settings_close_to_tray_toggled)
+      item2.connect('toggled', self.on_settings_item_toggled, 'close_to_tray')
       self.settingsmenu.append(item2)
 
       # Settings -> Start hidden
       item3 = gtk.CheckMenuItem(_('Start _hidden'))
       item3.set_sensitive(self.config.getboolean('interface', 'show_status_icon'))
       item3.set_active(self.config.getboolean('interface', 'start_hidden'))
-      item3.connect('toggled', self.on_settings_start_hidden_toggled)
+      item3.connect('toggled', self.on_settings_item_toggled, 'start_hidden')
       self.settingsmenu.append(item3)
 
-      # Connect 'Show status icon's toggled signal since it adds item2
-      # as a user arg.
-      item1.connect('toggled', self.on_settings_show_status_icon_toggled, item2, item3)
+      # Settings -> Focus search box on show
+      item4 = gtk.CheckMenuItem(_('Focus search box on show'))
+      item4.set_sensitive(self.config.getboolean('interface', 'show_status_icon'))
+      item4.set_active(self.config.getboolean('interface', 'focus_search_on_show'))
+      item4.connect('toggled', self.on_settings_item_toggled, 'focus_search_on_show')
+      self.settingsmenu.append(item4)
+
+      # Connect 'Show status icon's toggled signal since it adds item2, item3
+      # and item4 as a user args.
+      item1.connect('toggled', self.on_settings_item_toggled, 'show_status_icon', [item2, item3, item4])
 
       # Seperator
       self.settingsmenu.append(gtk.SeparatorMenuItem())
@@ -852,6 +862,8 @@ class MethLabWindow:
       next = self.history_model.iter_next(node)
 
   def show_window(self):
+    if self.config.getboolean('interface', 'focus_search_on_show'):
+      self.entSearch.grab_focus()
     if self.window.get_property('visible'):
       self.window.window.raise_()
       self.window.emit('map')
@@ -859,7 +871,6 @@ class MethLabWindow:
       self.restore_geometry()
       self.window.show()
     self.window.grab_focus()
-    self.entSearch.grab_focus()
 
   def hide_window(self):
     self.save_geometry()
@@ -1167,20 +1178,13 @@ class MethLabWindow:
   def on_file_update(self, menuitem):
     self.update_db()
 
-  def on_settings_show_status_icon_toggled(self, menuitem, close_to_tray, start_hidden):
+  def on_settings_item_toggled(self, menuitem, key, widgets = []):
     active = menuitem.get_active()
-    self.set_config('interface', 'show_status_icon', active)
-    close_to_tray.set_sensitive(active)
-    start_hidden.set_sensitive(active)
-    self.status_icon.set_visible(active)
-
-  def on_settings_close_to_tray_toggled(self, menuitem):
-    active = menuitem.get_active()
-    self.set_config('interface', 'close_to_tray', active)
-
-  def on_settings_start_hidden_toggled(self, menuitem):
-    active = menuitem.get_active()
-    self.set_config('interface', 'start_hidden', active)
+    self.set_config('interface', key, active)
+    for widget in widgets:
+      widget.set_sensitive(active)
+    if key == 'show_status_icon':
+      self.status_icon.set_visible(active)
 
   def on_settings_directories(self, menuitem):
     def on_add_directory(button, model):
