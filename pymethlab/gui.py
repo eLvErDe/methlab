@@ -224,7 +224,7 @@ class MethLabWindow:
     self.update_artists_collapsible()
     self.tvArtistsAlbums.get_selection().connect('changed', self.on_artists_albums_selection_changed)
     self.tvArtistsAlbums.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
-    self.tvArtistsAlbums.connect('button-press-event', self.on_results_button_press_event)
+    self.tvArtistsAlbums.connect('button-press-event', self.on_artists_albums_button_press_event)
     self.tvArtistsAlbums.connect('drag_data_get', self.on_results_drag_data_get)
 
     # Set up the saved searches model
@@ -316,7 +316,7 @@ class MethLabWindow:
     self.btnSearchOptions.connect('clicked', self.on_section_button_clicked)
     self.btnSearches.connect('clicked', self.on_section_button_clicked)
     self.btnArtistsAlbums.connect('clicked', self.on_section_button_clicked)
-    self.btnArtistsAlbums.connect('button-press-event', self.on_artists_albums_button_press_event)
+    self.btnArtistsAlbums.connect('button-press-event', self.on_artists_albums_header_button_press_event)
 
     # Hook up the search bar
     self.entSearch.connect('focus-in-event', self.on_search_focus_in_event)
@@ -458,7 +458,7 @@ class MethLabWindow:
       self.settingsmenu.append(item3)
 
       # Settings -> Focus search box on show
-      item4 = gtk.CheckMenuItem(_('Focus search box on show'))
+      item4 = gtk.CheckMenuItem(_('_Focus search box on show'))
       item4.set_sensitive(self.config.getboolean('interface', 'show_status_icon'))
       item4.set_active(self.config.getboolean('interface', 'focus_search_on_show'))
       item4.connect('toggled', self.on_settings_item_toggled, 'focus_search_on_show')
@@ -539,7 +539,7 @@ class MethLabWindow:
 
     # 'Search by' menu
     menu = gtk.Menu()
-    item = gtk.MenuItem('Search by')
+    item = gtk.MenuItem(_('Search by'))
     item.set_submenu(menu)
     self.results_menu.append(item)
 
@@ -959,12 +959,14 @@ class MethLabWindow:
       self.swArtistsAlbums.hide()
       self.tvSearches.realize()
       self.tvSearches.grab_focus()
+      self.on_searches_selection_changed(self.tvSearches.get_selection())
     else:
       self.swArtistsAlbums.show()
       self.swSearchOptions.hide()
       self.swSearches.hide()
       self.tvArtistsAlbums.realize()
       self.tvArtistsAlbums.grab_focus()
+      self.on_artists_albums_selection_changed(self.tvArtistsAlbums.get_selection())
 
   def on_search_options_row_deleted(self, model, path):
     self.update_sort_order()
@@ -979,7 +981,7 @@ class MethLabWindow:
     if query[:1] != '@':
       self.search()
 
-  def on_artists_albums_button_press_event(self, widget, event):
+  def on_artists_albums_header_button_press_event(self, widget, event):
     if event.button == 3:
       menu = gtk.Menu()
       # Collapsible artists menu item
@@ -1041,6 +1043,37 @@ class MethLabWindow:
     self.inhibit_search -= 1
     self.search()
 
+  def on_artists_albums_button_press_event(self, treeview, event):
+    data = treeview.get_path_at_pos(int(event.x), int(event.y))
+    if data is not None:
+      path, col, r_x, r_y = data
+      iter = treeview.get_model().get_iter(path)
+    else:
+      iter = None
+
+    if event.type == gtk.gdk.BUTTON_PRESS:
+      if event.button == 3:
+        if iter and not treeview.get_selection().iter_is_selected(iter):
+          treeview.get_selection().unselect_all()
+          treeview.get_selection().select_iter(iter)
+        menu = gtk.Menu()
+        item = gtk.MenuItem(_('Play selected'))
+        item.connect('activate', self.on_play_results)
+        menu.append(item)
+        item = gtk.MenuItem(_('Enqueue selected'))
+        item.connect('activate', self.on_enqueue_results)
+        menu.append(item)
+        menu.show_all()
+        menu.popup(None, None, None, event.button, event.time)
+        return True
+    elif event.type == gtk.gdk._2BUTTON_PRESS and event.button == 1:
+      files = self.get_selected_result_paths()
+      if files:
+        if self.config.get('interface', 'double_click_action') == 'play':
+          self.ap_driver.play_files(files)
+        else:
+          self.ap_driver.enqueue_files(files)
+
   def on_searches_button_press_event(self, treeview, event):
     data = treeview.get_path_at_pos(int(event.x), int(event.y))
     if data is not None:
@@ -1062,6 +1095,13 @@ class MethLabWindow:
           menu = gtk.Menu()
           item = gtk.MenuItem(_('Remove'))
           item.connect('activate', self.on_searches_popup_remove, name)
+          menu.append(item)
+          menu.append(gtk.SeparatorMenuItem())
+          item = gtk.MenuItem(_('Play selected'))
+          item.connect('activate', self.on_play_results)
+          menu.append(item)
+          item = gtk.MenuItem(_('Enqueue selected'))
+          item.connect('activate', self.on_enqueue_results)
           menu.append(item)
           menu.show_all()
           menu.popup(None, None, None, event.button, event.time)
