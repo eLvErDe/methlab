@@ -218,8 +218,7 @@ class MethLabWindow:
     col.set_cell_data_func(artist_album_renderer, self.get_artists_albums_cell_data)
     self.tvArtistsAlbums.append_column(col)
     self.tvArtistsAlbums.set_model(self.artists_albums_model)
-    if self.supports_not_collapsible():
-      self.update_artists_collapsible()
+    self.update_artists_collapsible()
     self.tvArtistsAlbums.get_selection().connect('changed', self.on_artists_albums_selection_changed)
     self.tvArtistsAlbums.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
     self.tvArtistsAlbums.connect('button-press-event', self.on_results_button_press_event)
@@ -666,6 +665,7 @@ class MethLabWindow:
     self.tvArtistsAlbums.set_property('show-expanders', collapsible)
     if collapsible:
       self.tvArtistsAlbums.set_property('level-indentation', 0)
+      self.tvArtistsAlbums.collapse_all()
     else:
       self.tvArtistsAlbums.set_property('level-indentation', 25)
       self.tvArtistsAlbums.expand_all()
