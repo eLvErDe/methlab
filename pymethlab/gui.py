@@ -278,6 +278,9 @@ class MethLabWindow:
     if not visible_columns:
       visible_columns = self.DEFAULT_VISIBLE_COLUMNS
 
+    # Build the search results popup menu
+    self.build_results_menu()
+
     # Set up the results tree view
     results_renderer = gtk.CellRendererText()
     for column_field in column_order:
@@ -461,7 +464,7 @@ class MethLabWindow:
       # and item4 as a user args.
       item1.connect('toggled', self.on_settings_item_toggled, 'show_status_icon', [item2, item3, item4])
 
-      # Seperator
+      # Separator
       self.settingsmenu.append(gtk.SeparatorMenuItem())
 
     # Settings -> Database source
@@ -526,6 +529,41 @@ class MethLabWindow:
     # Show everything
     self.menubar.show_all()
 
+  def build_results_menu(self):
+    # Build the result list popup menu
+    self.results_menu = gtk.Menu()
+
+    # 'Search by' menu
+    menu = gtk.Menu()
+    item = gtk.MenuItem('Search by')
+    item.set_submenu(menu)
+    self.results_menu.append(item)
+
+    # Search by -> <...>
+    def make_search_by_item(menu, field):
+      item = gtk.MenuItem(self.result_columns[field][2])
+      item.connect('activate', self.on_results_search_by, field)
+      menu.append(item)
+      return item
+    for field in ['artist', 'album', 'title', 'year', 'genre']:
+      make_search_by_item(menu, field)
+
+    # Separator
+    self.results_menu.append(gtk.SeparatorMenuItem())
+
+    # Play selected
+    item = gtk.MenuItem(_('Play selected'))
+    item.connect('activate', self.on_play_results)
+    self.results_menu.append(item)
+
+    # Enqueue selected
+    item = gtk.MenuItem(_('Enqueue selected'))
+    item.connect('activate', self.on_enqueue_results)
+    self.results_menu.append(item)
+
+    # Show all items
+    self.results_menu.show_all()
+
   def build_status_icon_menu(self):
     # Build the status icon popup menu
     self.status_icon_menu = gtk.Menu()
@@ -540,7 +578,7 @@ class MethLabWindow:
     item.connect('activate', self.on_status_icon_menu_hide)
     self.status_icon_menu.append(item)
 
-    # Seperator
+    # Separator
     self.status_icon_menu.append(gtk.SeparatorMenuItem())
 
     # Quit
@@ -799,24 +837,30 @@ class MethLabWindow:
     self.entSearch.modify_base(gtk.STATE_NORMAL, None)
     return False
 
-  def get_selected_result_paths(self):
+  def get_selected_result_iters(self):
     if self.tvResults.get_model() == self.no_results_model:
-      return []
+      return None, []
 
-    files = []
     sel = self.tvResults.get_selection()
     model, paths = sel.get_selected_rows()
+    iters = []
     if not paths:
       iter = model.get_iter_first()
       while iter:
-        files.append(model.get_value(iter, 0))
+        iters.append(iter)
         iter = model.iter_next(iter)
     else:
       for path in paths:
         iter = model.get_iter(path)
         if iter:
-          files.append(model.get_value(iter, 0))
-    return files
+          iters.append(iter)
+    return model, iters
+
+  def get_selected_result_paths(self):
+    model, iters = self.get_selected_result_iters()
+    if model is None or not iters:
+      return []
+    return [model.get_value(iter, 0) for iter in iters]
 
   def update_db(self):
     def yield_func():
@@ -1092,6 +1136,10 @@ class MethLabWindow:
             self.ap_driver.play_files(files)
           else:
             self.ap_driver.enqueue_files(files)
+    elif event.button == 3:
+      model, iters = self.get_selected_result_iters()
+      if model is not None and iters:
+        self.results_menu.popup(None, None, None, event.button, event.time)
 
   def on_result_header_popup_activate(self, menuitem, column):
     column.set_visible(not column.get_visible())
@@ -1293,3 +1341,18 @@ class MethLabWindow:
 
   def on_status_icon_menu_hide(self, menuitem):
     self.hide_window()
+
+  def on_results_search_by(self, menuitem, field):
+    model, iters = self.get_selected_result_iters()
+    if model is None or not iters:
+      return
+    col_id = self.result_columns[field][0]
+    values = []
+    for iter in iters:
+      value = model.get_value(iter, col_id)
+      if not value in values:
+        values.append(value)
+    queries = ['(%s = %s)' % (field, query_escape(str(value))) for value in values]
+    query = '@' + ' OR '.join(queries)
+    self.entSearch.set_text(query)
+    self.search()
