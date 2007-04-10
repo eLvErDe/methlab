@@ -1140,6 +1140,7 @@ class MethLabWindow:
       model, iters = self.get_selected_result_iters()
       if model is not None and iters:
         self.results_menu.popup(None, None, None, event.button, event.time)
+        return True
 
   def on_result_header_popup_activate(self, menuitem, column):
     column.set_visible(not column.get_visible())
