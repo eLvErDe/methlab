@@ -1,276 +1,276 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# Romanian translation file for MethLab.
+# Copyright (C) 2007
 # This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Marius Orcsik <mariuseugen.orcsik@gameloft.com>, 2007
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Project-Id-Version: MethLab 0.0.0\n"
+"Report-Msgid-Bugs-To: mariuseugen.orcsik@gameloft.com\n"
 "POT-Creation-Date: 2007-04-10 21:50+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"PO-Revision-Date: 2007-04-13 16:01+0200\n"
+"Last-Translator: Marius Orcsik <mariuseugen.orcsik@gameloft.com>\n"
+"Language-Team: Romanian <mariuseugen.orcsik@gameloft.com>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #: pymethlab/dirdialog.glade:7
 msgid "Directories"
-msgstr ""
+msgstr "Directoare"
 
 #: pymethlab/methlab.glade:6
 msgid "MethLab Music Library"
-msgstr ""
+msgstr "Biblioteca multimedia MethLab"
 
 #: pymethlab/methlab.glade:31
 msgid "Search options"
-msgstr ""
+msgstr "Setări pentru căutare"
 
 #: pymethlab/methlab.glade:64
 msgid "Sa_ved searches"
-msgstr ""
+msgstr "Căutări sal_vate"
 
 #: pymethlab/methlab.glade:99
 msgid "Artists / Al_bums"
-msgstr ""
+msgstr "Artişti / Al_bume"
 
 #: pymethlab/methlab.glade:145
 msgid "Sea_rch:"
-msgstr ""
+msgstr "Cau_tă"
 
 #: pymethlab/methlab.glade:227
 msgid "_Play"
-msgstr ""
+msgstr "_Start"
 
 #: pymethlab/methlab.glade:237
 msgid "En_queue"
-msgstr ""
+msgstr "Pune în _coadă"
 
 #: pymethlab/methlab.glade:250
 msgid "S_ave query"
-msgstr ""
+msgstr "S_alvează căutare"
 
 #: methlab:43
 msgid "Error: Could not find PyGTK 2.0 installed on your system."
-msgstr ""
+msgstr "Eroare: PyGTK 2.0 nu a fost găsit instalat pe sistemul dumneavoastră."
 
 #: methlab:49
 msgid "Error: GTK+-2 version is too old. MethLab requires PyGTK 2.8 or newer."
-msgstr ""
+msgstr "Eroare: Versiunea GTK+-2 este prea veche. MethLab are nevoie de versiunea 2.8 sau mai nouă a PyGTK."
 
 #: methlab:54
 msgid "Error: GTK+ 2.8 or newer was found, but the glade component is missing."
-msgstr ""
+msgstr "Eroare: S-a găsit versiunea GTK+ 2.8 sau mai mare, dar lipseşte componenta glade a acestuia."
 
 #: methlab:56
 msgid "Error: Could not import the GTK+-2 library."
-msgstr ""
+msgstr "Eroare: Nu am putut importa librăria GTK+-2."
 
 #: methlab:58
 msgid "Error: Could not find PyGTK installed on your system."
-msgstr ""
+msgstr "Eroare: Nu am putut găsi instalat pe sistemul dumneavoastră PyGTK."
 
 #: methlab:82
-msgid ""
-"Warning: GTK older than 2.10.0 detected. Certain user interface options will "
-"be disabled"
-msgstr ""
+msgid "Warning: GTK older than 2.10.0 detected. Certain user interface options will be disabled"
+msgstr "Avertisment: A fost detectată o versiune de GTK mai veche decât 2.10.0. Anumite opţiuni ale interfeţei vor fi dezactivate."
 
 #: methlab:94
 msgid "MethLab is already running. Bringing the window to the front."
-msgstr ""
+msgstr "MethLab rulează deja. Voi activa fereastra."
 
 #: methlab:101
 msgid "The python-dbus library was not found. Consider installing it."
-msgstr ""
+msgstr "Librăria python-dbus nu a fost găsită. Aveţi în vedere să o instalaţi."
 
 #: pymethlab/db_sources/fs_source.py:26
 msgid "Filesystem"
-msgstr ""
+msgstr "Sistem de fişiere"
 
 #: pymethlab/db_sources/fs_source.py:39
 #, python-format
 msgid "Updating directory %s"
-msgstr ""
+msgstr "Actualizarea directorului %s"
 
-#: pymethlab/db_sources/mpd_source.py:36 pymethlab/drivers/mpd.py:24
+#: pymethlab/db_sources/mpd_source.py:36
+#: pymethlab/drivers/mpd.py:24
 msgid "Music Player Daemon"
-msgstr ""
+msgstr "Serviciul Player de muzică."
 
 #: pymethlab/db_sources/tagwrap.py:32
 msgid "unsupported or no tag"
-msgstr ""
+msgstr "tag fără suport sau lipsă"
 
 #: pymethlab/drivers/dummy.py:24
 msgid "Dummy driver (doesn't do anything)"
-msgstr ""
+msgstr "Driver machetă (nu face nimic)"
 
 #: pymethlab/drivers/pyxmms.py:24
 msgid "XMMS (using PyXMMS)"
-msgstr ""
+msgstr "XMMS (folosind PyXMMS)"
 
 #: pymethlab/drivers/xmms2.py:25
 msgid "XMMS2 (using xmmsclient)"
-msgstr ""
+msgstr "XMMS2 (folosind xmmsclient)"
 
 #: pymethlab/drivers/xmmsalike.py:62
 msgid "Invalid library"
-msgstr ""
+msgstr "Bibliotecă nevalidă"
 
 #: pymethlab/drivers/xmmsalike.py:76
 #, python-format
 msgid "%s library not found"
-msgstr ""
+msgstr "Biblioteca %s nu a fost găsită"
 
 #: pymethlab/drivers/xmmsbeepaudacious.py:24
 msgid "XMMS (using xmmsalike)"
-msgstr ""
+msgstr "XMMS (folosinf xmmsalike)"
 
 #: pymethlab/drivers/xmmsbeepaudacious.py:40
 msgid "Audacious (using xmmsalike)"
-msgstr ""
+msgstr "Audacious (folosind xmmsalike)"
 
 #: pymethlab/drivers/xmmsbeepaudacious.py:45
 msgid "Beep Media Player (using xmmsalike)"
-msgstr ""
+msgstr "Beep Media Player (folosind xmmsalike)"
 
 #: pymethlab/gui.py:132
 msgid ""
-"The database source you have previously selected is not or no longer "
-"available.\n"
+"The database source you have previously selected is not or no longer available.\n"
 "\n"
 "Falling back to the filesystem database source."
-msgstr ""
+msgstr "Sursa bazei de date pe care aţi selectat-o anterior nu mai este disponibilă.Întoarcere la baza de date sitem de fişiere."
 
 #: pymethlab/gui.py:150
 msgid "Path"
-msgstr ""
+msgstr "Cale"
 
 #: pymethlab/gui.py:151
 msgid "Artist"
-msgstr ""
+msgstr "Artist"
 
 #: pymethlab/gui.py:152
 msgid "Album"
-msgstr ""
+msgstr "Album"
 
 #: pymethlab/gui.py:153
 msgid "#"
-msgstr ""
+msgstr "#"
 
 #: pymethlab/gui.py:153
 msgid "Track number"
-msgstr ""
+msgstr "Numărul pistei"
 
 #: pymethlab/gui.py:154
 msgid "Title"
-msgstr ""
+msgstr "Titlu"
 
 #: pymethlab/gui.py:154
 msgid "Track title"
-msgstr ""
+msgstr "Titlul pistei"
 
 #: pymethlab/gui.py:155
 msgid "Year"
-msgstr ""
+msgstr "An"
 
 #: pymethlab/gui.py:156
 msgid "Genre"
-msgstr ""
+msgstr "Gen"
 
 #: pymethlab/gui.py:157
 msgid "Comment"
-msgstr ""
+msgstr "Comentariu"
 
 #: pymethlab/gui.py:395
 msgid "_File"
-msgstr ""
+msgstr "_Fişier"
 
 #: pymethlab/gui.py:400
 msgid "_Update library now"
-msgstr ""
+msgstr "Act_ualizează acum biblioteca"
 
 #: pymethlab/gui.py:415
 msgid "_Settings"
-msgstr ""
+msgstr "_Setări"
 
 #: pymethlab/gui.py:421
 msgid "Double-_click in list"
-msgstr ""
+msgstr "_Click-dublu în listă"
 
 #: pymethlab/gui.py:426
 msgid "_Plays results"
-msgstr ""
+msgstr "_Ascultă rezultatele"
 
 #: pymethlab/gui.py:432
 msgid "_Enqueues results"
-msgstr ""
+msgstr "_Pune în coadă rezultatele"
 
 #: pymethlab/gui.py:442
 msgid "Show status _icon"
-msgstr ""
+msgstr "Arată icon-ul de stare"
 
 #: pymethlab/gui.py:447
 msgid "Close to _tray"
-msgstr ""
+msgstr "Închide în zona de notificare"
 
 #: pymethlab/gui.py:454
 msgid "Start _hidden"
-msgstr ""
+msgstr "Porneşte _ascuns"
 
 #: pymethlab/gui.py:461
 msgid "_Focus search box on show"
-msgstr ""
+msgstr "La afişare _focalizare pe câmpul de căutare"
 
 #: pymethlab/gui.py:476
 msgid "Database _source"
-msgstr ""
+msgstr "_Sursa bazei de date"
 
 #: pymethlab/gui.py:491
 msgid "_Directories"
-msgstr ""
+msgstr "_Directoare"
 
 #: pymethlab/gui.py:497
 msgid "_Update library on startup"
-msgstr ""
+msgstr "Act_ualizează biblioteca la pornire"
 
 #: pymethlab/gui.py:507
 msgid "_Audio player"
-msgstr ""
+msgstr "Player _audio"
 
 #: pymethlab/gui.py:524
 msgid "_Help"
-msgstr ""
+msgstr "_Ajutor"
 
 #: pymethlab/gui.py:542
 msgid "Search by"
-msgstr ""
+msgstr "Caută după"
 
-#: pymethlab/gui.py:559 pymethlab/gui.py:1060 pymethlab/gui.py:1100
+#: pymethlab/gui.py:559
+#: pymethlab/gui.py:1060
+#: pymethlab/gui.py:1100
 msgid "Play selected"
-msgstr ""
+msgstr "Ascultă selecţia"
 
-#: pymethlab/gui.py:564 pymethlab/gui.py:1063 pymethlab/gui.py:1103
+#: pymethlab/gui.py:564
+#: pymethlab/gui.py:1063
+#: pymethlab/gui.py:1103
 msgid "Enqueue selected"
-msgstr ""
+msgstr "Pune în coadă selecţia"
 
 #: pymethlab/gui.py:576
 msgid "_Show MethLab"
-msgstr ""
+msgstr "_Arată MethLab"
 
 #: pymethlab/gui.py:581
 msgid "_Hide MethLab"
-msgstr ""
+msgstr "A_scunde MethLab"
 
 #: pymethlab/gui.py:614
 msgid ""
-"The audio player driver you have previously selected is not or no longer "
-"available.\n"
+"The audio player driver you have previously selected is not or no longer available.\n"
 "\n"
 "Falling back to the dummy driver."
-msgstr ""
+msgstr "Playerul audio selectat anterior nu mai este disponibil.Reîntoarcere la driverul machetă."
 
 #: pymethlab/gui.py:619
 #, python-format
@@ -280,70 +280,71 @@ msgid ""
 "The error is: %s\n"
 "\n"
 "Falling back to the dummy driver."
-msgstr ""
+msgstr "La activarea driverului selectat a apărut o eroare.Eroarea este: %sReîntoarcere la driverul machetă."
 
 #: pymethlab/gui.py:694
 msgid "Your search did not return any results."
-msgstr ""
+msgstr "Căutarea dumneavoastră nu a întors niciun rezultat."
 
 #: pymethlab/gui.py:875
 msgid "Please wait..."
-msgstr ""
+msgstr "Vă rugăm aşteptaţi..."
 
 #: pymethlab/gui.py:880
 msgid "Please wait while MethLab updates the library..."
-msgstr ""
+msgstr "Vă rugăm aşteptaţi în timp ce MethLab actualizează biblioteca..."
 
 #: pymethlab/gui.py:989
 msgid "Collapsible artists"
-msgstr ""
+msgstr "Artişti pliabili"
 
 #: pymethlab/gui.py:994
 msgid "Search album on artist as well"
-msgstr ""
+msgstr "Căutarea albumului şi duop artist"
 
 #: pymethlab/gui.py:1096
 msgid "Remove"
-msgstr ""
+msgstr "Îndepărtează"
 
 #: pymethlab/gui.py:1235
 #, python-format
 msgid "'%(query)s' in %(field)s field"
-msgstr ""
+msgstr "'%(query)s' în câmpul %(field)s "
 
 #: pymethlab/gui.py:1237
 #, python-format
 msgid "'%(query)s' in %(fields)s and %(last_field)s fields"
-msgstr ""
+msgstr "'%(query)s' în %(fields)s şi cîmpul %(last_field)s "
 
 #: pymethlab/gui.py:1245
 msgid "Save search"
-msgstr ""
+msgstr "Salvează căutarea"
 
 #: pymethlab/gui.py:1251
 msgid "Name of the search"
-msgstr ""
+msgstr "Numele căutării"
 
 #: pymethlab/gui.py:1286
 msgid "Add directory"
-msgstr ""
+msgstr "Adaugă director"
 
 #: pymethlab/gui.py:1315
 msgid "Directory"
-msgstr ""
+msgstr "Director"
 
 #: pymethlab/gui.py:1359
 msgid "Copyright (C) 2007 Ingmar Steen."
-msgstr ""
+msgstr "Copyright (C) 2007 Ingmar Steen."
 
 #: pymethlab/gui.py:1360
 msgid "The bundled xmmsalike library is (C) 2006 Ben Wolfson and Risto A. Paju"
-msgstr ""
+msgstr "Librăria xmmsalike inclusă este (C) 2006 Ben Wolfson şi Risto A. Paju"
 
 #: pymethlab/gui.py:1361
 msgid "The bundled mpdclient3 library is (C) 2006 Scott Horowitz"
-msgstr ""
+msgstr "Librăria mpdclient3 inclusă este (C) 2006 Scott Horowitz"
 
 #: pymethlab/gui.py:1365
 msgid "Ingmar Steen <iksteen@gmail.com> (Main developer)"
-msgstr ""
+msgstr "Ingmar Steen <iksteen@gmail.com> (Dezvotator principal)"
+
