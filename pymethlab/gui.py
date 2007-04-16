@@ -298,8 +298,9 @@ class MethLabWindow:
       column.set_visible(column_field in visible_columns)
       column.set_cell_data_func(results_renderer, self.get_results_cell_data)
       self.tvResults.append_column(column)
-      # Haxory and trixory to be able to catch right click on the header
       column.set_clickable(True)
+      column.connect('clicked', self.on_results_column_clicked, column_field)
+      # Haxory and trixory to be able to catch right click on the header
       column.set_widget(gtk.Label(column_name))
       column.get_widget().show()
       parent = column.get_widget().get_ancestor(gtk.Button)
@@ -1144,6 +1145,18 @@ class MethLabWindow:
     self.search_timeout_tag = None
     self.search(True)
     return False
+
+  def on_results_column_clicked(self, widget, field):
+    iter = self.search_options_model.get_iter_first()
+    while iter:
+      if self.search_options_model.get_value(iter, 0) == field:
+        self.search_options_model.move_after(iter, None)
+        break
+      iter = self.search_options_model.iter_next(iter)
+    else:
+      return
+    self.update_sort_order()
+    self.search()
 
   def on_results_header_button_press_event(self, widget, event):
     if event.button == 3:
