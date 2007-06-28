@@ -2,10 +2,11 @@ Credits due:
 
  - Adam Cecile (Le Vert) for hosting the MethLab trac and subversion
    repository.
- - OffHand (for good ideas, inspiration and initial and usability testing).
- - daelstorm (always finding them nasty hidden critters).
+ - OffHand for good ideas, inspiration and initial and usability testing.
+ - daelstorm for always finding them nasty hidden critters.
  - Ben Wolfson and Risto A. Paju for xmmsalike.
  - The authors of TagPy, TagLib, Python, PyGTK, XMMS, Audacity, Beep and
    all things shiny!
  - Pete (10/6) for his excellent hints on making a TreeView column's header
    have a context menu.
+ - 'nenolod' for the Audacious-DBus audio player driver.
