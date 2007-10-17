@@ -49,7 +49,12 @@ class FilesystemSource:
       if self.yield_func:
         self.yield_func()
       path = dir + file
-      statdata = os.stat(path)
+
+      try:
+        statdata = os.stat(path)
+      except Exception, e:
+        continue
+
       if stat.S_ISDIR(statdata.st_mode):
         if not os.access(path, os.R_OK | os.X_OK):
           continue
