@@ -25,28 +25,46 @@ except ImportError:
 from gettext import gettext as _
 import urllib
 
-def get_audacious():
-  bus = Bus(Bus.TYPE_SESSION)
-
-  try:
-    return bus.get_object('org.atheme.audacious', '/org/atheme/audacious')
-  except DBusException:
-    return None
-
 class AudaciousDBusDriver:
   name = 'audacious-dbus'
   name_tr = _('Audacious (using DBus)')
   def __init__(self):
-    self.audacious = get_audacious()
+    self.bus = Bus(Bus.TYPE_SESSION)
+    self.audacious = self.bus.get_object('org.atheme.audacious', '/org/atheme/audacious')
 
   def play_files(self, files):
-    self.audacious.Clear()
-    files = ['file://' + file for file in files]
-    for file in files:
-      self.audacious.AddUrl(file)
-    self.audacious.Play()
+    try:
+      self.audacious.Clear()
+      uris = ['file://' + file for file in files]
+      for file in uris:
+        self.audacious.AddUrl(file)
+      self.audacious.Play()
+    except DBusException:
+      self.bus = Bus(Bus.TYPE_SESSION)
+      self.audacious = self.bus.get_object('org.atheme.audacious', '/org/atheme/audacious')
+      try:
+        self.audacious.Clear()
+        uris = ['file://' + file for file in files]
+        for file in uris:
+          self.audacious.AddUrl(file)
+        self.audacious.Play()
+      except DBusException:
+        # FIXME: Should provide feedback on how to handle the problem
+        pass
 
   def enqueue_files(self, files):
-    files = ['file://' + file for file in files]
-    for file in files:
-      self.audacious.AddUrl(file)
+    try:
+      uris = ['file://' + file for file in files]
+      for file in uris:
+        self.audacious.AddUrl(file)
+    except DBusException:
+      self.bus = Bus(Bus.TYPE_SESSION)
+      self.audacious = self.bus.get_object('org.atheme.audacious', '/org/atheme/audacious')
+      try:
+        uris = ['file://' + file for file in files]
+        for file in uris:
+          self.audacious.AddUrl(file)
+      except DBusException:
+        # FIXME: Should provide feedback on how to handle the problem
+        pass
+
