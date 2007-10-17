@@ -30,7 +30,7 @@ import gtk.glade
 import pango
 
 # MethLab imports
-from db import DB
+from db import DBThread
 from querytranslator import QueryTranslatorException
 from drivers import DRIVERS, DummyDriver
 from db_sources import DB_SOURCES, FilesystemSource
@@ -135,7 +135,8 @@ class MethLabWindow:
       need_purge = True
 
     # Create our database back-end
-    self.db = DB(scanner_class = db_source_class)
+    self.db = DBThread(scanner_class = db_source_class)
+    self.db.start()
 
     # If this value is not 0, searches will not occur
     self.inhibit_search = 1

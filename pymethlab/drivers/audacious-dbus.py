@@ -17,7 +17,11 @@
 
 DRIVERS = ['AudaciousDBusDriver']
 
-from dbus import Bus, DBusException
+try:
+  from dbus import Bus, DBusException
+except ImportError:
+  DRIVERS = []
+
 from gettext import gettext as _
 import urllib
 
