@@ -20,6 +20,7 @@
 __all__ = ['DBThread']
 
 import os
+import sys
 import threading
 import Queue
 
@@ -77,11 +78,14 @@ class DBThread(threading.Thread):
       msg = self.queue.get()
       if not msg:
         break
-      if msg.script:
-        cursor.executescript(msg.query, msg.args)
-      else:
-        cursor.execute(msg.query, msg.args)
-      msg.result = cursor.fetchall()
+      try:
+        if msg.script:
+          cursor.executescript(msg.query, msg.args)
+        else:
+          cursor.execute(msg.query, msg.args)
+        msg.result = cursor.fetchall()
+      except:
+        print >> sys.stderr, 'Error while executing query "%s" (%s)' % (msg.query, msg.args)
       if msg.event:
         msg.event.set()
     conn.close()
@@ -142,9 +146,9 @@ class DBThread(threading.Thread):
 
   def delete_root(self, dir):
     symbols = (dir, )
-    row = self.execute(GetDirIdQuery, symbols).fetchone()
-    if row is not None:
-      self.delete_dir_by_dir_id(row[0])
+    row = self.execute(GetDirIdQuery, symbols)
+    if row:
+      self.delete_dir_by_dir_id(row[0][0])
     self.execute(DeleteRootQuery, symbols)
 
   def get_dir_id(self, parent, dir):
