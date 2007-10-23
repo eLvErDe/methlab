@@ -247,23 +247,6 @@ class MethLabWindow:
     self.history_model = gtk.ListStore(str)
     self.cbeSearch.set_model(self.history_model)
 
-    # Set up the search results model
-    self.results_model = gtk.ListStore(str, str, str, int, str, int, str, str)
-    # 0: Path
-    self.results_model.set_sort_func(0, case_insensitive_cmp)
-    # 1: Artist
-    self.results_model.set_sort_func(1, case_insensitive_cmp)
-    # 2: Album
-    self.results_model.set_sort_func(2, case_insensitive_cmp)
-    # 3: Track#
-    # 4: Title
-    self.results_model.set_sort_func(4, case_insensitive_cmp)
-    # 5: Year
-    # 6: Genre
-    self.results_model.set_sort_func(6, case_insensitive_cmp)
-    # 7: Comment
-    self.results_model.set_sort_func(7, case_insensitive_cmp)
-
     # Set up the no_results model
     self.no_results_model = gtk.ListStore(str, str, str, int, str, int, str, str)
     self.no_results_model.append()
@@ -309,7 +292,7 @@ class MethLabWindow:
         parent.connect('button-press-event', self.on_results_header_button_press_event)
     self.tvResults.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
     self.tvResults.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, self.TARGETS, gtk.gdk.ACTION_DEFAULT|gtk.gdk.ACTION_COPY)
-    self.tvResults.set_model(self.results_model)
+    self.tvResults.set_model(self.build_results_model())
     self.tvResults.connect('columns-changed', self.on_results_columns_changed)
     self.tvResults.connect('button-press-event', self.on_results_button_press_event)
     self.tvResults.connect('drag_data_get', self.on_results_drag_data_get)
@@ -595,6 +578,26 @@ class MethLabWindow:
     # Show everything
     self.status_icon_menu.show_all()
 
+  # Helper function to build a results model
+  def build_results_model(self):
+    # Set up the search results model
+    results_model = gtk.ListStore(str, str, str, int, str, int, str, str)
+    # 0: Path
+    results_model.set_sort_func(0, case_insensitive_cmp)
+    # 1: Artist
+    results_model.set_sort_func(1, case_insensitive_cmp)
+    # 2: Album
+    results_model.set_sort_func(2, case_insensitive_cmp)
+    # 3: Track#
+    # 4: Title
+    results_model.set_sort_func(4, case_insensitive_cmp)
+    # 5: Year
+    # 6: Genre
+    results_model.set_sort_func(6, case_insensitive_cmp)
+    # 7: Comment
+    results_model.set_sort_func(7, case_insensitive_cmp)
+    return results_model
+    
   # Helper function to show an error dialog
   def error_dialog(self, message):
     dialog = gtk.MessageDialog(self.window, 
@@ -786,10 +789,8 @@ class MethLabWindow:
 
     self.unflash_search_entry()
 
-    self.results_model.clear()
-    if self.tvResults.get_model() != self.results_model:
-      self.tvResults.set_model(self.results_model)
-      self.tvResults.set_sensitive(True)
+    self.tvResults.set_model(self.build_results_model())
+    self.tvResults.set_sensitive(True)
 
     query = self.entSearch.get_text()
     if not query:
@@ -807,20 +808,17 @@ class MethLabWindow:
       self.add_to_history(query)
 
   def search_callback(self, msg):
-    gobject.idle_add(self.search_callback_sync, msg)
-  
-  def search_callback_sync(self, msg):
     results = msg.result
     if results is None:
-      self.flash_search_entry()
+      gobject.idle_add(self.flash_search_entry)
       return
     
-    self.results_model.clear()
+    results_model = self.build_results_model()
     have_results = False
     for result in results:
       have_results = True
-      iter = self.results_model.append()
-      self.results_model.set(iter,
+      iter = results_model.append()
+      results_model.set(iter,
         0, result[0],
         1, result['artist'],
         2, result['album'],
@@ -830,15 +828,15 @@ class MethLabWindow:
         6, result['genre'],
         7, result['comment']
       )
+    gobject.idle_add(self.search_callback_sync, have_results, results_model)
 
+  def search_callback_sync(self, have_results, results_model):
     if not have_results:
-      if self.tvResults.get_model() != self.no_results_model:
-        self.tvResults.set_model(self.no_results_model)
-        self.tvResults.set_sensitive(False)
+      self.tvResults.set_model(self.no_results_model)
+      self.tvResults.set_sensitive(False)
     else:
-      if self.tvResults.get_model() != self.results_model:
-        self.tvResults.set_model(self.results_model)
-        self.tvResults.set_sensitive(True)
+      self.tvResults.set_model(results_model)
+      self.tvResults.set_sensitive(True)
 
   def cancel_flash_search_entry(self):
     if self.flash_timeout_tag is not None:
