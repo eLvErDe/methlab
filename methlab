@@ -57,6 +57,9 @@ if __name__ == '__main__':
   except ImportError:
     pygtk_error = _('Error: Could not find PyGTK installed on your system.')
 
+  # Set up GTK to work properly with threads
+  gtk.gdk.threads_init()
+
   # Set up locale and gettext
   import locale
   import gettext

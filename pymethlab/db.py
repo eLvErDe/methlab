@@ -30,17 +30,17 @@ except ImportError:
   try:
     from pysqlite2 import dbapi2 as sqlite
   except ImportError:
-    print "Couldn't find pysqlite 2 or 3. Bailing out."
+    print >> sys.stderr, "Couldn't find pysqlite 2 or 3. Bailing out."
     raise
 
 from querytranslator import *
 from dbqueries import *
 
 class DBMessage:
-  def __init__(self, query, args, event = None, script = False):
+  def __init__(self, query, args, callback = None, script = False):
     self.query = query
     self.args = args
-    self.event = event
+    self.callback = callback
     self.script = script
     self.result = None
 
@@ -77,6 +77,7 @@ class DBThread(threading.Thread):
     while 1:
       msg = self.queue.get()
       if not msg:
+        self.queue.task_done()
         break
       try:
         if msg.script:
@@ -86,30 +87,41 @@ class DBThread(threading.Thread):
         msg.result = cursor.fetchall()
       except:
         print >> sys.stderr, 'Error while executing query "%s" (%s)' % (msg.query, msg.args)
-      if msg.event:
-        msg.event.set()
+      if msg.callback:
+        msg.callback(msg)
+      self.queue.task_done()
     conn.close()
 
   def stop(self):
     self.queue.put(None)
   
   def execute(self, query, args = []):
-    msg = DBMessage(query, args, threading.Event())
+    event = threading.Event()
+    msg = DBMessage(query, args, lambda msg: event.set())
     self.queue.put(msg)
-    msg.event.wait()
+    event.wait()
     return msg.result
 
   def executescript(self, query, args = []):
-    msg = DBMessage(query, args, threading.Event(), True)
+    event = threading.Event()
+    msg = DBMessage(query, args, lambda msg: event.set(), True)
     self.queue.put(msg)
-    msg.event.wait()
+    event.wait()
     return msg.result
-
+    
+  def executeasync(self, query, args = [], callback = None):
+    msg = DBMessage(query, args, callback)
+    self.queue.put(msg)
+  
+  def executescriptasync(self, query, args = [], callback = None):
+    msg = DBMessage(query, args, callback, True)
+    self.queue.put(msg)
+  
   def migrate_path_to_dir(self):
     try:
       self.get_roots()
     except sqlite.OperationalError:
-      print 'Note: Migrating database (rename path to dir in roots and dirs).'
+      print >> sys.stderr, 'Note: Migrating database (rename path to dir in roots and dirs).'
       self.executescript(PathToDirMigrationScript)
 
   def get_scanner_class(self):
@@ -172,7 +184,7 @@ class DBThread(threading.Thread):
     symbols = (dir_id, )
     result = self.execute(GetSubdirsByDirIdQuery, symbols)
     for row in result:
-      print "Purging '%s' because of recursion..." % row[1]
+      print >> sys.stderr, "Purging '%s' because of recursion..." % row[1]
       self.delete_dir_by_dir_id(row[0])
     self.execute(DeleteTracksByDirIdQuery, symbols)
     self.execute(DeleteDirQuery, symbols)
@@ -220,12 +232,15 @@ class DBThread(threading.Thread):
     self.lock.release()
     return result
 
-  def query_tracks(self, query):
+  def query_tracks(self, query, callback = None):
     query, symbols = translate_query(query)
     query = QueryTracksQuery % query + self.get_sort_order()
-    return self.execute(query, symbols)
+    if callback is None:
+      self.execute(query, symbols)
+    else:
+      self.executeasync(query, symbols, callback)
 
-  def search_tracks(self, query):
+  def search_tracks(self, query, callback = None):
     # Chop op the query:
     # a b | c d --> (a AND b) OR (c AND d)
 
@@ -240,7 +255,10 @@ class DBThread(threading.Thread):
 
     query = SearchTracksQuery % ') OR ('.join(clauses)
     query += self.get_sort_order()
-    return self.execute(query, symbols)
+    if callback is None:
+      return self.execute(query, symbols)
+    else:
+      self.executeasync(query, symbols, callback)
 
   def get_distinct_track_info(self, *fields):
     symbol = ', '.join(fields)

@@ -796,12 +796,9 @@ class MethLabWindow:
       return
     try:
       if query[0] == '@':
-        results = self.db.query_tracks(query[1:])
+        results = self.db.query_tracks(query[1:], self.search_callback)
       else:
-        results = self.db.search_tracks(query)
-    except sqlite.OperationalError, e:
-      self.flash_search_entry()
-      return
+        results = self.db.search_tracks(query, self.search_callback)
     except QueryTranslatorException, e:
       self.flash_search_entry()
       return
@@ -809,6 +806,16 @@ class MethLabWindow:
     if add_to_history:
       self.add_to_history(query)
 
+  def search_callback(self, msg):
+    gobject.idle_add(self.search_callback_sync, msg)
+  
+  def search_callback_sync(self, msg):
+    results = msg.result
+    if results is None:
+      self.flash_search_entry()
+      return
+    
+    self.results_model.clear()
     have_results = False
     for result in results:
       have_results = True
@@ -825,8 +832,13 @@ class MethLabWindow:
       )
 
     if not have_results:
-      self.tvResults.set_model(self.no_results_model)
-      self.tvResults.set_sensitive(False)
+      if self.tvResults.get_model() != self.no_results_model:
+        self.tvResults.set_model(self.no_results_model)
+        self.tvResults.set_sensitive(False)
+    else:
+      if self.tvResults.get_model() != self.results_model:
+        self.tvResults.set_model(self.results_model)
+        self.tvResults.set_sensitive(True)
 
   def cancel_flash_search_entry(self):
     if self.flash_timeout_tag is not None:
