@@ -53,6 +53,6 @@ class MethLabMainWindowDBusProxy(dbus.service.Object):
 class MethLabDBusService:
   def __init__(self, window):
     session_bus = dbus.SessionBus()
-    self.name = dbus.service.BusName('org.thegraveyard.MethLab')
+    self.name = dbus.service.BusName('org.thegraveyard.MethLab', bus = session_bus)
     self.app_proxy = MethLabApplicationDBusProxy(session_bus)
     self.main_window_proxy = MethLabMainWindowDBusProxy(session_bus, window)
