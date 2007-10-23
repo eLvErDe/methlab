@@ -20,6 +20,7 @@ LICENSE = '''
 # Python imports
 import os
 import urllib # For pathname2url
+import sys
 from ConfigParser import ConfigParser
 from gettext import gettext as _
 
@@ -34,6 +35,7 @@ from db import DBThread
 from querytranslator import QueryTranslatorException
 from drivers import DRIVERS, DummyDriver
 from db_sources import DB_SOURCES, FilesystemSource
+from updatehelper import UpdateHelper
 from db import sqlite
 try:
   from dbus_service import MethLabDBusService
@@ -135,9 +137,12 @@ class MethLabWindow:
       need_purge = True
 
     # Create our database back-end
-    self.db = DBThread(scanner_class = db_source_class)
+    self.db = DBThread()
     self.db.start()
-
+    
+    # Create our scanner helper
+    self.scanner = UpdateHelper(self.db, db_source_class)
+    
     # If this value is not 0, searches will not occur
     self.inhibit_search = 1
 
@@ -468,7 +473,7 @@ class MethLabWindow:
       item = gtk.RadioMenuItem(group, db_source_class.name_tr)
       if group is None:
         group = item
-      item.set_active(db_source_class == self.db.get_scanner_class())
+      item.set_active(db_source_class == self.scanner.scanner_class)
       item.connect('toggled', self.on_settings_db_source_toggled, db_source_class)
       self.dbsourcemenu.append(item)
 
@@ -626,7 +631,7 @@ class MethLabWindow:
 
   def set_db_source(self, db_source):
     self.db.purge()
-    self.db.set_scanner_class(db_source)
+    self.scanner.set_scanner_class(db_source)
     self.update_db()
 
   def set_config(self, section, option, value):
@@ -879,28 +884,19 @@ class MethLabWindow:
     return [model.get_value(iter, 0) for iter in iters]
 
   def update_db(self):
-    def yield_func():
-      gtk.main_iteration(False)
-
-    dialog = gtk.Dialog \
-    (
-      _('Please wait...'),
-      self.window,
-      gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT
-    )
-    dialog.set_has_separator(False)
-    dialog.vbox.pack_start(gtk.Label(_('Please wait while MethLab updates the library...')))
-    dialog.connect('delete_event', lambda w, e: True)
-    dialog.show_all()
-    try:
-      self.db.update(yield_func)
-    except Exception, e:
-      print e
-    dialog.destroy()
-    self.update_artists_albums_model()
-    if not self.config.getboolean('interface', 'artists_collapsible'):
-      self.tvArtistsAlbums.expand_all()
-    self.search()
+    context_id = self.statusbar.get_context_id("status")
+    def finished_func_sync():
+      self.statusbar.remove(context_id, message_id)
+      self.update_artists_albums_model()
+      if not self.config.getboolean('interface', 'artists_collapsible'):
+        self.tvArtistsAlbums.expand_all()
+      self.search()
+    def finished_func():
+      gobject.idle_add(finished_func_sync)
+    if not self.scanner.update(finished_func):
+      print >> sys.stderr, "Already scanning..."
+    else:
+      message_id = self.statusbar.push(context_id, _("Please be patient while the library is being updated..."))
 
   def add_to_history(self, query):
     iter = self.history_model.get_iter_first()

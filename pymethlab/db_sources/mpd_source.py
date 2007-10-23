@@ -45,7 +45,8 @@ class MpdSource:
 
     found = {}
     for mpd_track in mpd_tracks:
-      self.yield_func()
+      if not self.yield_func():
+        break
       if mpd_track['type'] == 'file':
         dir, filename = os.path.split(mpd_track['file'])
         dir = os.path.join(dir, '')
@@ -62,7 +63,7 @@ class MpdSource:
     for subdir in db_subdirs:
       if not subdir[1] in found.keys():
         self.db.delete_dir_by_dir_id(subdir[0])
-
+    
     for dir, filenames in found.items():
       dir_id = self.db.get_dir_id(None, dir)
       db_filenames = self.db.get_filenames_by_dir_id(dir_id)

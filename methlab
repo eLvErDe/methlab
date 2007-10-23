@@ -108,4 +108,5 @@ if __name__ == '__main__':
   from pymethlab.gui import MethLabWindow
   win = MethLabWindow(start_hidden = start_hidden)
   gtk.main()
+  win.scanner.stop()
   win.db.stop()

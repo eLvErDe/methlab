@@ -33,7 +33,8 @@ class FilesystemSource:
     for dir in dirs:
       self.update_dir(None, dir[0])
       if self.yield_func:
-        self.yield_func()
+        if not self.yield_func():
+          break
 
   def update_dir(self, parent, dir):
     print _('Updating directory %s') % dir
@@ -47,7 +48,8 @@ class FilesystemSource:
       if file[:1] == '.':
         continue
       if self.yield_func:
-        self.yield_func()
+        if not self.yield_func():
+          return
       path = dir + file
 
       try:

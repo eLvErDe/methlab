@@ -45,7 +45,7 @@ class DBMessage:
     self.result = None
 
 class DBThread(threading.Thread):
-  def __init__(self, path = None, scanner_class = None):
+  def __init__(self, path = None):
     threading.Thread.__init__(self)
     self.queue = Queue.Queue()
     self.lock = threading.Lock()
@@ -55,8 +55,6 @@ class DBThread(threading.Thread):
     if not os.path.exists(dir):
       os.makedirs(dir)
     self.path = path
-
-    self.scanner_class = scanner_class
   
   def start(self):
     threading.Thread.start(self)
@@ -108,7 +106,7 @@ class DBThread(threading.Thread):
     self.queue.put(msg)
     event.wait()
     return msg.result
-    
+  
   def executeasync(self, query, args = [], callback = None):
     msg = DBMessage(query, args, callback)
     self.queue.put(msg)
@@ -124,25 +122,10 @@ class DBThread(threading.Thread):
       print >> sys.stderr, 'Note: Migrating database (rename path to dir in roots and dirs).'
       self.executescript(PathToDirMigrationScript)
 
-  def get_scanner_class(self):
-    self.lock.acquire()
-    scanner_class = self.scanner_class
-    self.lock.release()
-    return scanner_class
-
-  def set_scanner_class(self, scanner_class):
-    self.lock.acquire()
-    self.scanner_class = scanner_class
-    self.lock.release()
-
   def purge(self):
     self.execute(PurgeDirsQuery)
     self.execute(PurgeTracksQuery)
-
-  def update(self, yield_func):
-    scanner = self.get_scanner_class()(self, yield_func)
-    scanner.update()
-
+  
   def add_root(self, dir):
     dir = os.path.join(os.path.abspath(dir), '')
     symbols = (len(dir), dir)
