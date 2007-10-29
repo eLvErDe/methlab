@@ -29,13 +29,16 @@ CreateDirTableQuery = '''
 CREATE TABLE IF NOT EXISTS dirs
 (
   dir TEXT NOT NULL PRIMARY KEY,
+  mtime INTEGER,
   parent_id INTEGER
 )'''
 
-AddDirQuery = '''INSERT INTO dirs VALUES (?, ?)'''
+AddDirQuery = '''INSERT INTO dirs (dir, parent_id) VALUES (?, ?)'''
 GetDirIdQuery = '''SELECT OID FROM dirs WHERE dir = ?'''
+GetDirIdAndMtimeQuery = '''SELECT OID, mtime FROM dirs WHERE dir = ?'''
 GetSubdirsByDirIdQuery = '''SELECT OID, dir FROM dirs WHERE parent_id = ?'''
 GetDirsQuery = '''SELECT OID, dir FROM dirs'''
+UpdateDirMtimeQuery = '''UPDATE dirs SET mtime = ? WHERE OID = ?'''
 DeleteDirQuery = '''DELETE FROM dirs WHERE OID = ?'''
 PurgeDirsQuery = '''DELETE FROM dirs'''
 
@@ -86,5 +89,13 @@ DROP TABLE roots_old;
 ALTER TABLE dirs RENAME TO dirs_old;
 CREATE TABLE dirs (dir TEXT NOT NULL PRIMARY KEY, parent_id INTEGER);
 INSERT INTO dirs (OID, dir, parent_id) SELECT OID, path, parent_id FROM dirs_old;
+DROP TABLE dirs_old;
+'''
+
+CheckDirMtimeMigration = '''SELECT mtime FROM dirs'''
+DirMtimeMigrationScript = '''
+ALTER TABLE dirs RENAME TO dirs_old;
+CREATE TABLE dirs (dir TEXT NOT NULL PRIMARY KEY, mtime INTEGER, parent_id INTEGER);
+INSERT INTO dirs (OID, dir, parent_id) SELECT OID, dir, parent_id FROM dirs_old;
 DROP TABLE dirs_old;
 '''

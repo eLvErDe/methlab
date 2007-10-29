@@ -63,6 +63,7 @@ class DBThread(threading.Thread):
     self.execute(CreateTrackTableQuery)
     self.execute(CreateSearchTableQuery)
     self.migrate_path_to_dir()
+    self.migrate_dir_mtimes()
     self.set_sort_order('album', 'track', 'title')
     self.set_search_fields('artist', 'album', 'title')
 
@@ -79,12 +80,13 @@ class DBThread(threading.Thread):
         break
       try:
         if msg.script:
-          cursor.executescript(msg.query, msg.args)
+          cursor.executescript(msg.query)
         else:
           cursor.execute(msg.query, msg.args)
         msg.result = cursor.fetchall()
-      except:
+      except Exception, e:
         print >> sys.stderr, 'Error while executing query "%s" (%s)' % (msg.query, msg.args)
+        print >> sys.stderr, e
       if msg.callback:
         msg.callback(msg)
       self.queue.task_done()
@@ -100,9 +102,9 @@ class DBThread(threading.Thread):
     event.wait()
     return msg.result
 
-  def executescript(self, query, args = []):
+  def executescript(self, query):
     event = threading.Event()
-    msg = DBMessage(query, args, lambda msg: event.set(), True)
+    msg = DBMessage(query, None, lambda msg: event.set(), True)
     self.queue.put(msg)
     event.wait()
     return msg.result
@@ -111,16 +113,21 @@ class DBThread(threading.Thread):
     msg = DBMessage(query, args, callback)
     self.queue.put(msg)
   
-  def executescriptasync(self, query, args = [], callback = None):
-    msg = DBMessage(query, args, callback, True)
+  def executescriptasync(self, query, callback = None):
+    msg = DBMessage(query, None, callback, True)
     self.queue.put(msg)
   
   def migrate_path_to_dir(self):
-    try:
-      self.get_roots()
-    except sqlite.OperationalError:
+    result = self.get_roots()
+    if result is None:
       print >> sys.stderr, 'Note: Migrating database (rename path to dir in roots and dirs).'
       self.executescript(PathToDirMigrationScript)
+
+  def migrate_dir_mtimes(self):
+    result = self.execute(CheckDirMtimeMigration)
+    if result is None:
+      print >> sys.stderr, 'Note: Migrating database (adding directory mtime reference).'
+      self.executescript(DirMtimeMigrationScript)
 
   def purge(self):
     self.execute(PurgeDirsQuery)
@@ -152,9 +159,29 @@ class DBThread(threading.Thread):
     if not row:
       symbols = (dir, parent)
       self.execute(AddDirQuery, symbols)
-      return self.get_dir_id(parent, dir)
-    else:
-      return row[0][0]
+      
+      symbols = (dir, )
+      row = self.execute(GetDirIdQuery, symbols)[:1]
+      if not row:
+        print >> sys.stderr, "WARNING: could not insert directory '%s'" % dir
+        return None
+      
+    return row[0][0]
+
+  def get_dir_id_and_mtime(self, parent, dir):
+    symbols = (dir, )
+    row = self.execute(GetDirIdAndMtimeQuery, symbols)[:1]
+    if not row:
+      symbols = (dir, parent)
+      self.execute(AddDirQuery, symbols)
+      
+      symbols = (dir, )
+      row = self.execute(GetDirIdAndMtimeQuery, symbols)[:1]
+      if not row:
+        print >> sys.stderr, "WARNING: could not insert directory '%s'" % dir
+        return None, None
+      
+    return row[0][0], row[0][1]
 
   def get_subdirs_by_dir_id(self, dir_id):
     symbols = (dir_id, )
@@ -163,6 +190,10 @@ class DBThread(threading.Thread):
   def get_dirs(self):
     return self.execute(GetDirsQuery)
 
+  def update_dir_mtime(self, dir_id, mtime):
+    symbols = (mtime, dir_id)
+    self.execute(UpdateDirMtimeQuery, symbols)
+    
   def delete_dir_by_dir_id(self, dir_id):
     symbols = (dir_id, )
     result = self.execute(GetSubdirsByDirIdQuery, symbols)

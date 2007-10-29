@@ -17,7 +17,7 @@
 
 DB_SOURCES = ['FilesystemSource']
 
-import os, stat
+import os, stat, sys
 from tagwrap import get_tag
 from gettext import gettext as _
 
@@ -38,7 +38,20 @@ class FilesystemSource:
 
   def update_dir(self, parent, dir):
     print _('Updating directory %s') % dir
-    dir_id = self.db.get_dir_id(parent, dir)
+    dir_id, mtime = self.db.get_dir_id_and_mtime(parent, dir)
+    if dir_id is None:
+      return
+    
+    try:
+      dirstatdata = os.stat(dir)
+    except Exception, e:
+      print >> sys.stderr, 'WARNING: %s' % str(e)
+      return
+    if dirstatdata.st_mtime == mtime:
+      subdirs = self.db.get_subdirs_by_dir_id(dir_id)
+      for subdir in subdirs:
+        self.update_dir(dir_id, subdir[1])
+      return
 
     found_subdirs = []
     found_files = []
@@ -84,3 +97,5 @@ class FilesystemSource:
     for filename in db_filenames:
       if not filename[0] in found_files:
         self.db.delete_track(dir_id, filename[0])
+    
+    self.db.update_dir_mtime(dir_id, dirstatdata.st_mtime)
