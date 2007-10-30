@@ -298,6 +298,11 @@ class DBThread(threading.Thread):
     symbols = (name, )
     self.execute(DeleteSearchQuery, symbols)
 
+  def get_stats(self):
+    dirs = self.execute(GetDirCountQuery)[0][0]
+    tracks = self.execute(GetTrackCountQuery)[0][0]
+    return dirs, tracks
+  
 if __name__ == '__main__':
   db = DBThread()
   db.start()

@@ -361,7 +361,11 @@ class MethLabWindow:
 
     # Set focus to the search bar
     self.entSearch.grab_focus()
-
+    
+    # Show stats in the status bar
+    self.stats_message_id = None
+    self.update_stats()
+    
     # Start updating the library
     if need_purge or self.config.getboolean('options', 'update_on_startup'):
       if need_purge:
@@ -883,10 +887,19 @@ class MethLabWindow:
       return []
     return [model.get_value(iter, 0) for iter in iters]
 
+  def update_stats(self):
+    context_id = self.statusbar.get_context_id("status")
+    if not self.stats_message_id is None:
+      self.statusbar.remove(context_id, self.stats_message_id)
+      self.stats_message_id = None
+    num_dirs, num_tracks = self.db.get_stats()
+    self.stats_message_id = self.statusbar.push(context_id, _('Library contains %i directories and %i tracks') % (num_dirs, num_tracks))
+    
   def update_db(self):
     context_id = self.statusbar.get_context_id("status")
     def finished_func_sync():
       self.statusbar.remove(context_id, message_id)
+      self.update_stats()
       self.update_artists_albums_model()
       if not self.config.getboolean('interface', 'artists_collapsible'):
         self.tvArtistsAlbums.expand_all()
