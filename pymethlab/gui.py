@@ -630,7 +630,7 @@ class MethLabWindow:
     try:
       self.ap_driver = driver()
     except Exception, e:
-      self.error_dialog(_('An error has occured while activating the selected driver.\n\nThe error is: %s\n\nFalling back to the dummy driver.') % str(e.message))
+      self.error_dialog(_('An error has occured while activating the selected driver.\n\nThe error is: %(error)s\n\nFalling back to the dummy driver.') % { 'error': str(e.message) })
       self.ap_driver = DummyDriver()
 
   def set_db_source(self, db_source):
@@ -893,7 +893,7 @@ class MethLabWindow:
       self.statusbar.remove(context_id, self.stats_message_id)
       self.stats_message_id = None
     num_dirs, num_tracks = self.db.get_stats()
-    self.stats_message_id = self.statusbar.push(context_id, _('Library contains %i directories and %i tracks') % (num_dirs, num_tracks))
+    self.stats_message_id = self.statusbar.push(context_id, _('Library contains %(dirs)i directories and %(tracks)i tracks') % { 'dirs': num_dirs, 'tracks': num_tracks })
     
   def update_db(self):
     context_id = self.statusbar.get_context_id("status")
@@ -907,9 +907,9 @@ class MethLabWindow:
     def finished_func():
       gobject.idle_add(finished_func_sync)
     if not self.scanner.update(finished_func):
-      print >> sys.stderr, "Already scanning..."
+      print >> sys.stderr, _('Already scanning...')
     else:
-      message_id = self.statusbar.push(context_id, _("Please be patient while the library is being updated..."))
+      message_id = self.statusbar.push(context_id, _('Please be patient while the library is being updated...'))
 
   def add_to_history(self, query):
     iter = self.history_model.get_iter_first()

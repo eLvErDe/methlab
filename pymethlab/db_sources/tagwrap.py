@@ -22,7 +22,7 @@ EXT_PROP = ['.ape', '.wma', '.vqf']
 EXT_MPEG = ['.mp3', '.m4a', '.mp4', '.m4p', '.aac']
 EXT_WHITELIST = EXT_OPEN + EXT_PROP + EXT_MPEG
 
-import os
+import os, sys
 from gettext import gettext as _
 from utils import scan_number
 
@@ -63,7 +63,7 @@ class MutagenTagAbsorber:
 
 def get_tag_dummy(path):
   if os.path.splitext(path)[1].lower() in EXT_WHITELIST:
-    print "Returning dummy tag for '%s'..." % path
+    print >> sys.stderr, _("Returning dummy tag for '%(path)s'...") % { 'path': path }
     return DummyTag()
   return None
 
@@ -88,16 +88,16 @@ def get_tag_mutagen(path):
 try:
   import tagpy
   if type(tagpy.Tag.track) is property:
-    print 'Using new (>= 0.91) TagPy as tag library'
+    print >> sys.stderr, _('Using new (>= 0.91) TagPy as tag library')
     get_tag = get_tag_new_tagpy
   else:
-    print 'Using old (< 0.91) TagPy as tag library'
+    print >> sys.stderr, _('Using old (< 0.91) TagPy as tag library')
     get_tag = get_tag_old_tagpy
 except ImportError:
   try:
     import mutagen
-    print 'Using mutagen as tag library'
+    print >> sys.stderr, _('Using mutagen as tag library')
     get_tag = get_tag_mutagen
   except ImportError:
-    print 'WARNING: Using dummy tagger since no tag library was found'
+    print >> sys.stderr, _('WARNING: Using dummy tagger since no tag library was found')
     get_tag = get_tag_dummy

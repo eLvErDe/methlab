@@ -23,6 +23,7 @@ import os
 import sys
 import threading
 import Queue
+from gettext import gettext as _
 
 try:
   import sqlite3 as sqlite
@@ -30,7 +31,7 @@ except ImportError:
   try:
     from pysqlite2 import dbapi2 as sqlite
   except ImportError:
-    print >> sys.stderr, "Couldn't find pysqlite 2 or 3. Bailing out."
+    print >> sys.stderr, _("Couldn't find pysqlite 2 or 3. Bailing out.")
     raise
 
 from querytranslator import *
@@ -85,7 +86,10 @@ class DBThread(threading.Thread):
           cursor.execute(msg.query, msg.args)
         msg.result = cursor.fetchall()
       except Exception, e:
-        print >> sys.stderr, 'Error while executing query "%s" (%s)' % (msg.query, msg.args)
+        if msg.script:
+          print >> sys.stderr, _('Error while executing query %(query)s') % { 'query': msg.query + ' ' + str(msg.args) }
+        else:
+          print >> sys.stderr, _('Error while executing query %(query)s') % { 'query': msg.query }
         print >> sys.stderr, e
       if msg.callback:
         msg.callback(msg)
@@ -120,13 +124,13 @@ class DBThread(threading.Thread):
   def migrate_path_to_dir(self):
     result = self.get_roots()
     if result is None:
-      print >> sys.stderr, 'Note: Migrating database (rename path to dir in roots and dirs).'
+      print >> sys.stderr, _('Note: Migrating database (rename path to dir in roots and dirs).')
       self.executescript(PathToDirMigrationScript)
 
   def migrate_dir_mtimes(self):
     result = self.execute(CheckDirMtimeMigration)
     if result is None:
-      print >> sys.stderr, 'Note: Migrating database (adding directory mtime reference).'
+      print >> sys.stderr, _('Note: Migrating database (adding directory mtime reference).')
       self.executescript(DirMtimeMigrationScript)
 
   def purge(self):
@@ -163,7 +167,7 @@ class DBThread(threading.Thread):
       symbols = (dir, )
       row = self.execute(GetDirIdQuery, symbols)[:1]
       if not row:
-        print >> sys.stderr, "WARNING: could not insert directory '%s'" % dir
+        print >> sys.stderr, _("WARNING: could not insert directory '%(dir)s'") % { 'dir': dir }
         return None
       
     return row[0][0]
@@ -178,7 +182,7 @@ class DBThread(threading.Thread):
       symbols = (dir, )
       row = self.execute(GetDirIdAndMtimeQuery, symbols)[:1]
       if not row:
-        print >> sys.stderr, "WARNING: could not insert directory '%s'" % dir
+        print >> sys.stderr, _("WARNING: could not insert directory '%(dir)s'") % { 'dir': dir }
         return None, None
       
     return row[0][0], row[0][1]
@@ -198,7 +202,7 @@ class DBThread(threading.Thread):
     symbols = (dir_id, )
     result = self.execute(GetSubdirsByDirIdQuery, symbols)
     for row in result:
-      print >> sys.stderr, "Purging '%s' because of recursion..." % row[1]
+      print >> sys.stderr, _("Purging '%(dir)s' because of recursion...") % { 'dir': row[1] }
       self.delete_dir_by_dir_id(row[0])
     self.execute(DeleteTracksByDirIdQuery, symbols)
     self.execute(DeleteDirQuery, symbols)

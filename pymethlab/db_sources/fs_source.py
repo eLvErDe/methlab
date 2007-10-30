@@ -37,7 +37,7 @@ class FilesystemSource:
           break
 
   def update_dir(self, parent, dir):
-    print _('Updating directory %s') % dir
+    print _('Updating directory %(dir)s') % { 'dir': dir }
     dir_id, mtime = self.db.get_dir_id_and_mtime(parent, dir)
     if dir_id is None:
       return
@@ -45,7 +45,7 @@ class FilesystemSource:
     try:
       dirstatdata = os.stat(dir)
     except Exception, e:
-      print >> sys.stderr, 'WARNING: %s' % str(e)
+      print >> sys.stderr, _('WARNING: %(warning)s') % { 'warning': str(e) }
       return
     if dirstatdata.st_mtime == mtime:
       subdirs = self.db.get_subdirs_by_dir_id(dir_id)
@@ -83,7 +83,7 @@ class FilesystemSource:
           try:
             tag = get_tag(path)
           except Exception, e:
-            print 'WARNING:', str(e)
+            print _('WARNING: %(warning)s') % { 'warning': str(e) }
             tag = None
           if tag:
             self.db.add_track(dir_id, file, long(statdata.st_mtime), tag)

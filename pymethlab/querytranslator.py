@@ -18,6 +18,7 @@
 __all__ = ['QueryTranslatorException', 'translate_query']
 
 import string
+from gettext import gettext as _
 
 class QueryTranslatorException(Exception):
   pass
@@ -59,12 +60,12 @@ class QueryTranslator:
         elif token == 'NOT':
           self.sql_query += 'NOT '
         elif token in self.SYMBOLS:
-          raise QueryTranslatorException('Unexpected symbol %s' % token)
+          raise QueryTranslatorException(_('Unexpected symbol %(symbol)s') % { 'symbol': token })
         elif token in self.KEYWORDS:
-          raise QueryTranslatorException('Unexpected keyword %s' % token)
+          raise QueryTranslatorException(_('Unexpected keyword %(keyword)s') % { 'keyword': token })
         else:
           if not self.is_safe(token):
-            raise QueryTranslatorException('Unsafe field %s' % token)
+            raise QueryTranslatorException(_('Unsafe field %(field)s') % { 'field': token })
           self.sql_query += token
           state = 1
 
@@ -76,18 +77,18 @@ class QueryTranslator:
         elif token in ('<', '<=', '>', '>='):
           self.sql_query += ' %s ?' % token
         elif token in self.SYMBOLS:
-          raise QueryTranslatorException('Unexpected symbol %s' % token)
+          raise QueryTranslatorException(_('Unexpected symbol %(symbol)s') % { 'symbol': token })
         elif token in self.KEYWORDS:
-          raise QueryTranslatorException('Unexpected keyword %s' % token)
+          raise QueryTranslatorException(_('Unexpected keyword %(keyword)s') % { 'keyword': token })
         else:
-          raise QueryTranslatorException('Unexpected string %s' % token)
+          raise QueryTranslatorException(_('Unexpected string %(string)s') % { 'string': token })
         state = 2
 
       elif state == 2:
         if token in self.SYMBOLS:
-          raise QueryTranslatorException('Unexpected symbol %s' % token)
+          raise QueryTranslatorException(_('Unexpected symbol %(symbol)s') % { 'symbol': token })
         elif token in self.KEYWORDS:
-          raise QueryTranslatorException('Unexpected keyword %s' % token)
+          raise QueryTranslatorException(_('Unexpected keyword %(keyword)s') % { 'keyword': token })
         self.sql_symbols.append(token)
         state = 3
 
@@ -100,16 +101,16 @@ class QueryTranslator:
           state = 3
           self.sql_query += ')'
         elif token in self.SYMBOLS:
-          raise QueryTranslatorException('Unexpected symbol %s' % token)
+          raise QueryTranslatorException(_('Unexpected symbol %(symbol)s') % { 'symbol': token })
         elif token in self.KEYWORDS:
-          raise QueryTranslatorException('Unexpected keyword %s' % token)
+          raise QueryTranslatorException(_('Unexpected keyword %(keyword)s') % { 'keyword': token })
         else:
-          raise QueryTranslatorException('Unexpected string %s' % token)
+          raise QueryTranslatorException(_('Unexpected string %(string)s') % { 'string': token })
 
     if level > 0:
-      raise QueryTranslatorException('Unbalanced (')
+      raise QueryTranslatorException(_("Unbalanced '(' character"))
     elif level < 0:
-      raise QueryTranslatorException('Unbalanced )')
+      raise QueryTranslatorException(_("Unbalanced ')' character"))
 
   def get_token(self):
     if not self.query:
@@ -136,7 +137,7 @@ class QueryTranslator:
 
     self.query = self.query[1:]
     if not self.query:
-      raise QueryTranslatorException('Unterminated string near end of query')
+      raise QueryTranslatorException(_('Unterminated string near end of query'))
 
     token = ''
     escape = False
@@ -151,7 +152,7 @@ class QueryTranslator:
         token += c
       self.query = self.query[1:]
       if not self.query:
-        raise QueryTranslatorException('Unterminated string near end of query')
+        raise QueryTranslatorException(_('Unterminated string near end of query'))
     self.query = self.query[1:]
     return token
 
