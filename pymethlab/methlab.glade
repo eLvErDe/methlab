@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
-<!--Generated with glade3 3.2.0 on Mon Apr  2 02:08:03 2007 by hyriand@doombox-->
+<!--Generated with glade3 3.4.0 on Wed Oct 31 20:45:45 2007 -->
 <glade-interface>
   <widget class="GtkWindow" id="window">
     <property name="title" translatable="yes">MethLab Music Library</property>
@@ -28,9 +28,11 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="label" translatable="yes">Search options</property>
+                    <property name="label" translatable="yes">Search _options</property>
                     <property name="relief">GTK_RELIEF_HALF</property>
+                    <property name="use_underline">True</property>
                     <property name="focus_on_click">False</property>
+                    <property name="response_id">0</property>
                   </widget>
                   <packing>
                     <property name="expand">False</property>
@@ -65,6 +67,7 @@
                     <property name="relief">GTK_RELIEF_HALF</property>
                     <property name="use_underline">True</property>
                     <property name="focus_on_click">False</property>
+                    <property name="response_id">0</property>
                   </widget>
                   <packing>
                     <property name="expand">False</property>
@@ -100,6 +103,7 @@
                     <property name="relief">GTK_RELIEF_HALF</property>
                     <property name="use_underline">True</property>
                     <property name="focus_on_click">False</property>
+                    <property name="response_id">0</property>
                   </widget>
                   <packing>
                     <property name="expand">False</property>
@@ -126,9 +130,46 @@
                     <property name="position">5</property>
                   </packing>
                 </child>
+                <child>
+                  <widget class="GtkButton" id="btnDirectories">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="label" translatable="yes">_Directories</property>
+                    <property name="relief">GTK_RELIEF_HALF</property>
+                    <property name="use_underline">True</property>
+                    <property name="focus_on_click">False</property>
+                    <property name="response_id">0</property>
+                  </widget>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="position">6</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="GtkScrolledWindow" id="swDirectories">
+                    <property name="can_focus">True</property>
+                    <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+                    <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+                    <property name="shadow_type">GTK_SHADOW_IN</property>
+                    <child>
+                      <widget class="GtkTreeView" id="tvDirectories">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="headers_visible">False</property>
+                        <property name="headers_clickable">True</property>
+                        <property name="search_column">0</property>
+                      </widget>
+                    </child>
+                  </widget>
+                  <packing>
+                    <property name="position">7</property>
+                  </packing>
+                </child>
               </widget>
               <packing>
                 <property name="resize">False</property>
+                <property name="shrink">True</property>
               </packing>
             </child>
             <child>
@@ -180,8 +221,9 @@
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                        <property name="label" translatable="no">gtk-clear</property>
+                        <property name="label">gtk-clear</property>
                         <property name="use_stock">True</property>
+                        <property name="response_id">0</property>
                       </widget>
                       <packing>
                         <property name="expand">False</property>
@@ -227,6 +269,7 @@
                         <property name="label" translatable="yes">_Play</property>
                         <property name="use_underline">True</property>
                         <property name="focus_on_click">False</property>
+                        <property name="response_id">0</property>
                       </widget>
                     </child>
                     <child>
@@ -237,6 +280,7 @@
                         <property name="label" translatable="yes">En_queue</property>
                         <property name="use_underline">True</property>
                         <property name="focus_on_click">False</property>
+                        <property name="response_id">0</property>
                       </widget>
                       <packing>
                         <property name="position">1</property>
@@ -250,6 +294,7 @@
                         <property name="label" translatable="yes">S_ave query</property>
                         <property name="use_underline">True</property>
                         <property name="focus_on_click">False</property>
+                        <property name="response_id">0</property>
                       </widget>
                       <packing>
                         <property name="position">2</property>
@@ -264,6 +309,7 @@
               </widget>
               <packing>
                 <property name="resize">False</property>
+                <property name="shrink">True</property>
               </packing>
             </child>
           </widget>

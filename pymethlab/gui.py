@@ -232,7 +232,26 @@ class MethLabWindow:
     self.tvArtistsAlbums.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
     self.tvArtistsAlbums.connect('button-press-event', self.on_artists_albums_button_press_event)
     self.tvArtistsAlbums.connect('drag_data_get', self.on_results_drag_data_get)
-
+    
+    # Set up the directories model
+    self.directories_model = gtk.TreeStore(str, str)
+    self.directories_model.set_sort_func(0, case_insensitive_cmp)
+    self.directories_model.set_sort_column_id(0, gtk.SORT_ASCENDING)
+    self.directory_iters = {}
+    self.update_directories_model()
+    
+    # Set up the directory tree view
+    directory_renderer = gtk.CellRendererText()
+    col = gtk.TreeViewColumn('', directory_renderer, text = 0)
+    col.set_cell_data_func(directory_renderer, self.get_directories_cell_data)
+    self.tvDirectories.append_column(col)
+    self.tvDirectories.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, self.TARGETS, gtk.gdk.ACTION_DEFAULT|gtk.gdk.ACTION_COPY)
+    self.tvDirectories.set_model(self.directories_model)
+    self.tvDirectories.get_selection().connect('changed', self.on_directories_selection_changed)
+    self.tvDirectories.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
+    self.tvDirectories.connect('button-press-event', self.on_directories_button_press_event)
+    self.tvDirectories.connect('drag_data_get', self.on_results_drag_data_get)
+    
     # Set up the saved searches model
     self.searches_model = gtk.ListStore(str, str, str)
     self.searches_model.set_sort_func(0, case_insensitive_cmp)
@@ -307,6 +326,7 @@ class MethLabWindow:
     self.btnSearches.connect('clicked', self.on_section_button_clicked)
     self.btnArtistsAlbums.connect('clicked', self.on_section_button_clicked)
     self.btnArtistsAlbums.connect('button-press-event', self.on_artists_albums_header_button_press_event)
+    self.btnDirectories.connect('clicked', self.on_section_button_clicked)
 
     # Hook up the search bar
     self.entSearch.connect('focus-in-event', self.on_search_focus_in_event)
@@ -697,7 +717,15 @@ class MethLabWindow:
     value = model.get_value(iter, 0)
     if not value:
       cell.set_property('style', pango.STYLE_ITALIC)
-      cell.set_property('text', 'untitled')
+      cell.set_property('text', _('untitled'))
+    else:
+      cell.set_property('style', pango.STYLE_NORMAL)
+
+  def get_directories_cell_data(self, column, cell, model, iter):
+    value = model.get_value(iter, 0)
+    if not value:
+      cell.set_property('style', pango.STYLE_ITALIC)
+      cell.set_property('text', _('untitled'))
     else:
       cell.set_property('style', pango.STYLE_NORMAL)
 
@@ -717,9 +745,9 @@ class MethLabWindow:
     if not value:
       cell.set_property('style', pango.STYLE_ITALIC)
       if field in ('artist', 'album', 'title'):
-        cell.set_property('text', 'untitled')
+        cell.set_property('text', _('untitled'))
       elif field == 'genre':
-        cell.set_property('text', 'unknown')
+        cell.set_property('text', _('unknown'))
       elif field in ('track', 'year'):
         cell.set_property('text', '')
     else:
@@ -786,6 +814,39 @@ class MethLabWindow:
         self.searches_model.remove(iter)
         del self.search_iters[search_name]
 
+  def update_directories_model(self):
+    directories = []
+    def add_dirs(parent, dirs):
+      for dir in dirs:
+        dir_id = dir[0]
+        dir_path = dir[1]
+        directories.append(dir_path)
+        iter = self.directory_iters.get(dir_path, None)
+        if iter is None:
+          iter = self.directories_model.append(parent)
+          if parent is None:
+            self.directories_model.set(iter, 0, dir_path, 1, dir_path)
+          else:
+            self.directories_model.set(iter, 0, os.path.split(dir_path[:-1])[-1], 1, dir_path)
+          self.directory_iters[dir_path] = iter
+        add_dirs(iter, self.db.get_subdirs_by_dir_id(dir_id))
+    
+    def flush(iter):
+      while True:
+        child = self.directories_model.iter_children(iter)
+        if not child:
+          break
+        flush(child)
+      dir_name = self.directories_model.get_value(iter, 1)
+      del self.directory_iters[dir_name]
+      self.directories_model.remove(iter)
+    
+    add_dirs(None,self.db.get_dirs_without_parent())
+    dir_names = self.directory_iters.keys()
+    for dir_name in dir_names:
+      if self.directory_iters.has_key(dir_name) and not dir_name in directories:
+        flush(self.directory_iters[dir_name])
+
   def cancel_search_timeout(self):
     if self.search_timeout_tag is not None:
       gobject.source_remove(self.search_timeout_tag)
@@ -828,7 +889,7 @@ class MethLabWindow:
       have_results = True
       iter = results_model.append()
       results_model.set(iter,
-        0, result[0],
+        0, result['path'],
         1, result['artist'],
         2, result['album'],
         3, result['track'],
@@ -901,6 +962,7 @@ class MethLabWindow:
       self.statusbar.remove(context_id, message_id)
       self.update_stats()
       self.update_artists_albums_model()
+      self.update_directories_model()
       if not self.config.getboolean('interface', 'artists_collapsible'):
         self.tvArtistsAlbums.expand_all()
       self.search()
@@ -973,21 +1035,32 @@ class MethLabWindow:
       self.swSearchOptions.show()
       self.swSearches.hide()
       self.swArtistsAlbums.hide()
+      self.swDirectories.hide()
       self.entSearch.grab_focus()
     elif button == self.btnSearches:
       self.swSearches.show()
       self.swSearchOptions.hide()
       self.swArtistsAlbums.hide()
+      self.swDirectories.hide()
       self.tvSearches.realize()
       self.tvSearches.grab_focus()
       self.on_searches_selection_changed(self.tvSearches.get_selection())
-    else:
+    elif button == self.btnArtistsAlbums:
       self.swArtistsAlbums.show()
       self.swSearchOptions.hide()
       self.swSearches.hide()
+      self.swDirectories.hide()
       self.tvArtistsAlbums.realize()
       self.tvArtistsAlbums.grab_focus()
       self.on_artists_albums_selection_changed(self.tvArtistsAlbums.get_selection())
+    else:
+      self.swDirectories.show()
+      self.swSearchOptions.hide()
+      self.swSearches.hide()
+      self.swArtistsAlbums.hide()
+      self.tvDirectories.realize()
+      self.tvDirectories.grab_focus()
+      self.on_directories_selection_changed(self.tvDirectories.get_selection())
 
   def on_search_options_row_deleted(self, model, path):
     self.update_sort_order()
@@ -1064,6 +1137,20 @@ class MethLabWindow:
     self.inhibit_search -= 1
     self.search()
 
+  def on_directories_selection_changed(self, selection):
+    model, paths = selection.get_selected_rows()
+    if not paths:
+      return
+
+    queries = []
+    for path in paths:
+      iter = model.get_iter(path)
+      dir = query_escape(model.get_value(iter, 1))
+      queries.append('(dir = %s)' % dir)
+
+    self.entSearch.set_text('@' + ' OR '.join(queries))
+    self.search()
+
   def on_artists_albums_button_press_event(self, treeview, event):
     data = treeview.get_path_at_pos(int(event.x), int(event.y))
     if data is not None:
@@ -1095,6 +1182,23 @@ class MethLabWindow:
         else:
           self.ap_driver.enqueue_files(files)
 
+  def on_directories_button_press_event(self, treeview, event):
+    data = treeview.get_path_at_pos(int(event.x), int(event.y))
+    if data is not None:
+      path, col, r_x, r_y = data
+      iter = treeview.get_model().get_iter(path)
+    else:
+      iter = None
+
+    if event.type == gtk.gdk._2BUTTON_PRESS and event.button == 1:
+      files = self.get_selected_result_paths()
+      print files
+      if files:
+        if self.config.get('interface', 'double_click_action') == 'play':
+          self.ap_driver.play_files(files)
+        else:
+          self.ap_driver.enqueue_files(files)
+  
   def on_searches_button_press_event(self, treeview, event):
     data = treeview.get_path_at_pos(int(event.x), int(event.y))
     if data is not None:

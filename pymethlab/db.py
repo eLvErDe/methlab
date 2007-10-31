@@ -190,7 +190,10 @@ class DBThread(threading.Thread):
   def get_subdirs_by_dir_id(self, dir_id):
     symbols = (dir_id, )
     return self.execute(GetSubdirsByDirIdQuery, symbols)
-
+  
+  def get_dirs_without_parent(self):
+    return self.execute(GetDirsWithoutParentQuery)
+  
   def get_dirs(self):
     return self.execute(GetDirsQuery)
 
