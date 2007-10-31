@@ -858,10 +858,14 @@ class MethLabWindow:
       return
 
     self.unflash_search_entry()
-
+    
     self.tvResults.set_model(self.build_results_model())
     self.tvResults.set_sensitive(True)
-
+    
+    if not self.get_active_search_fields():
+      self.flash_search_entry()
+      return
+    
     query = self.entSearch.get_text()
     if not query:
       return
