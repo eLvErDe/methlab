@@ -257,7 +257,7 @@ class DBThread(threading.Thread):
     query, symbols = translate_query(query)
     query = QueryTracksQuery % query + self.get_sort_order()
     if callback is None:
-      self.execute(query, symbols)
+      return self.execute(query, symbols)
     else:
       self.executeasync(query, symbols, callback)
 

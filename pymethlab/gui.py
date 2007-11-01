@@ -852,32 +852,39 @@ class MethLabWindow:
       gobject.source_remove(self.search_timeout_tag)
       self.search_timeout_tag = None
 
-  def search(self, add_to_history = False):
-    self.cancel_search_timeout()
-    if self.inhibit_search:
-      return
-
+  def run_search(self, query, callback = None):
     self.unflash_search_entry()
-    
-    self.tvResults.set_model(self.build_results_model())
-    self.tvResults.set_sensitive(True)
     
     if not self.get_active_search_fields():
       self.flash_search_entry()
       return
     
-    query = self.entSearch.get_text()
     if not query:
       return
+    
     try:
       if query[0] == '@':
-        results = self.db.query_tracks(query[1:], self.search_callback)
+        results = self.db.query_tracks(query[1:], callback)
       else:
-        results = self.db.search_tracks(query, self.search_callback)
+        results = self.db.search_tracks(query, callback)
     except QueryTranslatorException, e:
       self.flash_search_entry()
       return
+  
+    return results
+  
+  def search(self, add_to_history = False):
+    self.cancel_search_timeout()
+    if self.inhibit_search:
+      return
 
+    self.tvResults.set_model(self.build_results_model())
+    self.tvResults.set_sensitive(True)
+    
+    query = self.entSearch.get_text()
+    
+    self.run_search(query, self.search_callback)
+    
     if add_to_history:
       self.add_to_history(query)
 
@@ -996,6 +1003,18 @@ class MethLabWindow:
       self.history_model.remove(next)
       next = self.history_model.iter_next(node)
 
+  def play_or_queue_results(self, msg):
+    if msg.result:
+      gobject.idle_add(self.play_or_queue_results_sync, msg.result)
+  
+  def play_or_queue_results_sync(self, results):
+    files = [result['path'] for result in results]
+    if files:
+      if self.config.get('interface', 'double_click_action') == 'play':
+        self.ap_driver.play_files(files)
+      else:
+        self.ap_driver.enqueue_files(files)
+
   def show_window(self):
     if self.config.getboolean('interface', 'focus_search_on_show'):
       self.entSearch.grab_focus()
@@ -1105,7 +1124,7 @@ class MethLabWindow:
   def on_artists_albums_popup_search_on_artist_and_album_toggled(self, menuitem):
     self.set_config('options', 'search_on_artist_and_album', menuitem.get_active())
 
-  def on_artists_albums_selection_changed(self, selection):
+  def build_artists_albums_query(self, selection):
     model, paths = selection.get_selected_rows()
     if not paths:
       return
@@ -1124,9 +1143,13 @@ class MethLabWindow:
           queries.append('(artist = %s AND album = %s)' % (artist, album))
         else:
           queries.append('(album = %s)' % album)
-
-    self.entSearch.set_text('@' + ' OR '.join(queries))
-    self.search()
+    return '@' + ' OR '.join(queries)
+  
+  def on_artists_albums_selection_changed(self, selection):
+    query = self.build_artists_albums_query(selection)
+    if query:
+      self.entSearch.set_text(query)
+      self.search()
 
   def on_searches_selection_changed(self, selection):
     model, iter = selection.get_selected()
@@ -1141,7 +1164,7 @@ class MethLabWindow:
     self.inhibit_search -= 1
     self.search()
 
-  def on_directories_selection_changed(self, selection):
+  def build_directories_query(self, selection):
     model, paths = selection.get_selected_rows()
     if not paths:
       return
@@ -1151,9 +1174,14 @@ class MethLabWindow:
       iter = model.get_iter(path)
       dir = query_escape(model.get_value(iter, 1))
       queries.append('(dir = %s)' % dir)
+    
+    return '@' + ' OR '.join(queries)
 
-    self.entSearch.set_text('@' + ' OR '.join(queries))
-    self.search()
+  def on_directories_selection_changed(self, selection):
+    query = self.build_directories_query(selection)
+    if query:
+      self.entSearch.set_text(query)
+      self.search()
 
   def on_artists_albums_button_press_event(self, treeview, event):
     data = treeview.get_path_at_pos(int(event.x), int(event.y))
@@ -1179,29 +1207,15 @@ class MethLabWindow:
         menu.popup(None, None, None, event.button, event.time)
         return True
     elif event.type == gtk.gdk._2BUTTON_PRESS and event.button == 1:
-      files = self.get_selected_result_paths()
-      if files:
-        if self.config.get('interface', 'double_click_action') == 'play':
-          self.ap_driver.play_files(files)
-        else:
-          self.ap_driver.enqueue_files(files)
+      query = self.build_artists_albums_query(treeview.get_selection())
+      if query:
+        self.run_search(query, self.play_or_queue_results)
 
   def on_directories_button_press_event(self, treeview, event):
-    data = treeview.get_path_at_pos(int(event.x), int(event.y))
-    if data is not None:
-      path, col, r_x, r_y = data
-      iter = treeview.get_model().get_iter(path)
-    else:
-      iter = None
-
     if event.type == gtk.gdk._2BUTTON_PRESS and event.button == 1:
-      files = self.get_selected_result_paths()
-      print files
-      if files:
-        if self.config.get('interface', 'double_click_action') == 'play':
-          self.ap_driver.play_files(files)
-        else:
-          self.ap_driver.enqueue_files(files)
+      query = self.build_directories_query(treeview.get_selection())
+      if query:
+        self.run_search(query, self.play_or_queue_results)
   
   def on_searches_button_press_event(self, treeview, event):
     data = treeview.get_path_at_pos(int(event.x), int(event.y))
@@ -1239,12 +1253,9 @@ class MethLabWindow:
         return True
     elif event.type == gtk.gdk._2BUTTON_PRESS and event.button == 1:
       if iter:
-        files = self.get_selected_result_paths()
-        if files:
-          if self.config.get('interface', 'double_click_action') == 'play':
-            self.ap_driver.play_files(files)
-          else:
-            self.ap_driver.enqueue_files(files)
+        query = treeview.get_model().get_value(iter, 1)
+        if query:
+          self.run_search(query, self.play_or_queue_results)
 
   def on_searches_popup_remove(self, menuitem, name):
     self.db.delete_search(name)
