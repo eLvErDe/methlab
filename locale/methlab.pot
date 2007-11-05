@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-04-10 21:50+0200\n"
+"POT-Creation-Date: 2007-11-05 21:02+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,30 +25,34 @@ msgid "MethLab Music Library"
 msgstr ""
 
 #: pymethlab/methlab.glade:31
-msgid "Search options"
+msgid "Search _options"
 msgstr ""
 
-#: pymethlab/methlab.glade:64
+#: pymethlab/methlab.glade:66
 msgid "Sa_ved searches"
 msgstr ""
 
-#: pymethlab/methlab.glade:99
+#: pymethlab/methlab.glade:102
 msgid "Artists / Al_bums"
 msgstr ""
 
-#: pymethlab/methlab.glade:145
+#: pymethlab/methlab.glade:138 pymethlab/gui.py:505
+msgid "_Directories"
+msgstr ""
+
+#: pymethlab/methlab.glade:186
 msgid "Sea_rch:"
 msgstr ""
 
-#: pymethlab/methlab.glade:227
+#: pymethlab/methlab.glade:269
 msgid "_Play"
 msgstr ""
 
-#: pymethlab/methlab.glade:237
+#: pymethlab/methlab.glade:280
 msgid "En_queue"
 msgstr ""
 
-#: pymethlab/methlab.glade:250
+#: pymethlab/methlab.glade:294
 msgid "S_ave query"
 msgstr ""
 
@@ -72,27 +76,59 @@ msgstr ""
 msgid "Error: Could not find PyGTK installed on your system."
 msgstr ""
 
-#: methlab:82
+#: methlab:85
 msgid ""
 "Warning: GTK older than 2.10.0 detected. Certain user interface options will "
 "be disabled"
 msgstr ""
 
-#: methlab:94
+#: methlab:97
 msgid "MethLab is already running. Bringing the window to the front."
 msgstr ""
 
-#: methlab:101
+#: methlab:104
 msgid "The python-dbus library was not found. Consider installing it."
+msgstr ""
+
+#: pymethlab/db.py:34
+msgid "Couldn't find pysqlite 2 or 3. Bailing out."
+msgstr ""
+
+#: pymethlab/db.py:90 pymethlab/db.py:92
+#, python-format
+msgid "Error while executing query %(query)s"
+msgstr ""
+
+#: pymethlab/db.py:127
+msgid "Note: Migrating database (rename path to dir in roots and dirs)."
+msgstr ""
+
+#: pymethlab/db.py:133
+msgid "Note: Migrating database (adding directory mtime reference)."
+msgstr ""
+
+#: pymethlab/db.py:170 pymethlab/db.py:185
+#, python-format
+msgid "WARNING: could not insert directory '%(dir)s'"
+msgstr ""
+
+#: pymethlab/db.py:208
+#, python-format
+msgid "Purging '%(dir)s' because of recursion..."
 msgstr ""
 
 #: pymethlab/db_sources/fs_source.py:26
 msgid "Filesystem"
 msgstr ""
 
-#: pymethlab/db_sources/fs_source.py:39
+#: pymethlab/db_sources/fs_source.py:40
 #, python-format
-msgid "Updating directory %s"
+msgid "Updating directory %(dir)s"
+msgstr ""
+
+#: pymethlab/db_sources/fs_source.py:48 pymethlab/db_sources/fs_source.py:86
+#, python-format
+msgid "WARNING: %(warning)s"
 msgstr ""
 
 #: pymethlab/db_sources/mpd_source.py:36 pymethlab/drivers/mpd.py:24
@@ -101,6 +137,31 @@ msgstr ""
 
 #: pymethlab/db_sources/tagwrap.py:32
 msgid "unsupported or no tag"
+msgstr ""
+
+#: pymethlab/db_sources/tagwrap.py:66
+#, python-format
+msgid "Returning dummy tag for '%(path)s'..."
+msgstr ""
+
+#: pymethlab/db_sources/tagwrap.py:91
+msgid "Using new (>= 0.91) TagPy as tag library"
+msgstr ""
+
+#: pymethlab/db_sources/tagwrap.py:94
+msgid "Using old (< 0.91) TagPy as tag library"
+msgstr ""
+
+#: pymethlab/db_sources/tagwrap.py:99
+msgid "Using mutagen as tag library"
+msgstr ""
+
+#: pymethlab/db_sources/tagwrap.py:102
+msgid "WARNING: Using dummy tagger since no tag library was found"
+msgstr ""
+
+#: pymethlab/drivers/audacious-dbus.py:30
+msgid "Audacious (using DBus)"
 msgstr ""
 
 #: pymethlab/drivers/dummy.py:24
@@ -136,7 +197,7 @@ msgstr ""
 msgid "Beep Media Player (using xmmsalike)"
 msgstr ""
 
-#: pymethlab/gui.py:132
+#: pymethlab/gui.py:134
 msgid ""
 "The database source you have previously selected is not or no longer "
 "available.\n"
@@ -144,127 +205,123 @@ msgid ""
 "Falling back to the filesystem database source."
 msgstr ""
 
-#: pymethlab/gui.py:150
+#: pymethlab/gui.py:156
 msgid "Path"
 msgstr ""
 
-#: pymethlab/gui.py:151
+#: pymethlab/gui.py:157
 msgid "Artist"
 msgstr ""
 
-#: pymethlab/gui.py:152
+#: pymethlab/gui.py:158
 msgid "Album"
 msgstr ""
 
-#: pymethlab/gui.py:153
+#: pymethlab/gui.py:159
 msgid "#"
 msgstr ""
 
-#: pymethlab/gui.py:153
+#: pymethlab/gui.py:159
 msgid "Track number"
 msgstr ""
 
-#: pymethlab/gui.py:154
+#: pymethlab/gui.py:160
 msgid "Title"
 msgstr ""
 
-#: pymethlab/gui.py:154
+#: pymethlab/gui.py:160
 msgid "Track title"
 msgstr ""
 
-#: pymethlab/gui.py:155
+#: pymethlab/gui.py:161
 msgid "Year"
 msgstr ""
 
-#: pymethlab/gui.py:156
+#: pymethlab/gui.py:162
 msgid "Genre"
 msgstr ""
 
-#: pymethlab/gui.py:157
+#: pymethlab/gui.py:163
 msgid "Comment"
 msgstr ""
 
-#: pymethlab/gui.py:395
+#: pymethlab/gui.py:409
 msgid "_File"
 msgstr ""
 
-#: pymethlab/gui.py:400
+#: pymethlab/gui.py:414
 msgid "_Update library now"
 msgstr ""
 
-#: pymethlab/gui.py:415
+#: pymethlab/gui.py:429
 msgid "_Settings"
 msgstr ""
 
-#: pymethlab/gui.py:421
+#: pymethlab/gui.py:435
 msgid "Double-_click in list"
 msgstr ""
 
-#: pymethlab/gui.py:426
+#: pymethlab/gui.py:440
 msgid "_Plays results"
 msgstr ""
 
-#: pymethlab/gui.py:432
+#: pymethlab/gui.py:446
 msgid "_Enqueues results"
 msgstr ""
 
-#: pymethlab/gui.py:442
+#: pymethlab/gui.py:456
 msgid "Show status _icon"
 msgstr ""
 
-#: pymethlab/gui.py:447
+#: pymethlab/gui.py:461
 msgid "Close to _tray"
 msgstr ""
 
-#: pymethlab/gui.py:454
+#: pymethlab/gui.py:468
 msgid "Start _hidden"
 msgstr ""
 
-#: pymethlab/gui.py:461
+#: pymethlab/gui.py:475
 msgid "_Focus search box on show"
 msgstr ""
 
-#: pymethlab/gui.py:476
+#: pymethlab/gui.py:490
 msgid "Database _source"
 msgstr ""
 
-#: pymethlab/gui.py:491
-msgid "_Directories"
-msgstr ""
-
-#: pymethlab/gui.py:497
+#: pymethlab/gui.py:511
 msgid "_Update library on startup"
 msgstr ""
 
-#: pymethlab/gui.py:507
+#: pymethlab/gui.py:521
 msgid "_Audio player"
 msgstr ""
 
-#: pymethlab/gui.py:524
+#: pymethlab/gui.py:538
 msgid "_Help"
 msgstr ""
 
-#: pymethlab/gui.py:542
+#: pymethlab/gui.py:556
 msgid "Search by"
 msgstr ""
 
-#: pymethlab/gui.py:559 pymethlab/gui.py:1060 pymethlab/gui.py:1100
+#: pymethlab/gui.py:573 pymethlab/gui.py:1200 pymethlab/gui.py:1243
 msgid "Play selected"
 msgstr ""
 
-#: pymethlab/gui.py:564 pymethlab/gui.py:1063 pymethlab/gui.py:1103
+#: pymethlab/gui.py:578 pymethlab/gui.py:1203 pymethlab/gui.py:1246
 msgid "Enqueue selected"
 msgstr ""
 
-#: pymethlab/gui.py:576
+#: pymethlab/gui.py:590
 msgid "_Show MethLab"
 msgstr ""
 
-#: pymethlab/gui.py:581
+#: pymethlab/gui.py:595
 msgid "_Hide MethLab"
 msgstr ""
 
-#: pymethlab/gui.py:614
+#: pymethlab/gui.py:648
 msgid ""
 "The audio player driver you have previously selected is not or no longer "
 "available.\n"
@@ -272,78 +329,125 @@ msgid ""
 "Falling back to the dummy driver."
 msgstr ""
 
-#: pymethlab/gui.py:619
+#: pymethlab/gui.py:653
 #, python-format
 msgid ""
 "An error has occured while activating the selected driver.\n"
 "\n"
-"The error is: %s\n"
+"The error is: %(error)s\n"
 "\n"
 "Falling back to the dummy driver."
 msgstr ""
 
-#: pymethlab/gui.py:694
+#: pymethlab/gui.py:720 pymethlab/gui.py:728 pymethlab/gui.py:748
+msgid "untitled"
+msgstr ""
+
+#: pymethlab/gui.py:736
 msgid "Your search did not return any results."
 msgstr ""
 
-#: pymethlab/gui.py:875
-msgid "Please wait..."
+#: pymethlab/gui.py:750
+msgid "unknown"
 msgstr ""
 
-#: pymethlab/gui.py:880
-msgid "Please wait while MethLab updates the library..."
+#: pymethlab/gui.py:968
+#, python-format
+msgid "Library contains %(dirs)i directories and %(tracks)i tracks"
 msgstr ""
 
-#: pymethlab/gui.py:989
+#: pymethlab/gui.py:983
+msgid "Already scanning..."
+msgstr ""
+
+#: pymethlab/gui.py:985
+msgid "Please be patient while the library is being updated..."
+msgstr ""
+
+#: pymethlab/gui.py:1106
 msgid "Collapsible artists"
 msgstr ""
 
-#: pymethlab/gui.py:994
+#: pymethlab/gui.py:1111
 msgid "Search album on artist as well"
 msgstr ""
 
-#: pymethlab/gui.py:1096
+#: pymethlab/gui.py:1239
 msgid "Remove"
 msgstr ""
 
-#: pymethlab/gui.py:1235
+#: pymethlab/gui.py:1387
 #, python-format
 msgid "'%(query)s' in %(field)s field"
 msgstr ""
 
-#: pymethlab/gui.py:1237
+#: pymethlab/gui.py:1389
 #, python-format
 msgid "'%(query)s' in %(fields)s and %(last_field)s fields"
 msgstr ""
 
-#: pymethlab/gui.py:1245
+#: pymethlab/gui.py:1397
 msgid "Save search"
 msgstr ""
 
-#: pymethlab/gui.py:1251
+#: pymethlab/gui.py:1403
 msgid "Name of the search"
 msgstr ""
 
-#: pymethlab/gui.py:1286
+#: pymethlab/gui.py:1438
 msgid "Add directory"
 msgstr ""
 
-#: pymethlab/gui.py:1315
+#: pymethlab/gui.py:1467
 msgid "Directory"
 msgstr ""
 
-#: pymethlab/gui.py:1359
+#: pymethlab/gui.py:1511
 msgid "Copyright (C) 2007 Ingmar Steen."
 msgstr ""
 
-#: pymethlab/gui.py:1360
+#: pymethlab/gui.py:1512
 msgid "The bundled xmmsalike library is (C) 2006 Ben Wolfson and Risto A. Paju"
 msgstr ""
 
-#: pymethlab/gui.py:1361
+#: pymethlab/gui.py:1513
 msgid "The bundled mpdclient3 library is (C) 2006 Scott Horowitz"
 msgstr ""
 
-#: pymethlab/gui.py:1365
+#: pymethlab/gui.py:1517
 msgid "Ingmar Steen <iksteen@gmail.com> (Main developer)"
+msgstr ""
+
+#: pymethlab/querytranslator.py:63 pymethlab/querytranslator.py:80
+#: pymethlab/querytranslator.py:89 pymethlab/querytranslator.py:104
+#, python-format
+msgid "Unexpected symbol %(symbol)s"
+msgstr ""
+
+#: pymethlab/querytranslator.py:65 pymethlab/querytranslator.py:82
+#: pymethlab/querytranslator.py:91 pymethlab/querytranslator.py:106
+#, python-format
+msgid "Unexpected keyword %(keyword)s"
+msgstr ""
+
+#: pymethlab/querytranslator.py:68
+#, python-format
+msgid "Unsafe field %(field)s"
+msgstr ""
+
+#: pymethlab/querytranslator.py:84 pymethlab/querytranslator.py:108
+#, python-format
+msgid "Unexpected string %(string)s"
+msgstr ""
+
+#: pymethlab/querytranslator.py:111
+msgid "Unbalanced '(' character"
+msgstr ""
+
+#: pymethlab/querytranslator.py:113
+msgid "Unbalanced ')' character"
+msgstr ""
+
+#: pymethlab/querytranslator.py:140 pymethlab/querytranslator.py:155
+msgid "Unterminated string near end of query"
 msgstr ""

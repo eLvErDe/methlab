@@ -6,11 +6,11 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: MethLab 0.0.0\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-04-10 21:50+0200\n"
-"PO-Revision-Date: 2007-04-10 21:51+0100\n"
+"Report-Msgid-Bugs-To: iksteen@gmail.com\n"
+"POT-Creation-Date: 2007-11-05 21:02+0100\n"
+"PO-Revision-Date: 2007-11-05 21:25+0100\n"
 "Last-Translator: Ingmar Steen <iksteen@gmail.com>\n"
-"Language-Team: \n"
+"Language-Team: Dutch <iksteen@gmail.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -24,30 +24,35 @@ msgid "MethLab Music Library"
 msgstr "MethLab Muziek Bibliotheek"
 
 #: pymethlab/methlab.glade:31
-msgid "Search options"
-msgstr "Zoekopties"
+msgid "Search _options"
+msgstr "_Zoekopties"
 
-#: pymethlab/methlab.glade:64
+#: pymethlab/methlab.glade:66
 msgid "Sa_ved searches"
 msgstr "Opgeslagen zoek_opdrachten"
 
-#: pymethlab/methlab.glade:99
+#: pymethlab/methlab.glade:102
 msgid "Artists / Al_bums"
 msgstr "Artiesten / Alb_ums"
 
-#: pymethlab/methlab.glade:145
+#: pymethlab/methlab.glade:138
+#: pymethlab/gui.py:505
+msgid "_Directories"
+msgstr "_Mappen"
+
+#: pymethlab/methlab.glade:186
 msgid "Sea_rch:"
 msgstr "_Zoeken:"
 
-#: pymethlab/methlab.glade:227
+#: pymethlab/methlab.glade:269
 msgid "_Play"
 msgstr "_Afspelen"
 
-#: pymethlab/methlab.glade:237
+#: pymethlab/methlab.glade:280
 msgid "En_queue"
 msgstr "_Toevoegen"
 
-#: pymethlab/methlab.glade:250
+#: pymethlab/methlab.glade:294
 msgid "S_ave query"
 msgstr "Zoekopdracht o_pslaan"
 
@@ -71,26 +76,61 @@ msgstr "Fout: Kan de GTK+2 hulpbibliotheek niet laden."
 msgid "Error: Could not find PyGTK installed on your system."
 msgstr "Fout: PyGTK niet gevonden."
 
-#: methlab:82
+#: methlab:85
 msgid "Warning: GTK older than 2.10.0 detected. Certain user interface options will be disabled"
 msgstr "Waarschuwing: PyGTK ouder dan 2.10.0 gevonden. Bepaalde onderdelen van de gebruikersinterface zullen niet beschikbaar zijn."
 
-#: methlab:94
+#: methlab:97
 msgid "MethLab is already running. Bringing the window to the front."
 msgstr "MethLab is al gestart. Het hoofdscherm wordt naar de voorgrond gebracht."
 
-#: methlab:101
+#: methlab:104
 msgid "The python-dbus library was not found. Consider installing it."
 msgstr "De python-dbus hulpbibliotheek werd niet gevonden. Overweeg het te installeren."
+
+#: pymethlab/db.py:34
+msgid "Couldn't find pysqlite 2 or 3. Bailing out."
+msgstr "Kan pysqlite 2 of 3 niet vinden. Programma wordt afgesloten."
+
+#: pymethlab/db.py:90
+#: pymethlab/db.py:92
+#, python-format
+msgid "Error while executing query %(query)s"
+msgstr "Fout tijdens uitvoeren van opdracht %(query)s"
+
+#: pymethlab/db.py:127
+msgid "Note: Migrating database (rename path to dir in roots and dirs)."
+msgstr "Opmerking: Database wordt gemigreerd ('path' naar 'dir' hernoemen in 'roots' en 'dirs' tabellen)"
+
+#: pymethlab/db.py:133
+msgid "Note: Migrating database (adding directory mtime reference)."
+msgstr "Opmerking: Database wordt gemigreerd (toevoegen van mtime veld aan mappen)."
+
+#: pymethlab/db.py:170
+#: pymethlab/db.py:185
+#, python-format
+msgid "WARNING: could not insert directory '%(dir)s'"
+msgstr "WAARSCHUWING: Kon map '%(dir)s' niet toevoegen"
+
+#: pymethlab/db.py:208
+#, python-format
+msgid "Purging '%(dir)s' because of recursion..."
+msgstr "'%(dir)s' wordt verwijderd vanwege recursie..."
 
 #: pymethlab/db_sources/fs_source.py:26
 msgid "Filesystem"
 msgstr "Bestandssysteem"
 
-#: pymethlab/db_sources/fs_source.py:39
+#: pymethlab/db_sources/fs_source.py:40
 #, python-format
-msgid "Updating directory %s"
-msgstr "Bezig met verversen van %s"
+msgid "Updating directory %(dir)s"
+msgstr "Bezig met het verversen van de map %(dir)s"
+
+#: pymethlab/db_sources/fs_source.py:48
+#: pymethlab/db_sources/fs_source.py:86
+#, python-format
+msgid "WARNING: %(warning)s"
+msgstr "WAARSCHUWING: %(warning)s"
 
 #: pymethlab/db_sources/mpd_source.py:36
 #: pymethlab/drivers/mpd.py:24
@@ -100,6 +140,31 @@ msgstr "Music Player Daemon"
 #: pymethlab/db_sources/tagwrap.py:32
 msgid "unsupported or no tag"
 msgstr "niet ondersteunde of ontbrekend etiket"
+
+#: pymethlab/db_sources/tagwrap.py:66
+#, python-format
+msgid "Returning dummy tag for '%(path)s'..."
+msgstr "Er wordt een blanco etiket voor '%(path)s' gebruikt..."
+
+#: pymethlab/db_sources/tagwrap.py:91
+msgid "Using new (>= 0.91) TagPy as tag library"
+msgstr "Nieuwe (>= 0.91) versie van TagPy wordt als etiketten hulpbibliotheek gebruikt."
+
+#: pymethlab/db_sources/tagwrap.py:94
+msgid "Using old (< 0.91) TagPy as tag library"
+msgstr "Oude (< 0.91) versie van TagPy wordt als etiketten hulpbibliotheek gebruikt."
+
+#: pymethlab/db_sources/tagwrap.py:99
+msgid "Using mutagen as tag library"
+msgstr "Mutagen wordt als etiketten hulpbibliotheek gebruikt."
+
+#: pymethlab/db_sources/tagwrap.py:102
+msgid "WARNING: Using dummy tagger since no tag library was found"
+msgstr "WAARSCHUWING: Blanco etiketten zullen worden gebruikt omdat er geen andere etiketten hulpbibliotheek werd gevonden."
+
+#: pymethlab/drivers/audacious-dbus.py:30
+msgid "Audacious (using DBus)"
+msgstr "Audacious (met behulp van DBus)"
 
 #: pymethlab/drivers/dummy.py:24
 msgid "Dummy driver (doesn't do anything)"
@@ -134,7 +199,7 @@ msgstr "Audacious (met behulp van xmmsalike)"
 msgid "Beep Media Player (using xmmsalike)"
 msgstr "Beep Media Player (met behulp van xmmsalike)"
 
-#: pymethlab/gui.py:132
+#: pymethlab/gui.py:134
 msgid ""
 "The database source you have previously selected is not or no longer available.\n"
 "\n"
@@ -144,131 +209,127 @@ msgstr ""
 "\n"
 "De bestandssysteem database bron zal worden gebruikt."
 
-#: pymethlab/gui.py:150
+#: pymethlab/gui.py:156
 msgid "Path"
 msgstr "Pad"
 
-#: pymethlab/gui.py:151
+#: pymethlab/gui.py:157
 msgid "Artist"
 msgstr "Artiest"
 
-#: pymethlab/gui.py:152
+#: pymethlab/gui.py:158
 msgid "Album"
 msgstr "Album"
 
-#: pymethlab/gui.py:153
+#: pymethlab/gui.py:159
 msgid "#"
 msgstr "#"
 
-#: pymethlab/gui.py:153
+#: pymethlab/gui.py:159
 msgid "Track number"
 msgstr "Nummer"
 
-#: pymethlab/gui.py:154
+#: pymethlab/gui.py:160
 msgid "Title"
 msgstr "Titel"
 
-#: pymethlab/gui.py:154
+#: pymethlab/gui.py:160
 msgid "Track title"
 msgstr "Titel"
 
-#: pymethlab/gui.py:155
+#: pymethlab/gui.py:161
 msgid "Year"
 msgstr "Jaar"
 
-#: pymethlab/gui.py:156
+#: pymethlab/gui.py:162
 msgid "Genre"
 msgstr "Genre"
 
-#: pymethlab/gui.py:157
+#: pymethlab/gui.py:163
 msgid "Comment"
 msgstr "Opmerking"
 
-#: pymethlab/gui.py:395
+#: pymethlab/gui.py:409
 msgid "_File"
 msgstr "_Bestand"
 
-#: pymethlab/gui.py:400
+#: pymethlab/gui.py:414
 msgid "_Update library now"
 msgstr "_Bibliotheek nu verversen"
 
-#: pymethlab/gui.py:415
+#: pymethlab/gui.py:429
 msgid "_Settings"
 msgstr "_Instellingen"
 
-#: pymethlab/gui.py:421
+#: pymethlab/gui.py:435
 msgid "Double-_click in list"
 msgstr "Dubbel_klik in lijst"
 
-#: pymethlab/gui.py:426
+#: pymethlab/gui.py:440
 msgid "_Plays results"
 msgstr "_Speelt resultaten af"
 
-#: pymethlab/gui.py:432
+#: pymethlab/gui.py:446
 msgid "_Enqueues results"
 msgstr "_Voegt resultaten toe"
 
-#: pymethlab/gui.py:442
+#: pymethlab/gui.py:456
 msgid "Show status _icon"
 msgstr "Status_pictogram weergeven"
 
-#: pymethlab/gui.py:447
+#: pymethlab/gui.py:461
 msgid "Close to _tray"
 msgstr "Sluiten naar _taakbalk"
 
-#: pymethlab/gui.py:454
+#: pymethlab/gui.py:468
 msgid "Start _hidden"
 msgstr "_Verborgen opstarten"
 
-#: pymethlab/gui.py:461
+#: pymethlab/gui.py:475
 msgid "_Focus search box on show"
 msgstr "_Zoekbalk krijgt focus bij tonen venster"
 
-#: pymethlab/gui.py:476
+#: pymethlab/gui.py:490
 msgid "Database _source"
 msgstr "_Database bron"
 
-#: pymethlab/gui.py:491
-msgid "_Directories"
-msgstr "_Mappen"
-
-#: pymethlab/gui.py:497
+#: pymethlab/gui.py:511
 msgid "_Update library on startup"
 msgstr "_Bibliotheek bij opstarten verversen"
 
-#: pymethlab/gui.py:507
+#: pymethlab/gui.py:521
 msgid "_Audio player"
 msgstr "Muziek_speler"
 
-#: pymethlab/gui.py:524
+#: pymethlab/gui.py:538
 msgid "_Help"
 msgstr "_Help"
 
-#: pymethlab/gui.py:542
+#: pymethlab/gui.py:556
 msgid "Search by"
 msgstr "Zoeken op:"
 
-#: pymethlab/gui.py:559
-#: pymethlab/gui.py:1060
-#: pymethlab/gui.py:1100
+#: pymethlab/gui.py:573
+#: pymethlab/gui.py:1200
+#: pymethlab/gui.py:1243
 msgid "Play selected"
 msgstr "Selectie afspelen"
 
-#: pymethlab/gui.py:564
-#: pymethlab/gui.py:1063
-#: pymethlab/gui.py:1103
+#: pymethlab/gui.py:578
+#: pymethlab/gui.py:1203
+#: pymethlab/gui.py:1246
 msgid "Enqueue selected"
 msgstr "Selectie toevoegen"
 
-#: pymethlab/gui.py:576
+#: pymethlab/gui.py:590
 msgid "_Show MethLab"
 msgstr "_Toon MethLab"
 
-#: pymethlab/gui.py:581
+#: pymethlab/gui.py:595
 msgid "_Hide MethLab"
 msgstr "_Verberg MethLab"
 
-#: pymethlab/gui.py:614
+#: pymethlab/gui.py:648
 msgid ""
 "The audio player driver you have previously selected is not or no longer available.\n"
 "\n"
@@ -278,84 +339,142 @@ msgstr ""
 "\n"
 "Het blanco stuurprogramma zal worden gebruikt."
 
-#: pymethlab/gui.py:619
+#: pymethlab/gui.py:653
 #, python-format
 msgid ""
 "An error has occured while activating the selected driver.\n"
 "\n"
-"The error is: %s\n"
+"The error is: %(error)s\n"
 "\n"
 "Falling back to the dummy driver."
 msgstr ""
 "Er is een probleem opgetreden bij het activeren van het gekozen stuurprogramma.\n"
 "\n"
-"De fout is: %s\n"
+"De fout is: %(error)s\n"
 "\n"
 "Het blanco stuurprogramma zal worden gebruikt."
 
-#: pymethlab/gui.py:694
+#: pymethlab/gui.py:720
+#: pymethlab/gui.py:728
+#: pymethlab/gui.py:748
+msgid "untitled"
+msgstr "onbekend"
+
+#: pymethlab/gui.py:736
 msgid "Your search did not return any results."
 msgstr "Uw zoekopdracht heeft geen resultaten opgeleverd."
 
-#: pymethlab/gui.py:875
-msgid "Please wait..."
-msgstr "Een ogenblik geduld..."
+#: pymethlab/gui.py:750
+msgid "unknown"
+msgstr "onbekend"
 
-#: pymethlab/gui.py:880
-msgid "Please wait while MethLab updates the library..."
-msgstr "Een ogenblik geduld terwijl MethLab de bibiliotheek ververst..."
+#: pymethlab/gui.py:968
+#, python-format
+msgid "Library contains %(dirs)i directories and %(tracks)i tracks"
+msgstr "Bibliotheek bevat %(dirs)i mappen en %(tracks)i nummers"
 
-#: pymethlab/gui.py:989
+#: pymethlab/gui.py:983
+msgid "Already scanning..."
+msgstr "Bibliotheek wordt al ververst..."
+
+#: pymethlab/gui.py:985
+msgid "Please be patient while the library is being updated..."
+msgstr "Een ogenblik geduld aub terwijl de bibiliotheek wordt ververst..."
+
+#: pymethlab/gui.py:1106
 msgid "Collapsible artists"
 msgstr "Artiesten zijn inklapbaar"
 
-#: pymethlab/gui.py:994
+#: pymethlab/gui.py:1111
 msgid "Search album on artist as well"
 msgstr "Album ook op artiest zoeken"
 
-#: pymethlab/gui.py:1096
+#: pymethlab/gui.py:1239
 msgid "Remove"
 msgstr "Verwijder"
 
-#: pymethlab/gui.py:1235
+#: pymethlab/gui.py:1387
 #, python-format
 msgid "'%(query)s' in %(field)s field"
 msgstr "'%(query)s' in het %(field)s veld"
 
-#: pymethlab/gui.py:1237
+#: pymethlab/gui.py:1389
 #, python-format
 msgid "'%(query)s' in %(fields)s and %(last_field)s fields"
 msgstr "'%(query)s' in de %(fields)s en %(last_field)s velden"
 
-#: pymethlab/gui.py:1245
+#: pymethlab/gui.py:1397
 msgid "Save search"
 msgstr "Zoekopdracht opslaan"
 
-#: pymethlab/gui.py:1251
+#: pymethlab/gui.py:1403
 msgid "Name of the search"
 msgstr "Naam van de zoekopdracht"
 
-#: pymethlab/gui.py:1286
+#: pymethlab/gui.py:1438
 msgid "Add directory"
 msgstr "Map toevoegen"
 
-#: pymethlab/gui.py:1315
+#: pymethlab/gui.py:1467
 msgid "Directory"
 msgstr "Map"
 
-#: pymethlab/gui.py:1359
+#: pymethlab/gui.py:1511
 msgid "Copyright (C) 2007 Ingmar Steen."
 msgstr "Copyright (C) 2007 Ingmar Steen"
 
-#: pymethlab/gui.py:1360
+#: pymethlab/gui.py:1512
 msgid "The bundled xmmsalike library is (C) 2006 Ben Wolfson and Risto A. Paju"
 msgstr "De meegeleverde xmmsalike hulpbibliotheek is (C) 2006 Ben Wolfson en Risto A. Paju"
 
-#: pymethlab/gui.py:1361
+#: pymethlab/gui.py:1513
 msgid "The bundled mpdclient3 library is (C) 2006 Scott Horowitz"
 msgstr "De meegeleverde mpdclient3 hulpbibliotheek is (C) 2006 Scott Horowitz"
 
-#: pymethlab/gui.py:1365
+#: pymethlab/gui.py:1517
 msgid "Ingmar Steen <iksteen@gmail.com> (Main developer)"
 msgstr "Ingmar Steen <iksteen@gmail.com> (Hoofdontwikkelaar)"
+
+#: pymethlab/querytranslator.py:63
+#: pymethlab/querytranslator.py:80
+#: pymethlab/querytranslator.py:89
+#: pymethlab/querytranslator.py:104
+#, python-format
+msgid "Unexpected symbol %(symbol)s"
+msgstr "Onverwacht symbool %(symbol)s"
+
+#: pymethlab/querytranslator.py:65
+#: pymethlab/querytranslator.py:82
+#: pymethlab/querytranslator.py:91
+#: pymethlab/querytranslator.py:106
+#, python-format
+msgid "Unexpected keyword %(keyword)s"
+msgstr "Onverwacht sleutelwoord %(keyword)s"
+
+#: pymethlab/querytranslator.py:68
+#, python-format
+msgid "Unsafe field %(field)s"
+msgstr "Onveilig veld %(field)s aangetroffen"
+
+#: pymethlab/querytranslator.py:84
+#: pymethlab/querytranslator.py:108
+#, python-format
+msgid "Unexpected string %(string)s"
+msgstr "Onverwachte tekenreeks %(string)s"
+
+#: pymethlab/querytranslator.py:111
+msgid "Unbalanced '(' character"
+msgstr "Onverwacht '(' teken aangetroffen"
+
+#: pymethlab/querytranslator.py:113
+msgid "Unbalanced ')' character"
+msgstr "Onverwacht ')' teken aangetroffen"
+
+#: pymethlab/querytranslator.py:140
+#: pymethlab/querytranslator.py:155
+msgid "Unterminated string near end of query"
+msgstr "Onbeeindigde tekenreeks aan het eind van de zoekopdracht"
+
+#~ msgid "Please wait..."
+#~ msgstr "Een ogenblik geduld..."
 
