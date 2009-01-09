@@ -532,7 +532,14 @@ class MethLabWindow:
         item.set_active(True)
       item.connect('toggled', self.on_settings_driver_toggled, driver.name)
       self.drivermenu.append(item)
-
+    
+    # Settings -> Audio player -> Configure...
+    self.drivermenu.append(gtk.SeparatorMenuItem())
+    self.drivermenu_configure = gtk.MenuItem(_("Configure..."))
+    self.drivermenu_configure.set_sensitive(hasattr(self.ap_driver, 'configure'))
+    self.drivermenu_configure.connect('activate', self.on_configure_driver_activated)
+    self.drivermenu.append(self.drivermenu_configure)
+    
     # Create the Help menu
     self.helpmenu = gtk.Menu()
     helpmenu_item = gtk.MenuItem(_('_Help'))
@@ -1490,6 +1497,7 @@ class MethLabWindow:
   def on_settings_driver_toggled(self, menuitem, driver):
     if menuitem.get_active():
       self.set_driver(driver)
+      self.drivermenu_configure.set_sensitive(hasattr(self.ap_driver, 'configure'))
       self.set_config('options', 'driver', driver)
 
   def on_settings_db_source_toggled(self, menuitem, db_source_class):
@@ -1553,3 +1561,6 @@ class MethLabWindow:
     query = '@' + ' OR '.join(queries)
     self.entSearch.set_text(query)
     self.search()
+
+  def on_configure_driver_activated(self, menuitem):
+    self.ap_driver.configure()
