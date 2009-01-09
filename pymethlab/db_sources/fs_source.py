@@ -28,6 +28,65 @@ class FilesystemSource:
     self.db = db
     self.yield_func = yield_func
 
+  def configure(methlab):
+    import gtk
+    import gtk.glade
+    def on_add_directory(button, model):
+      dialog = gtk.FileChooserDialog \
+        (
+          _('Add directory'),
+          methlab.window,
+          gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER,
+          (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
+           gtk.STOCK_OK,     gtk.RESPONSE_ACCEPT)
+        )
+      if dialog.run() == gtk.RESPONSE_ACCEPT:
+        dir = dialog.get_current_folder()
+        iter = model.append(None)
+        model.set_value(iter, 0, dir)
+      dialog.destroy()
+
+    def on_remove_directory(button, treeview):
+      model, iter = treeview.get_selection().get_selected()
+      if iter is not None:
+        model.remove(iter)
+
+    changed = False
+
+    model = gtk.ListStore(str)
+    roots = [os.path.abspath(root[0]) for root in methlab.db.get_roots()]
+    for root in roots:
+      iter = model.append(None)
+      model.set_value(iter, 0, root)
+
+    gladefile = os.path.join(os.path.split(__file__)[0], 'dirdialog.glade')
+    wtree = gtk.glade.XML(gladefile)
+    dialog = wtree.get_widget('dialog')
+    treeview = wtree.get_widget('tvDirs')
+    treeview.append_column(gtk.TreeViewColumn(_('Directory'), gtk.CellRendererText(), text = 0))
+    treeview.set_model(model)
+    wtree.get_widget('btnAdd').connect('clicked', on_add_directory, model)
+    wtree.get_widget('btnRemove').connect('clicked', on_remove_directory, treeview)
+    wtree.get_widget('btnOk').connect('clicked', lambda w: dialog.response(gtk.RESPONSE_ACCEPT))
+    wtree.get_widget('btnCancel').connect('clicked', lambda w: dialog.response(gtk.RESPONSE_REJECT))
+    dialog.resize(300, 300)
+    if dialog.run() == gtk.RESPONSE_ACCEPT:
+      dirs = [row[0] for row in model]
+      for root in roots:
+        if not root in dirs:
+          methlab.db.delete_root(os.path.join(root, ''))
+          changed = True
+      for dir in dirs:
+        if not dir in roots:
+          methlab.db.add_root(dir)
+          changed = True
+
+    dialog.destroy()
+
+    if changed:
+      methlab.update_db()
+  configure = staticmethod(configure)
+
   def update(self):
     dirs = self.db.get_roots()
     for dir in dirs:

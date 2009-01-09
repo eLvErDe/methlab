@@ -500,13 +500,14 @@ class MethLabWindow:
       item.set_active(db_source_class == self.scanner.scanner_class)
       item.connect('toggled', self.on_settings_db_source_toggled, db_source_class)
       self.dbsourcemenu.append(item)
-
-    # Settings -> Directories
-    self.settingsmenu_directories = gtk.ImageMenuItem(_('_Directories'))
-    self.settingsmenu_directories.set_image(gtk.image_new_from_stock(gtk.STOCK_DIRECTORY, gtk.ICON_SIZE_MENU))
-    self.settingsmenu_directories.connect('activate', self.on_settings_directories)
-    self.settingsmenu.append(self.settingsmenu_directories)
-
+    
+    # Settings -> Database source -> Configure
+    self.dbsourcemenu.append(gtk.SeparatorMenuItem())
+    self.dbsourcemenu_configure = gtk.MenuItem(_("Configure..."))
+    self.dbsourcemenu_configure.set_sensitive(hasattr(self.scanner.scanner_class, 'configure'))
+    self.dbsourcemenu_configure.connect('activate', self.on_configure_scanner_activated)
+    self.dbsourcemenu.append(self.dbsourcemenu_configure)
+    
     # Settings -> Update on startup
     self.settingsmenu_update_on_startup = gtk.CheckMenuItem(_('_Update library on startup'))
     self.settingsmenu_update_on_startup.set_active(self.config.getboolean('options', 'update_on_startup'))
@@ -1438,62 +1439,6 @@ class MethLabWindow:
     if key == 'show_status_icon':
       self.status_icon.set_visible(active)
 
-  def on_settings_directories(self, menuitem):
-    def on_add_directory(button, model):
-      dialog = gtk.FileChooserDialog \
-        (
-          _('Add directory'),
-          self.window,
-          gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER,
-          (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
-           gtk.STOCK_OK,     gtk.RESPONSE_ACCEPT)
-        )
-      if dialog.run() == gtk.RESPONSE_ACCEPT:
-        dir = dialog.get_current_folder()
-        iter = model.append(None)
-        model.set_value(iter, 0, dir)
-      dialog.destroy()
-
-    def on_remove_directory(button, treeview):
-      model, iter = treeview.get_selection().get_selected()
-      if iter is not None:
-        model.remove(iter)
-
-    changed = False
-
-    model = gtk.ListStore(str)
-    roots = [os.path.abspath(root[0]) for root in self.db.get_roots()]
-    for root in roots:
-      iter = model.append(None)
-      model.set_value(iter, 0, root)
-
-    gladefile = os.path.join(os.path.split(__file__)[0], 'dirdialog.glade')
-    wtree = gtk.glade.XML(gladefile)
-    dialog = wtree.get_widget('dialog')
-    treeview = wtree.get_widget('tvDirs')
-    treeview.append_column(gtk.TreeViewColumn(_('Directory'), gtk.CellRendererText(), text = 0))
-    treeview.set_model(model)
-    wtree.get_widget('btnAdd').connect('clicked', on_add_directory, model)
-    wtree.get_widget('btnRemove').connect('clicked', on_remove_directory, treeview)
-    wtree.get_widget('btnOk').connect('clicked', lambda w: dialog.response(gtk.RESPONSE_ACCEPT))
-    wtree.get_widget('btnCancel').connect('clicked', lambda w: dialog.response(gtk.RESPONSE_REJECT))
-    dialog.resize(300, 300)
-    if dialog.run() == gtk.RESPONSE_ACCEPT:
-      dirs = [row[0] for row in model]
-      for root in roots:
-        if not root in dirs:
-          self.db.delete_root(os.path.join(root, ''))
-          changed = True
-      for dir in dirs:
-        if not dir in roots:
-          self.db.add_root(dir)
-          changed = True
-
-    dialog.destroy()
-
-    if changed:
-      self.update_db()
-
   def on_settings_driver_toggled(self, menuitem, driver):
     if menuitem.get_active():
       self.set_driver(driver)
@@ -1564,3 +1509,6 @@ class MethLabWindow:
 
   def on_configure_driver_activated(self, menuitem):
     self.ap_driver.configure()
+
+  def on_configure_scanner_activated(self, menuitem):
+    self.scanner.scanner_class.configure(self)
