@@ -22,11 +22,14 @@ from gettext import gettext as _
 class DummyDriver:
   name = "dummy"
   name_tr = _("Dummy driver (doesn't do anything)")
-  def __init__(self):
+  def __init__(self, methlab):
     pass
 
   def play_files(self, files):
     pass
 
   def enqueue_files(self, files):
+    pass
+
+  def configure(self):
     pass

@@ -23,7 +23,7 @@ class XmmsAlikeDriver:
   name = 'xmmsalike'
   name_tr = _('XMMS (using xmmsalike)')
   flavor = 'xmms'
-  def __init__(self):
+  def __init__(self, methlab):
     import xmmsalike
     xmmsalike.init(self.flavor)
     self.xmms = xmmsalike

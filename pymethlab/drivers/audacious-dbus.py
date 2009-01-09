@@ -28,7 +28,7 @@ import urllib
 class AudaciousDBusDriver:
   name = 'audacious-dbus'
   name_tr = _('Audacious (using DBus)')
-  def __init__(self):
+  def __init__(self, methlab):
     self.bus = Bus(Bus.TYPE_SESSION)
     self.audacious = self.bus.get_object('org.atheme.audacious', '/org/atheme/audacious')
 

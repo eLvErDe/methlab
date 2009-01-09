@@ -23,7 +23,7 @@ import urllib
 class Xmms2Driver:
   name = 'xmms2'
   name_tr = _('XMMS2 (using xmmsclient)')
-  def __init__(self):
+  def __init__(self, methlab):
     import xmmsclient
     self.xmms = xmmsclient.XMMSSync()
     self.xmms.connect()

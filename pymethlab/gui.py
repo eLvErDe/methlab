@@ -655,10 +655,10 @@ class MethLabWindow:
       self.error_dialog(_('The audio player driver you have previously selected is not or no longer available.\n\nFalling back to the dummy driver.'))
       driver = DummyDriver
     try:
-      self.ap_driver = driver()
+      self.ap_driver = driver(self)
     except Exception, e:
       self.error_dialog(_('An error has occured while activating the selected driver.\n\nThe error is: %(error)s\n\nFalling back to the dummy driver.') % { 'error': str(e.message) })
-      self.ap_driver = DummyDriver()
+      self.ap_driver = DummyDriver(self)
 
   def set_db_source(self, db_source):
     self.db.purge()
@@ -669,7 +669,7 @@ class MethLabWindow:
     if type(value) != str:
       value = `value`
     if not self.config.has_section(section):
-      self.config.add_section(option)
+      self.config.add_section(section)
     self.config.set(section, option, value)
     config_path = os.path.expanduser(self.CONFIG_PATH)
     config_dir = os.path.split(config_path)[0]

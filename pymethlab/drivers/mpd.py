@@ -22,7 +22,7 @@ from gettext import gettext as _
 class MpdDriver:
   name = 'mpd'
   name_tr = _('Music Player Daemon')
-  def __init__(self):
+  def __init__(self, methlab):
     import mpdclient3
     self.mpdclient = mpdclient3
 

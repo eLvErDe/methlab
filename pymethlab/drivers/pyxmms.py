@@ -22,7 +22,7 @@ from gettext import gettext as _
 class PyXmmsDriver:
   name = 'pyxmms'
   name_tr = _('XMMS (using PyXMMS)')
-  def __init__(self):
+  def __init__(self, methlab):
     import xmms.control
     self.xmms = xmms.control
 
