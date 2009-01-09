@@ -664,6 +664,8 @@ class MethLabWindow:
   def set_db_source(self, db_source):
     self.db.purge()
     self.scanner.set_scanner_class(db_source)
+    if hasattr(self.scanner.scanner_class, 'configure'):
+      self.scanner.scanner_class.configure(self)
     self.update_db()
 
   def set_config(self, section, option, value):
@@ -1448,6 +1450,7 @@ class MethLabWindow:
   def on_settings_db_source_toggled(self, menuitem, db_source_class):
     if menuitem.get_active():
       self.set_db_source(db_source_class)
+      self.dbsourcemenu_configure.set_sensitive(hasattr(self.scanner.scanner_class, 'configure'))
       self.set_config('options', 'db_source', db_source_class.name)
 
   def on_settings_update_on_startup_toggled(self, menuitem):
