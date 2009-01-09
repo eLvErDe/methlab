@@ -55,6 +55,7 @@ class MethLabWindow:
   CONFIG_PATH = os.path.join('~', '.methlab', 'config')
   # Generic options
   DEFAULT_DB_SOURCE = 'fs'
+  DEFAULT_DB_SOURCE_CONFIGURED = False
   DEFAULT_DRIVER = DummyDriver.name
   DEFAULT_UPDATE_ON_STARTUP = True
   DEFAULT_SEARCH_ON_ARTIST_AND_ALBUM = True
@@ -74,6 +75,7 @@ class MethLabWindow:
   DEFAULT_CONFIG = {
     'options': {
       'db_source': DEFAULT_DB_SOURCE,
+      'db_source_configured': `DEFAULT_DB_SOURCE_CONFIGURED`,
       'driver': DEFAULT_DRIVER,
       'update_on_startup': `DEFAULT_UPDATE_ON_STARTUP`,
       'search_on_artist_and_album': `DEFAULT_SEARCH_ON_ARTIST_AND_ALBUM`,
@@ -385,6 +387,11 @@ class MethLabWindow:
     # Show stats in the status bar
     self.stats_message_id = None
     self.update_stats()
+    
+    # Check if we need to do initial configuration of the DB source.
+    if not self.config.getboolean('options', 'db_source_configured'):
+      self.scanner.scanner_class.configure(self)
+      self.set_config('options', 'db_source_configured', True)
     
     # Start updating the library
     if need_purge or self.config.getboolean('options', 'update_on_startup'):
