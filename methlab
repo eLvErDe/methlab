@@ -105,7 +105,7 @@ if __name__ == '__main__':
 
   # Finally! Import the user interface and start it
   start_hidden = '--start-hidden' in sys.argv[1:]
-  from pymethlab.gui import MethLabWindow
+  from pymethlab.gtkgui.gui import MethLabWindow
   win = MethLabWindow(start_hidden = start_hidden)
   gtk.main()
   win.scanner.stop()

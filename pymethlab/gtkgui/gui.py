@@ -31,12 +31,12 @@ import gtk.glade
 import pango
 
 # MethLab imports
-from db import DBThread
-from querytranslator import QueryTranslatorException
-from drivers import DRIVERS, DummyDriver
-from db_sources import DB_SOURCES, FilesystemSource
-from updatehelper import UpdateHelper
-from db import sqlite
+from pymethlab.db import DBThread
+from pymethlab.querytranslator import QueryTranslatorException
+from pymethlab.drivers import DRIVERS, DummyDriver
+from pymethlab.db_sources import DB_SOURCES, FilesystemSource
+from pymethlab.updatehelper import UpdateHelper
+from pymethlab.db import sqlite
 try:
   from dbus_service import MethLabDBusService
 except ImportError:
@@ -102,7 +102,7 @@ class MethLabWindow:
     # Set up the window icon list
     self.icons = {}
     basedir = os.path.split(__file__)[0]
-    imagedir = os.path.join(basedir, 'images')
+    imagedir = os.path.join(basedir, '..', 'images')
     for width in 16, 24, 32, 48, 64:
       icon_name = 'logo_%ix%i.png' % (width, width)
       icon = gtk.gdk.pixbuf_new_from_file(os.path.join(imagedir, icon_name))
