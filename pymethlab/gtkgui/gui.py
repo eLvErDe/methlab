@@ -38,7 +38,7 @@ from pymethlab.db_sources import DB_SOURCES, FilesystemSource
 from pymethlab.updatehelper import UpdateHelper
 from pymethlab.db import sqlite
 try:
-  from dbus_service import MethLabDBusService
+  from pymethlab.dbus_service import MethLabDBusService
 except ImportError:
   MethLabDBusService = None
 
@@ -376,7 +376,7 @@ class MethLabWindow:
 
     # Create the DBUS service
     if MethLabDBusService:
-      self.dbus_service = MethLabDBusService(self)
+      self.dbus_service = MethLabDBusService(gtk.main_quit, self)
 
     # Finished initializing
     self.inhibit_search = 0
@@ -1048,6 +1048,12 @@ class MethLabWindow:
     if self.status_icon:
       self.window.hide()
 
+  def toggle_window(self):
+    if self.window.get_property('visible'):
+      self.hide_window()
+    else:
+      self.show_window()
+  
   def save_geometry(self):
     geometry = self.window.get_size() + self.window.get_position()
     self.set_config('interface', 'geometry', ' '.join([str(i) for i in geometry]))

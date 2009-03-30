@@ -16,16 +16,16 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import dbus.service
-import gtk
 
 class MethLabApplicationDBusProxy(dbus.service.Object):
-  def __init__(self, bus):
+  def __init__(self, bus, quit_function):
+    self.quit_function = quit_function
     dbus.service.Object.__init__(self, bus, '/org/thegraveyard/MethLab/Application')
 
   @dbus.service.method('org.thegraveyard.MethLab.Application',
                        in_signature='', out_signature='')
   def quit(self):
-    gtk.main_quit()
+    self.quit_function()
 
 class MethLabMainWindowDBusProxy(dbus.service.Object):
   def __init__(self, bus, window):
@@ -45,14 +45,11 @@ class MethLabMainWindowDBusProxy(dbus.service.Object):
   @dbus.service.method('org.thegraveyard.MethLab.MainWindow',
                        in_signature='', out_signature='')
   def toggle(self):
-    if self.window.window.get_property('visible'):
-      self.window.hide_window()
-    else:
-      self.window.show_window()
+    self.window.toggle_window()
 
 class MethLabDBusService:
-  def __init__(self, window):
+  def __init__(self, quit_function, window):
     session_bus = dbus.SessionBus()
     self.name = dbus.service.BusName('org.thegraveyard.MethLab', bus = session_bus)
-    self.app_proxy = MethLabApplicationDBusProxy(session_bus)
+    self.app_proxy = MethLabApplicationDBusProxy(session_bus, quit_function)
     self.main_window_proxy = MethLabMainWindowDBusProxy(session_bus, window)
