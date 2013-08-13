@@ -57,3 +57,6 @@ MethLab comes with two database sources. Each has its own dependencies:
        localhost:6600. If you can't make that work, you'll have to manually
        edit the pymethlab/drivers|db_sources/mpdclient3.py file (look at the
        end).
+
+
+http://methlab.le-vert.net
